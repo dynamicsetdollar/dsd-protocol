@@ -330,7 +330,7 @@ describe('PollState', function () {
                 await this.dao.set(1)
             })
 
-            it('is frozen', async function () {
+            it('is fluid', async function () {
                 expect(
                     await this.setters.statusOf(userAddress)
                 ).to.be.bignumber.equal(new BN(1))
@@ -342,10 +342,10 @@ describe('PollState', function () {
                 await this.dao.set(5)
             })
 
-            it('is frozen', async function () {
+            it('is fluid', async function () {
                 expect(
                     await this.setters.statusOf(userAddress)
-                ).to.be.bignumber.equal(new BN(0))
+                ).to.be.bignumber.equal(new BN(1))
             })
         })
     })

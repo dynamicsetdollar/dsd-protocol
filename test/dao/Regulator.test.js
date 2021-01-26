@@ -8,13 +8,18 @@ const MockSettableOracle = contract.fromArtifact('MockSettableOracle')
 const Dollar = contract.fromArtifact('Dollar')
 
 const POOL_REWARD_PERCENT = 40
+const TREASURE_REWARD_PERCENT = 3
 
 function lessPoolIncentive(baseAmount, newAmount) {
-    return new BN(baseAmount + newAmount - poolIncentive(newAmount))
+    return new BN(baseAmount + newAmount - poolIncentive(newAmount) - treasureIncentive(newAmount))
 }
 
 function poolIncentive(newAmount) {
     return new BN((newAmount * POOL_REWARD_PERCENT) / 100)
+}
+
+function treasureIncentive(newAmount) {
+    return new BN((newAmount * TREASURE_REWARD_PERCENT) / 100)
 }
 
 describe('Regulator', function () {
@@ -57,7 +62,7 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(115, 100, true)
-                        this.expectedReward = 30000
+                        this.expectedReward = 6000
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -145,7 +150,7 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(101, 100, true)
-                        this.expectedReward = 10000
+                        this.expectedReward = 400
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -242,10 +247,11 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(101, 100, true)
-                        this.expectedReward = 10000
-                        this.expectedRewardCoupons = 8000
+                        this.expectedReward = 600
+                        this.expectedRewardCoupons = 342
                         this.expectedRewardDAO = 0
-                        this.expectedRewardLP = 2000
+                        this.expectedRewardLP = 240
+                        this.expectedRewardTreasure = 18
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -262,16 +268,14 @@ describe('Regulator', function () {
                         ).to.be.bignumber.equal(
                             new BN(1000000).add(
                                 new BN(
-                                    this.expectedReward - this.expectedRewardLP
+                                    this.expectedReward - this.expectedRewardLP - this.expectedRewardTreasure
                                 )
                             )
                         )
                         expect(
                             await this.dollar.balanceOf(poolAddress)
                         ).to.be.bignumber.equal(new BN(this.expectedRewardLP))
-                        expect(
-                            await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)
-                        ).to.be.bignumber.equal(new BN(0))
+
                     })
 
                     it('updates totals', async function () {
@@ -317,11 +321,11 @@ describe('Regulator', function () {
                             new BN(this.expectedRewardCoupons)
                         )
                         expect(event.args.lessDebt).to.be.bignumber.equal(
-                            new BN(0)
+                            new BN(2000)
                         )
                         expect(event.args.newBonded).to.be.bignumber.equal(
                             new BN(
-                                this.expectedRewardLP + this.expectedRewardDAO
+                                this.expectedRewardLP + this.expectedRewardDAO + this.expectedRewardTreasure
                             )
                         )
                     })
@@ -349,8 +353,9 @@ describe('Regulator', function () {
             describe('on step', function () {
                 beforeEach(async function () {
                     await this.oracle.set(101, 100, true)
-                    this.expectedReward = 10000
-                    this.poolReward = 400
+                    this.expectedReward = 600
+                    this.poolReward = 240
+                    this.treasureReward = 18
 
                     this.result = await this.regulator.stepE()
                     this.txHash = this.result.tx
@@ -366,16 +371,14 @@ describe('Regulator', function () {
                         await this.dollar.balanceOf(this.regulator.address)
                     ).to.be.bignumber.equal(
                         lessPoolIncentive(
-                            1002000,
-                            this.expectedReward - 2000
-                        ).sub(new BN(this.poolReward))
+                            1000000,
+                            this.expectedReward
+                        )
                     )
                     expect(
                         await this.dollar.balanceOf(poolAddress)
                     ).to.be.bignumber.equal(
-                        new BN(this.poolReward).add(
-                            poolIncentive(this.expectedReward - 2000)
-                        )
+                        new BN(this.poolReward)
                     )
                 })
 
@@ -385,11 +388,8 @@ describe('Regulator', function () {
                     ).to.be.bignumber.equal(new BN(0))
                     expect(
                         await this.regulator.totalBonded()
-                    ).to.be.bignumber.equal(
-                        lessPoolIncentive(
-                            1000000,
-                            this.expectedReward - 2000
-                        ).sub(new BN(this.poolReward))
+                    ).to.be.bignumber.equal(new BN(1000000)
+
                     )
                     expect(
                         await this.regulator.totalDebt()
@@ -402,7 +402,7 @@ describe('Regulator', function () {
                     ).to.be.bignumber.equal(new BN(2000))
                     expect(
                         await this.regulator.totalRedeemable()
-                    ).to.be.bignumber.equal(new BN(2000))
+                    ).to.be.bignumber.equal(new BN(342))
                 })
 
                 it('emits SupplyIncrease event', async function () {
@@ -418,11 +418,11 @@ describe('Regulator', function () {
                         new BN(101).mul(new BN(10).pow(new BN(16)))
                     )
                     expect(event.args.newRedeemable).to.be.bignumber.equal(
-                        new BN(2000)
+                        new BN(342)
                     )
-                    expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0))
+                    expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000))
                     expect(event.args.newBonded).to.be.bignumber.equal(
-                        new BN(this.expectedReward - 2000)
+                        new BN(this.expectedReward - 342)
                     )
                 })
             })
@@ -448,10 +448,11 @@ describe('Regulator', function () {
             describe('on step', function () {
                 beforeEach(async function () {
                     await this.oracle.set(105, 100, true)
-                    this.expectedReward = 50000
-                    this.expectedRewardCoupons = 40000
+                    this.expectedReward = 3001
+                    this.expectedRewardCoupons = 1711
                     this.expectedRewardDAO = 0
-                    this.expectedRewardLP = 10000
+                    this.expectedRewardLP = 1200 // 40%
+                    this.expectedRewardTreasure = 90 // 3%
 
                     this.result = await this.regulator.stepE()
                     this.txHash = this.result.tx
@@ -466,16 +467,14 @@ describe('Regulator', function () {
                     expect(
                         await this.dollar.balanceOf(this.regulator.address)
                     ).to.be.bignumber.equal(
-                        new BN(1000000).add(
-                            new BN(this.expectedReward - this.expectedRewardLP)
+                        lessPoolIncentive(
+                            1000000,
+                            this.expectedReward
                         )
                     )
                     expect(
                         await this.dollar.balanceOf(poolAddress)
                     ).to.be.bignumber.equal(new BN(this.expectedRewardLP))
-                    expect(
-                        await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)
-                    ).to.be.bignumber.equal(new BN(0))
                 })
 
                 it('updates totals', async function () {
@@ -516,9 +515,9 @@ describe('Regulator', function () {
                     expect(event.args.newRedeemable).to.be.bignumber.equal(
                         new BN(this.expectedRewardCoupons)
                     )
-                    expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0))
+                    expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000))
                     expect(event.args.newBonded).to.be.bignumber.equal(
-                        new BN(this.expectedRewardLP + this.expectedRewardDAO)
+                        new BN(this.expectedRewardLP + this.expectedRewardDAO + this.expectedRewardTreasure)
                     )
                 })
             })
@@ -542,7 +541,7 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(85, 100, true)
-                        this.expectedDebt = 30000
+                        this.expectedDebt = 20000
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -618,7 +617,7 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(99, 100, true)
-                        this.expectedDebt = 10000
+                        this.expectedDebt = 2000
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -696,7 +695,7 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(99, 100, true)
-                        this.expectedDebt = 9000
+                        this.expectedDebt = 1800
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -777,7 +776,7 @@ describe('Regulator', function () {
                 describe('on step', function () {
                     beforeEach(async function () {
                         await this.oracle.set(95, 100, true)
-                        this.expectedDebt = 27000 // 3% not 5%
+                        this.expectedDebt = 9000
 
                         this.result = await this.regulator.stepE()
                         this.txHash = this.result.tx
@@ -792,9 +791,6 @@ describe('Regulator', function () {
                         ).to.be.bignumber.equal(new BN(1000000))
                         expect(
                             await this.dollar.balanceOf(poolAddress)
-                        ).to.be.bignumber.equal(new BN(0))
-                        expect(
-                            await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)
                         ).to.be.bignumber.equal(new BN(0))
                     })
 

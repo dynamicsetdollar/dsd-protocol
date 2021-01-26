@@ -8,7 +8,7 @@ const MockGovern = contract.fromArtifact('MockGovern')
 const MockImplA = contract.fromArtifact('MockImplA')
 const MockImplB = contract.fromArtifact('MockImplB')
 
-const VOTE_PERIOD = 9
+const VOTE_PERIOD = 36
 const EMERGENCY_COMMIT_PERIOD = 6
 
 const UNDECIDED = new BN(0)
@@ -438,11 +438,11 @@ describe('Govern', function () {
         beforeEach(async function () {
             await this.govern.incrementBalanceOfE(
                 userAddress,
-                INITIAL_STAKE_MULTIPLE.muln(2500)
+                INITIAL_STAKE_MULTIPLE.muln(2000)
             )
             await this.govern.incrementBalanceOfE(
                 userAddress2,
-                INITIAL_STAKE_MULTIPLE.muln(4000)
+                INITIAL_STAKE_MULTIPLE.muln(4500)
             )
             await this.govern.incrementBalanceOfE(
                 userAddress3,

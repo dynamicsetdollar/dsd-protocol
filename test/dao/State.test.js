@@ -5,9 +5,7 @@ const { expect } = require('chai')
 
 const MockState = contract.fromArtifact('MockState')
 
-const BOOTSTRAPPING_END_TIMESTAMP = 1600905600
-const EPOCH_START = 1602288000
-const EPOCH_OFFSET = 107
+const BOOTSTRAPPING_END_TIMESTAMP = 1607443162 // DEC/08/2020
 
 describe('State', function () {
     const [ownerAddress, userAddress, candidate] = accounts
@@ -613,7 +611,7 @@ describe('State', function () {
         describe('when called then advanced after lockup', function () {
             beforeEach('call', async function () {
                 await this.setters.unfreezeE(userAddress)
-                for (var i = 0; i < 15; i++) {
+                for (var i = 0; i < 36; i++) { // DAO unfreeze
                     await this.setters.incrementEpochE()
                 }
             })
@@ -730,9 +728,9 @@ describe('State', function () {
         })
 
         describe('before start', function () {
-            it('is 91', async function () {
+            it('is 151', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(91)
+                    new BN(151)
                 )
             })
         })
@@ -746,7 +744,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(92)
+                    new BN(163)
                 )
             })
         })
@@ -760,7 +758,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(101)
+                    new BN(271)
                 )
             })
         })
@@ -774,7 +772,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(105)
+                    new BN(319)
                 )
             })
         })
@@ -788,7 +786,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(105)
+                    new BN(331)
                 )
             })
         })
@@ -802,7 +800,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(106)
+                    new BN(331)
                 )
             })
         })
@@ -816,7 +814,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(107)
+                    new BN(335)
                 )
             })
         })
@@ -830,7 +828,7 @@ describe('State', function () {
 
             it('has advanced', async function () {
                 expect(await this.setters.epochTime()).to.be.bignumber.equal(
-                    new BN(116)
+                    new BN(371)
                 )
             })
         })
@@ -1008,13 +1006,13 @@ describe('State', function () {
             })
 
             it('is bootstrapping', async function () {
-                expect(await this.setters.bootstrappingAt(90)).to.be.equal(true)
+                expect(await this.setters.bootstrappingAt(150)).to.be.equal(true)
             })
         })
 
         describe('bootstrapped', function () {
             it('isnt bootstrapping', async function () {
-                expect(await this.setters.bootstrappingAt(91)).to.be.equal(
+                expect(await this.setters.bootstrappingAt(151)).to.be.equal(
                     false
                 )
             })

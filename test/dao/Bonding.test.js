@@ -1061,12 +1061,21 @@ describe('Bonding', function () {
         })
 
         describe('when deposit', function () {
-            it('reverts', async function () {
-                await expectRevert(
-                    this.bonding.deposit(1000, { from: userAddress }),
-                    'Permission: Not frozen'
-                )
+            it('allows for deposit when fluid (DIP-3 https://github.com/dynamicsetdollar/dsd-protocol/commit/f4e34eadc76cfd0442273ee8061ac2868269720b)', async function () {
+                // setup: extra tokens so user can deposit
+                await this.bonding.mintToE(userAddress, 500)
+                await this.dollar.approve(this.bonding.address, 500, {
+                    from: userAddress,
+                })
+
+                // action
+                this.bonding.deposit(500, { from: userAddress })
+
+                expect(
+                    await this.bonding.balanceOfStaged(userAddress)
+                ).to.be.bignumber.equal(new BN(1000)) // 500 + 500
             })
+
         })
 
         describe('when withdraw', function () {
@@ -1343,7 +1352,7 @@ describe('Bonding', function () {
             await this.bonding.unbondUnderlying(2000, { from: userAddress })
 
             await time.increase(86400)
-            for (var i = 0; i < 14; i++) {
+            for (var i = 0; i < 35; i++) {
                 await this.bonding.stepE({ from: userAddress })
             }
         })
@@ -1357,7 +1366,7 @@ describe('Bonding', function () {
 
             it('is correct epoch', async function () {
                 expect(await this.bonding.epoch()).to.be.bignumber.equal(
-                    new BN(17)
+                    new BN(38)
                 )
             })
         })
@@ -1368,6 +1377,9 @@ describe('Bonding', function () {
             })
 
             it('user is frozen', async function () {
+                const fluidUntil = await this.bonding.fluidUntil(userAddress)
+                expect(fluidUntil).to.be.bignumber.equal(new BN(39))
+
                 expect(
                     await this.bonding.statusOf(userAddress)
                 ).to.be.bignumber.equal(FROZEN)
@@ -1375,7 +1387,7 @@ describe('Bonding', function () {
 
             it('is correct epoch', async function () {
                 expect(await this.bonding.epoch()).to.be.bignumber.equal(
-                    new BN(18)
+                    new BN(39)
                 )
             })
 
