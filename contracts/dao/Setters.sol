@@ -74,6 +74,14 @@ contract Setters is State, Getters {
         _state.balance.redeemable = _state.balance.redeemable.sub(amount, reason);
     }
 
+    function incrementTotalCDSDBonded(uint256 amount) internal {
+        _state10.totalCDSDBonded = _state10.totalCDSDBonded.add(amount);
+    }
+
+    function decrementTotalCDSDBonded(uint256 amount) internal {
+        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount);
+    }
+
     /**
      * Account
      */
@@ -135,6 +143,26 @@ contract Setters is State, Getters {
     function decrementAllowanceCoupons(address owner, address spender, uint256 amount, string memory reason) internal {
         _state.accounts[owner].couponAllowances[spender] =
             _state.accounts[owner].couponAllowances[spender].sub(amount, reason);
+    }
+
+    function incrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
+        _state10.bondedCDSD[account] = _state10.bondedCDSD[account].add(amount);
+        incrementTotalCDSDBonded(amount);
+    }
+
+    function decrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
+        _state10.bondedCDSD[account] = _state10.bondedCDSD[account].sub(amount);
+        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount);
+    }
+
+    function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal {
+        uint256 cappedEarnableAmount = burnedDSDamount.add(burnedDSDamount.mul(Constants.getEarnableCap()).div(100));
+        _state10.earnableCDSD[account] = _state10.earnableCDSD[account].add(cappedEarnableAmount);
+    }
+
+    function incrementBalanceOfEarnedCDSD(address account, uint256 amount) internal {
+        _state10.earnedCDSD[account] = _state10.earnedCDSD[account].add(amount);
+        require(_state10.earnedCDSD[account] <= _state10.earnableCDSD[account], "cannot earn more than earnable rewards!");
     }
 
     /**

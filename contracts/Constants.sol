@@ -80,6 +80,9 @@ library Constants {
     address private constant PAIR_ADDRESS = address(0x66e33d2605c5fB25eBb7cd7528E7997b0afA55E8);
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
+    /* DIP-10 DAO */
+    uint256 private constant EARNABLE_CAP = 100; // % of capped earnable contraction rewards
+
     /**
      * Getters
      */
@@ -150,7 +153,7 @@ library Constants {
     function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: DEBT_RATIO_CAP});
     }
-    
+
     function getInitialCouponRedemptionPenalty() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: INITIAL_COUPON_REDEMPTION_PENALTY});
     }
@@ -205,5 +208,9 @@ library Constants {
 
     function getTreasuryAddress() internal pure returns (address) {
         return TREASURY_ADDRESS;
+    }
+
+    function getEarnableCap() internal pure returns (uint256) {
+        return EARNABLE_CAP;
     }
 }

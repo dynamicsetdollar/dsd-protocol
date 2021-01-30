@@ -99,6 +99,10 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
+    function totalCDSDBonded() public view returns (uint256) {
+        return _state10.totalCDSDBonded;
+    }
+
     /**
      * Account
      */
@@ -144,6 +148,18 @@ contract Getters is State {
 
     function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
+    }
+
+    function balanceOfBondedCDSD(address account) public view returns (uint256) {
+        return _state10.bondedCDSD[account];
+    }
+
+    function balanceOfEarnableCDSD(address account) public view returns (uint256) {
+        return _state10.earnableCDSD[account];
+    }
+
+    function balanceOfEarnedCDSD(address account) public view returns (uint256) {
+        return _state10.earnedCDSD[account];
     }
 
     /**

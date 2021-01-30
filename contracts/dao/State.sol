@@ -106,6 +106,14 @@ contract Storage {
         uint256 couponUnderlying;
         Decimal.D256 price;
     }
+
+    struct State10 {
+        mapping(address => uint256) bondedCDSD;
+        mapping(address => uint256) earnableCDSD;
+        mapping(address => uint256) earnedCDSD;
+        uint256 totalCDSDBonded;
+        IDollar cDSD;
+    }
 }
 
 contract State {
@@ -113,4 +121,7 @@ contract State {
 
     // DIP-13
     Storage.State13 _state13;
+
+    // DIP-10
+    Storage.State10 _state10;
 }
