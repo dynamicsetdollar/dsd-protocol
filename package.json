@@ -1,7 +1,7 @@
 {
   "name": "dsd-hardhat",
   "version": "1.0.0",
-  "description": "",
+  "description": "DSD protocol smart contracts",
   "main": "index.js",
   "author": "",
   "license": "ISC",

@@ -17,18 +17,19 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import './Setters.sol';
-import '../external/Require.sol';
+import "./Setters.sol";
+import "../external/Require.sol";
 
 contract Permission is Setters {
-    bytes32 private constant FILE = 'Permission';
+
+    bytes32 private constant FILE = "Permission";
 
     // Can modify account state
     modifier onlyFrozenOrFluid(address account) {
         Require.that(
             statusOf(account) != Account.Status.Locked,
             FILE,
-            'Not frozen or fluid'
+            "Not frozen or fluid"
         );
 
         _;
@@ -39,7 +40,7 @@ contract Permission is Setters {
         Require.that(
             statusOf(account) != Account.Status.Fluid,
             FILE,
-            'Not frozen or locked'
+            "Not frozen or locked"
         );
 
         _;
@@ -49,7 +50,7 @@ contract Permission is Setters {
         Require.that(
             !isInitialized(implementation()),
             FILE,
-            'Already initialized'
+            "Already initialized"
         );
 
         initialized(implementation());

@@ -17,12 +17,12 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '../dao/Setters.sol';
+import "../dao/Setters.sol";
 
 contract MockState is Setters {
     uint256 internal _blockTimestamp;
 
-    constructor() public {
+    constructor () public {
         _blockTimestamp = block.timestamp;
     }
 
@@ -34,9 +34,7 @@ contract MockState is Setters {
         super.incrementTotalBonded(amount);
     }
 
-    function decrementTotalBondedE(uint256 amount, string calldata reason)
-        external
-    {
+    function decrementTotalBondedE(uint256 amount, string calldata reason) external {
         super.decrementTotalBonded(amount, reason);
     }
 
@@ -44,9 +42,7 @@ contract MockState is Setters {
         super.incrementTotalDebt(amount);
     }
 
-    function decrementTotalDebtE(uint256 amount, string calldata reason)
-        external
-    {
+    function decrementTotalDebtE(uint256 amount, string calldata reason) external {
         super.decrementTotalDebt(amount, reason);
     }
 
@@ -54,9 +50,7 @@ contract MockState is Setters {
         super.incrementTotalRedeemable(amount);
     }
 
-    function decrementTotalRedeemableE(uint256 amount, string calldata reason)
-        external
-    {
+    function decrementTotalRedeemableE(uint256 amount, string calldata reason) external {
         super.decrementTotalRedeemable(amount, reason);
     }
 
@@ -68,42 +62,23 @@ contract MockState is Setters {
         super.incrementBalanceOf(account, amount);
     }
 
-    function decrementBalanceOfE(
-        address account,
-        uint256 amount,
-        string calldata reason
-    ) external {
+    function decrementBalanceOfE(address account, uint256 amount, string calldata reason) external {
         super.decrementBalanceOf(account, amount, reason);
     }
 
-    function incrementBalanceOfStagedE(address account, uint256 amount)
-        external
-    {
+    function incrementBalanceOfStagedE(address account, uint256 amount) external {
         super.incrementBalanceOfStaged(account, amount);
     }
 
-    function decrementBalanceOfStagedE(
-        address account,
-        uint256 amount,
-        string calldata reason
-    ) external {
+    function decrementBalanceOfStagedE(address account, uint256 amount, string calldata reason) external {
         super.decrementBalanceOfStaged(account, amount, reason);
     }
 
-    function incrementBalanceOfCouponsE(
-        address account,
-        uint256 epoch,
-        uint256 amount
-    ) external {
+    function incrementBalanceOfCouponsE(address account, uint256 epoch, uint256 amount) external {
         super.incrementBalanceOfCoupons(account, epoch, amount);
     }
 
-    function decrementBalanceOfCouponsE(
-        address account,
-        uint256 epoch,
-        uint256 amount,
-        string calldata reason
-    ) external {
+    function decrementBalanceOfCouponsE(address account, uint256 epoch, uint256 amount, string calldata reason) external {
         super.decrementBalanceOfCoupons(account, epoch, amount, reason);
     }
 
@@ -111,20 +86,11 @@ contract MockState is Setters {
         super.unfreeze(account);
     }
 
-    function updateAllowanceCouponsE(
-        address owner,
-        address spender,
-        uint256 amount
-    ) external {
+    function updateAllowanceCouponsE(address owner, address spender, uint256 amount) external {
         super.updateAllowanceCoupons(owner, spender, amount);
     }
 
-    function decrementAllowanceCouponsE(
-        address owner,
-        address spender,
-        uint256 amount,
-        string calldata reason
-    ) external {
+    function decrementAllowanceCouponsE(address owner, address spender, uint256 amount, string calldata reason) external {
         super.decrementAllowanceCoupons(owner, spender, amount, reason);
     }
 
@@ -145,14 +111,12 @@ contract MockState is Setters {
         super.snapshotTotalBonded();
     }
 
-    function initializeCouponsExpirationE(uint256 epoch, uint256 expiration)
-        external
-    {
+    function initializeCouponsExpirationE(uint256 epoch, uint256 expiration) external {
         super.initializeCouponsExpiration(epoch, expiration);
     }
 
     function eliminateOutstandingCouponsE(uint256 epoch) external {
-        super.eliminateOutstandingCoupons(epoch);
+       super.eliminateOutstandingCoupons(epoch);
     }
 
     /**
@@ -163,11 +127,7 @@ contract MockState is Setters {
         super.createCandidate(candidate, period);
     }
 
-    function recordVoteE(
-        address account,
-        address candidate,
-        Candidate.Vote vote
-    ) external {
+    function recordVoteE(address account, address candidate, Candidate.Vote vote) external {
         super.recordVote(account, candidate, vote);
     }
 
@@ -175,11 +135,7 @@ contract MockState is Setters {
         super.incrementApproveFor(candidate, amount);
     }
 
-    function decrementApproveForE(
-        address candidate,
-        uint256 amount,
-        string calldata reason
-    ) external {
+    function decrementApproveForE(address candidate, uint256 amount, string calldata reason) external {
         super.decrementApproveFor(candidate, amount, reason);
     }
 
@@ -187,11 +143,7 @@ contract MockState is Setters {
         super.incrementRejectFor(candidate, amount);
     }
 
-    function decrementRejectForE(
-        address candidate,
-        uint256 amount,
-        string calldata reason
-    ) external {
+    function decrementRejectForE(address candidate, uint256 amount, string calldata reason) external {
         super.decrementRejectFor(candidate, amount, reason);
     }
 

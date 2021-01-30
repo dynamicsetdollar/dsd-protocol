@@ -17,9 +17,9 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import './PoolState.sol';
-import '../Constants.sol';
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./PoolState.sol";
+import "../Constants.sol";
 
 contract PoolGetters is PoolState {
     using SafeMath for uint256;
@@ -95,10 +95,9 @@ contract PoolGetters is PoolState {
         }
 
         uint256 totalRewardedWithPhantom = totalRewarded().add(totalPhantom());
-        uint256 balanceOfRewardedWithPhantom =
-            totalRewardedWithPhantom.mul(balanceOfBonded(account)).div(
-                totalBonded
-            );
+        uint256 balanceOfRewardedWithPhantom = totalRewardedWithPhantom
+            .mul(balanceOfBonded(account))
+            .div(totalBonded);
 
         uint256 balanceOfPhantom = balanceOfPhantom(account);
         if (balanceOfRewardedWithPhantom > balanceOfPhantom) {
@@ -111,15 +110,10 @@ contract PoolGetters is PoolState {
         return _state.accounts[account].fluidUntil;
     }
 
-    function statusOf(address account)
-        public
-        view
-        returns (PoolAccount.Status)
-    {
-        return
-            epoch() >= _state.accounts[account].fluidUntil
-                ? PoolAccount.Status.Frozen
-                : PoolAccount.Status.Fluid;
+    function statusOf(address account) public view returns (PoolAccount.Status) {
+        return epoch() >= _state.accounts[account].fluidUntil ?
+            PoolAccount.Status.Frozen :
+            PoolAccount.Status.Fluid;
     }
 
     /**

@@ -17,13 +17,13 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '../dao/Regulator.sol';
-import '../oracle/IOracle.sol';
-import './MockComptroller.sol';
-import './MockState.sol';
+import "../dao/Regulator.sol";
+import "../oracle/IOracle.sol";
+import "./MockComptroller.sol";
+import "./MockState.sol";
 
 contract MockRegulator is MockComptroller, Regulator {
-    constructor(address oracle, address pool) public MockComptroller(pool) {
+    constructor (address oracle, address pool) MockComptroller(pool) public {
         _state.provider.oracle = IOracle(oracle);
     }
 

@@ -17,17 +17,17 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '../dao/Govern.sol';
-import './MockUpgradeable.sol';
-import './MockComptroller.sol';
+import "../dao/Govern.sol";
+import "./MockUpgradeable.sol";
+import "./MockComptroller.sol";
 
 contract MockGovern is Govern, MockComptroller {
     uint256 internal _epochTime;
 
-    constructor() public MockComptroller(address(0)) {}
+    constructor() MockComptroller(address(0)) public { }
 
     function initialize() public {
-        revert('Should not call');
+        revert("Should not call");
     }
 
     function upgradeToE(address newImplementation) external {

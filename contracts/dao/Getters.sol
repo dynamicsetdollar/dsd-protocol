@@ -17,27 +17,26 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import './State.sol';
-import '../Constants.sol';
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./State.sol";
+import "../Constants.sol";
 
 contract Getters is State {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
-    bytes32 private constant IMPLEMENTATION_SLOT =
-        0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
      * ERC20 Interface
      */
 
     function name() public view returns (string memory) {
-        return 'Dynamic Set Dollar Stake';
+        return "Dynamic Set Dollar Stake";
     }
 
     function symbol() public view returns (string memory) {
-        return 'DSDS';
+        return "DSDS";
     }
 
     function decimals() public view returns (uint8) {
@@ -52,11 +51,7 @@ contract Getters is State {
         return _state.balance.supply;
     }
 
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256)
-    {
+    function allowance(address owner, address spender) external view returns (uint256) {
         return 0;
     }
 
@@ -92,6 +87,10 @@ contract Getters is State {
         return _state.balance.redeemable;
     }
 
+    function totalCouponUnderlying() public view returns (uint256) {
+        return _state13.couponUnderlying;
+    }
+
     function totalCoupons() public view returns (uint256) {
         return _state.balance.coupons;
     }
@@ -116,15 +115,15 @@ contract Getters is State {
         return totalBonded().mul(balanceOf(account)).div(totalSupply);
     }
 
-    function balanceOfCoupons(address account, uint256 epoch)
-        public
-        view
-        returns (uint256)
-    {
+    function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
         if (outstandingCoupons(epoch) == 0) {
             return 0;
         }
         return _state.accounts[account].coupons[epoch];
+    }
+
+    function balanceOfCouponUnderlying(address account, uint256 epoch) public view returns (uint256) {
+        return _state13.couponUnderlyingByAccount[account][epoch];
     }
 
     function statusOf(address account) public view returns (Account.Status) {
@@ -132,10 +131,7 @@ contract Getters is State {
             return Account.Status.Locked;
         }
 
-        return
-            epoch() >= _state.accounts[account].fluidUntil
-                ? Account.Status.Frozen
-                : Account.Status.Fluid;
+        return epoch() >= _state.accounts[account].fluidUntil ? Account.Status.Frozen : Account.Status.Fluid;
     }
 
     function fluidUntil(address account) public view returns (uint256) {
@@ -146,11 +142,7 @@ contract Getters is State {
         return _state.accounts[account].lockedUntil;
     }
 
-    function allowanceCoupons(address owner, address spender)
-        public
-        view
-        returns (uint256)
-    {
+    function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
     }
 
@@ -168,15 +160,11 @@ contract Getters is State {
         return epochTimeWithStrategy(current);
     }
 
-    function epochTimeWithStrategy(Constants.EpochStrategy memory strategy)
-        private
-        view
-        returns (uint256)
-    {
-        return
-            blockTimestamp().sub(strategy.start).div(strategy.period).add(
-                strategy.offset
-            );
+    function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
+        return blockTimestamp()
+            .sub(strategy.start)
+            .div(strategy.period)
+            .add(strategy.offset);
     }
 
     // Overridable for testing
@@ -196,11 +184,7 @@ contract Getters is State {
         return _state.epochs[epoch].coupons.expiring.length;
     }
 
-    function expiringCouponsAtIndex(uint256 epoch, uint256 i)
-        public
-        view
-        returns (uint256)
-    {
+    function expiringCouponsAtIndex(uint256 epoch, uint256 i) public view returns (uint256) {
         return _state.epochs[epoch].coupons.expiring[i];
     }
 
@@ -216,11 +200,7 @@ contract Getters is State {
      * Governance
      */
 
-    function recordedVote(address account, address candidate)
-        public
-        view
-        returns (Candidate.Vote)
-    {
+    function recordedVote(address account, address candidate) public view returns (Candidate.Vote) {
         return _state.candidates[candidate].votes[account];
     }
 

@@ -17,27 +17,23 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import './Comptroller.sol';
-import '../external/Decimal.sol';
-import '../Constants.sol';
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./Comptroller.sol";
+import "../external/Decimal.sol";
+import "../Constants.sol";
 
 contract Regulator is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
-    event SupplyIncrease(
-        uint256 indexed epoch,
-        uint256 price,
-        uint256 newRedeemable,
-        uint256 lessDebt,
-        uint256 newBonded
-    );
+    event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 lessDebt, uint256 newBonded);
     event SupplyDecrease(uint256 indexed epoch, uint256 price, uint256 newDebt);
     event SupplyNeutral(uint256 indexed epoch);
 
     function step() internal {
         Decimal.D256 memory price = oracleCapture();
+
+        setPrice(price);
 
         if (price.greaterThan(Decimal.one())) {
             growSupply(price);
@@ -53,13 +49,7 @@ contract Regulator is Comptroller {
     }
 
     function shrinkSupply(Decimal.D256 memory price) private {
-        Decimal.D256 memory delta =
-            limit(
-                Decimal.one().sub(price).div(
-                    Constants.getNegativeSupplyChangeDivisor()
-                ),
-                price
-            );
+        Decimal.D256 memory delta = limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
         uint256 newDebt = delta.mul(totalNet()).asUint256();
         uint256 cappedNewDebt = increaseDebt(newDebt);
 
@@ -70,8 +60,7 @@ contract Regulator is Comptroller {
     function growSupply(Decimal.D256 memory price) private {
         uint256 lessDebt = resetDebt(Decimal.zero());
 
-        Decimal.D256 memory supplyChangeDivisor =
-            Constants.getSupplyChangeDivisor();
+        Decimal.D256 memory supplyChangeDivisor = Constants.getSupplyChangeDivisor();
 
         uint256 totalRedeemable = totalRedeemable();
         uint256 totalCoupons = totalCoupons();
@@ -79,32 +68,18 @@ contract Regulator is Comptroller {
             supplyChangeDivisor = Constants.getCouponSupplyChangeDivisor();
         }
 
-        Decimal.D256 memory delta =
-            limit(price.sub(Decimal.one()).div(supplyChangeDivisor), price);
+        Decimal.D256 memory delta = limit(price.sub(Decimal.one()).div(supplyChangeDivisor), price);
         uint256 newSupply = delta.mul(totalNet()).asUint256();
         (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
-        emit SupplyIncrease(
-            epoch(),
-            price.value,
-            newRedeemable,
-            lessDebt,
-            newBonded
-        );
+        emit SupplyIncrease(epoch(), price.value, newRedeemable, lessDebt, newBonded);
     }
 
-    function limit(Decimal.D256 memory delta, Decimal.D256 memory price)
-        private
-        view
-        returns (Decimal.D256 memory)
-    {
-        Decimal.D256 memory supplyChangeLimit =
-            Constants.getSupplyChangeLimit();
-
+    function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {
+        Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
+        
         uint256 totalRedeemable = totalRedeemable();
         uint256 totalCoupons = totalCoupons();
-        if (
-            price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)
-        ) {
+        if (price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)) {
             supplyChangeLimit = Constants.getCouponSupplyChangeLimit();
         }
 

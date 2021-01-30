@@ -18,8 +18,8 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/upgrades/contracts/utils/Address.sol';
-import './State.sol';
+import "@openzeppelin/upgrades/contracts/utils/Address.sol";
+import "./State.sol";
 
 /**
  * Based off of, and designed to interface with, openzeppelin/upgrades package
@@ -30,8 +30,7 @@ contract Upgradeable is State {
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
      * validated in the constructor.
      */
-    bytes32 private constant IMPLEMENTATION_SLOT =
-        0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
      * @dev Emitted when the implementation is upgraded.
@@ -48,10 +47,7 @@ contract Upgradeable is State {
     function upgradeTo(address newImplementation) internal {
         setImplementation(newImplementation);
 
-        (bool success, bytes memory reason) =
-            newImplementation.delegatecall(
-                abi.encodeWithSignature('initialize()')
-            );
+        (bool success, bytes memory reason) = newImplementation.delegatecall(abi.encodeWithSignature("initialize()"));
         require(success, string(reason));
 
         emit Upgraded(newImplementation);
@@ -62,10 +58,7 @@ contract Upgradeable is State {
      * @param newImplementation Address of the new implementation.
      */
     function setImplementation(address newImplementation) private {
-        require(
-            OpenZeppelinUpgradesAddress.isContract(newImplementation),
-            'Cannot set a proxy implementation to a non-contract address'
-        );
+        require(OpenZeppelinUpgradesAddress.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
 
         bytes32 slot = IMPLEMENTATION_SLOT;
 

@@ -84,7 +84,7 @@ describe('Market', function () {
                 ).to.be.bignumber.equal(new BN(900000))
                 expect(
                     await this.market.balanceOfCoupons(userAddress, 1)
-                ).to.be.bignumber.equal(new BN(103703))
+                ).to.be.bignumber.equal(new BN(103703 / 2)) // coupons have been divided by 2: half can expire, the other can be reclaimed
             })
 
             it('shows correct preimum', async function () {
@@ -93,7 +93,7 @@ describe('Market', function () {
                 ).to.be.bignumber.equal(new BN(900000))
                 expect(
                     await this.market.balanceOfCoupons(userAddress, 1)
-                ).to.be.bignumber.equal(new BN(103703))
+                ).to.be.bignumber.equal(new BN(103703 / 2)) // coupons have been divided by 2: half can expire the other can be reclaimed
             })
 
             it('updates dao balances', async function () {
@@ -101,7 +101,7 @@ describe('Market', function () {
                     await this.dollar.balanceOf(this.market.address)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(await this.market.totalCoupons()).to.be.bignumber.equal(
-                    new BN(103703)
+                    new BN(103703 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                 )
                 expect(await this.market.totalDebt()).to.be.bignumber.equal(
                     new BN(0)
@@ -126,7 +126,7 @@ describe('Market', function () {
                     new BN(100000)
                 )
                 expect(event.args.couponAmount).to.be.bignumber.equal(
-                    new BN(103703)
+                    new BN(103703 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                 )
             })
         })
@@ -147,7 +147,7 @@ describe('Market', function () {
                 ).to.be.bignumber.equal(new BN(900000))
                 expect(
                     await this.market.balanceOfCoupons(userAddress, 1)
-                ).to.be.bignumber.equal(new BN(103805))
+                ).to.be.bignumber.equal(new BN(103805 / 2)) // coupons have been divided by 2: half can expire the other can be reclaimed
             })
 
             it('updates dao balances', async function () {
@@ -155,7 +155,7 @@ describe('Market', function () {
                     await this.dollar.balanceOf(this.market.address)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(await this.market.totalCoupons()).to.be.bignumber.equal(
-                    new BN(103805)
+                    new BN(103805 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                 )
                 expect(await this.market.totalDebt()).to.be.bignumber.equal(
                     new BN(0)
@@ -180,7 +180,7 @@ describe('Market', function () {
                     new BN(50000)
                 )
                 expect(event.args.couponAmount).to.be.bignumber.equal(
-                    new BN(50925)
+                    new BN(50925 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                 )
             })
         })
@@ -486,7 +486,7 @@ describe('Market', function () {
                     userAddress,
                     ownerAddress,
                     1,
-                    100000,
+                    (100000 / 2),
                     { from: userAddress }
                 )
                 this.txHash = this.result.tx
@@ -495,10 +495,10 @@ describe('Market', function () {
             it('updates balances', async function () {
                 expect(
                     await this.market.balanceOfCoupons(userAddress, 1)
-                ).to.be.bignumber.equal(new BN(3703))
+                ).to.be.bignumber.equal(new BN(3703 / 2))
                 expect(
                     await this.market.balanceOfCoupons(ownerAddress, 1)
-                ).to.be.bignumber.equal(new BN(100000))
+                ).to.be.bignumber.equal(new BN(100000 / 2))
             })
 
             it('emits CouponTransfer event', async function () {
@@ -513,7 +513,7 @@ describe('Market', function () {
                 )
 
                 expect(event.args.epoch).to.be.bignumber.equal(new BN(1))
-                expect(event.args.value).to.be.bignumber.equal(new BN(100000))
+                expect(event.args.value).to.be.bignumber.equal(new BN(100000 / 2))
             })
         })
 
@@ -539,7 +539,7 @@ describe('Market', function () {
                         userAddress,
                         ownerAddress,
                         1,
-                        100000,
+                        (100000 / 2),
                         { from: ownerAddress }
                     ),
                     'Market: Insufficient coupon approval'
@@ -549,14 +549,14 @@ describe('Market', function () {
 
         describe('on approved call from other', function () {
             beforeEach(async function () {
-                await this.market.approveCoupons(ownerAddress, 100000, {
+                await this.market.approveCoupons(ownerAddress, 100000 / 2, {
                     from: userAddress,
                 })
                 this.result = await this.market.transferCoupons(
                     userAddress,
                     ownerAddress,
                     1,
-                    100000,
+                    (100000 / 2),
                     { from: ownerAddress }
                 )
                 this.txHash = this.result.tx
@@ -565,10 +565,10 @@ describe('Market', function () {
             it('updates balances', async function () {
                 expect(
                     await this.market.balanceOfCoupons(userAddress, 1)
-                ).to.be.bignumber.equal(new BN(3703))
+                ).to.be.bignumber.equal(new BN(3703 / 2))
                 expect(
                     await this.market.balanceOfCoupons(ownerAddress, 1)
-                ).to.be.bignumber.equal(new BN(100000))
+                ).to.be.bignumber.equal(new BN(100000 / 2))
             })
 
             it('updates approval', async function () {
@@ -592,7 +592,7 @@ describe('Market', function () {
                 )
 
                 expect(event.args.epoch).to.be.bignumber.equal(new BN(1))
-                expect(event.args.value).to.be.bignumber.equal(new BN(100000))
+                expect(event.args.value).to.be.bignumber.equal(new BN(100000 / 2))
             })
         })
 
@@ -605,7 +605,7 @@ describe('Market', function () {
                     userAddress,
                     ownerAddress,
                     1,
-                    100000,
+                    (100000 / 2),
                     { from: ownerAddress }
                 )
             })
@@ -669,7 +669,7 @@ describe('Market', function () {
 
                 expect(event.args.epoch).to.be.bignumber.equal(new BN(2))
                 expect(event.args.couponsExpired).to.be.bignumber.equal(
-                    new BN(103703)
+                    new BN(103703 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                 )
                 expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0))
                 expect(event.args.newBonded).to.be.bignumber.equal(new BN(0))
@@ -706,7 +706,7 @@ describe('Market', function () {
 
                 expect(event.args.epoch).to.be.bignumber.equal(new BN(2))
                 expect(event.args.couponsExpired).to.be.bignumber.equal(
-                    new BN(103703)
+                    new BN(103703 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                 )
                 expect(event.args.lessRedeemable).to.be.bignumber.equal(
                     new BN(100000)
@@ -755,7 +755,7 @@ describe('Market', function () {
 
                     expect(event.args.epoch).to.be.bignumber.equal(new BN(2))
                     expect(event.args.couponsExpired).to.be.bignumber.equal(
-                        new BN(103333)
+                        new BN(103333 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                     )
                     expect(event.args.lessRedeemable).to.be.bignumber.equal(
                         new BN(100000)
@@ -804,11 +804,11 @@ describe('Market', function () {
 
                     expect(event.args.epoch).to.be.bignumber.equal(new BN(2))
                     expect(event.args.couponsExpired).to.be.bignumber.equal(
-                        new BN(52583)
+                        new BN(52583 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                     )
                     expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0))
                     expect(event.args.newBonded).to.be.bignumber.equal(
-                        new BN(49167)
+                        new BN(74584)
                     )
                 })
             })
@@ -850,13 +850,13 @@ describe('Market', function () {
 
                     expect(event.args.epoch).to.be.bignumber.equal(new BN(2))
                     expect(event.args.couponsExpired).to.be.bignumber.equal(
-                        new BN(54662)
+                        new BN(54662 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                     )
                     expect(event.args.lessDebt).to.be.bignumber.equal(
                         new BN(0)
                     )
                     expect(event.args.newBonded).to.be.bignumber.equal(
-                        new BN(47277)
+                        new BN(73639)
                     )
                 })
             })
@@ -898,13 +898,13 @@ describe('Market', function () {
 
                     expect(event.args.epoch).to.be.bignumber.equal(new BN(2))
                     expect(event.args.couponsExpired).to.be.bignumber.equal(
-                        new BN(53377)
+                        new BN(53377 / 2) // coupons have been divided by 2: half can expire the other can be reclaimed
                     )
                     expect(event.args.lessDebt).to.be.bignumber.equal(
                         new BN(0)
                     )
                     expect(event.args.newBonded).to.be.bignumber.equal(
-                        new BN(48446)
+                        new BN(74223)
                     )
                 })
             })

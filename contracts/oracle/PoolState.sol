@@ -17,13 +17,17 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '../token/IDollar.sol';
-import './IDAO.sol';
-import './IUSDC.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../token/IDollar.sol";
+import "./IDAO.sol";
+import "./IUSDC.sol";
 
 contract PoolAccount {
-    enum Status {Frozen, Fluid, Locked}
+    enum Status {
+        Frozen,
+        Fluid,
+        Locked
+    }
 
     struct State {
         uint256 staged;
@@ -40,7 +44,7 @@ contract PoolStorage {
         IDollar dollar;
         IERC20 univ2;
     }
-
+    
     struct Balance {
         uint256 staged;
         uint256 claimable;
@@ -51,7 +55,9 @@ contract PoolStorage {
     struct State {
         Balance balance;
         Provider provider;
+
         bool paused;
+
         mapping(address => PoolAccount.State) accounts;
     }
 }

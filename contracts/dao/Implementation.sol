@@ -17,12 +17,12 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import './Market.sol';
-import './Regulator.sol';
-import './Bonding.sol';
-import './Govern.sol';
-import '../Constants.sol';
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./Market.sol";
+import "./Regulator.sol";
+import "./Bonding.sol";
+import "./Govern.sol";
+import "../Constants.sol";
 
 contract Implementation is State, Bonding, Market, Regulator, Govern {
     using SafeMath for uint256;
@@ -30,13 +30,12 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
     event Incentivization(address indexed account, uint256 amount);
 
-    function initialize() public initializer {
-        // initial funding for the treasury:
-        mintToAccount(Constants.getTreasuryAddress(), 2000000e18); // 2 million DSD
+    function initialize() initializer public {
         // committer reward:
         mintToAccount(msg.sender, 150e18); // 150 DSD to committer
         // contributor  rewards:
         mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 1000e18); // 1000 DSD to devnull
+        mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
     }
 
     function advance() external incentivized {

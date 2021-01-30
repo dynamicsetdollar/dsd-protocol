@@ -17,27 +17,22 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import '../external/UniswapV2Library.sol';
-import '../Constants.sol';
-import './PoolGetters.sol';
+import "../Constants.sol";
+import "./PoolGetters.sol";
 
 contract Liquidity is PoolGetters {
-    address private constant UNISWAP_FACTORY =
-        address(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
+    address private constant UNISWAP_FACTORY = address(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
 
-    function addLiquidity(uint256 dollarAmount)
-        internal
-        returns (uint256, uint256)
-    {
+    function addLiquidity(uint256 dollarAmount) internal returns (uint256, uint256) {
         (address dollar, address usdc) = (address(dollar()), usdc());
-        (uint256 reserveA, uint256 reserveB) = getReserves(dollar, usdc);
+        (uint reserveA, uint reserveB) = getReserves(dollar, usdc);
 
-        uint256 usdcAmount =
-            (reserveA == 0 && reserveB == 0)
-                ? dollarAmount
-                : UniswapV2Library.quote(dollarAmount, reserveA, reserveB);
+        uint256 usdcAmount = (reserveA == 0 && reserveB == 0) ?
+             dollarAmount :
+             UniswapV2Library.quote(dollarAmount, reserveA, reserveB);
 
         address pair = address(univ2());
         IERC20(dollar).transfer(pair, dollarAmount);
@@ -46,19 +41,9 @@ contract Liquidity is PoolGetters {
     }
 
     // overridable for testing
-    function getReserves(address tokenA, address tokenB)
-        internal
-        view
-        returns (uint256 reserveA, uint256 reserveB)
-    {
-        (address token0, ) = UniswapV2Library.sortTokens(tokenA, tokenB);
-        (uint256 reserve0, uint256 reserve1, ) =
-            IUniswapV2Pair(
-                UniswapV2Library.pairFor(UNISWAP_FACTORY, tokenA, tokenB)
-            )
-                .getReserves();
-        (reserveA, reserveB) = tokenA == token0
-            ? (reserve0, reserve1)
-            : (reserve1, reserve0);
+    function getReserves(address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
+        (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
+        (uint reserve0, uint reserve1,) = IUniswapV2Pair(UniswapV2Library.pairFor(UNISWAP_FACTORY, tokenA, tokenB)).getReserves();
+        (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 }

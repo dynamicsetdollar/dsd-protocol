@@ -17,9 +17,9 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '../dao/Comptroller.sol';
-import '../token/Dollar.sol';
-import './MockState.sol';
+import "../dao/Comptroller.sol";
+import "../token/Dollar.sol";
+import "./MockState.sol";
 
 contract MockComptroller is Comptroller, MockState {
     constructor(address pool) public {
@@ -35,8 +35,8 @@ contract MockComptroller is Comptroller, MockState {
         super.burnFromAccount(account, amount);
     }
 
-    function redeemToAccountE(address account, uint256 amount) external {
-        super.redeemToAccount(account, amount);
+    function redeemToAccountE(address account, uint256 amount, uint256 couponAmount) external {
+        super.redeemToAccount(account, amount, couponAmount);
     }
 
     function burnRedeemableE(uint256 amount) external {

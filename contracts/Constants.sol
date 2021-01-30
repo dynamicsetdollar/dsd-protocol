@@ -17,7 +17,7 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import './external/Decimal.sol';
+import "./external/Decimal.sol";
 
 library Constants {
     /* Chain */
@@ -28,8 +28,7 @@ library Constants {
     uint256 private constant BOOTSTRAPPING_PRICE = 154e16; // 1.54 USDC (targeting 4.5% inflation)
 
     /* Oracle */
-    address private constant USDC =
-        address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    address private constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     uint256 private constant ORACLE_RESERVE_MINIMUM = 1e10; // 10,000 USDC
 
     /* Bonding */
@@ -76,14 +75,10 @@ library Constants {
     uint256 private constant TREASURY_RATIO = 3; // 3%
 
     /* Deployed */
-    address private constant DAO_ADDRESS =
-        address(0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a);
-    address private constant DOLLAR_ADDRESS =
-        address(0xBD2F0Cd039E0BFcf88901C98c0bFAc5ab27566e3);
-    address private constant PAIR_ADDRESS =
-        address(0x66e33d2605c5fB25eBb7cd7528E7997b0afA55E8);
-    address private constant TREASURY_ADDRESS =
-        address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
+    address private constant DAO_ADDRESS = address(0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a);
+    address private constant DOLLAR_ADDRESS = address(0xBD2F0Cd039E0BFcf88901C98c0bFAc5ab27566e3);
+    address private constant PAIR_ADDRESS = address(0x66e33d2605c5fB25eBb7cd7528E7997b0afA55E8);
+    address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
     /**
      * Getters
@@ -97,12 +92,11 @@ library Constants {
     }
 
     function getEpochStrategy() internal pure returns (EpochStrategy memory) {
-        return
-            EpochStrategy({
-                offset: EPOCH_OFFSET,
-                start: EPOCH_START,
-                period: EPOCH_PERIOD
-            });
+        return EpochStrategy({
+            offset: EPOCH_OFFSET,
+            start: EPOCH_START,
+            period: EPOCH_PERIOD
+        });
     }
 
     function getInitialStakeMultiple() internal pure returns (uint256) {
@@ -113,11 +107,7 @@ library Constants {
         return BOOTSTRAPPING_PERIOD;
     }
 
-    function getBootstrappingPrice()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getBootstrappingPrice() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: BOOTSTRAPPING_PRICE});
     }
 
@@ -129,19 +119,11 @@ library Constants {
         return Decimal.D256({value: GOVERNANCE_QUORUM});
     }
 
-    function getGovernanceProposalThreshold()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getGovernanceProposalThreshold() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: GOVERNANCE_PROPOSAL_THRESHOLD});
     }
 
-    function getGovernanceSuperMajority()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getGovernanceSuperMajority() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: GOVERNANCE_SUPER_MAJORITY});
     }
 
@@ -168,12 +150,8 @@ library Constants {
     function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: DEBT_RATIO_CAP});
     }
-
-    function getInitialCouponRedemptionPenalty()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    
+    function getInitialCouponRedemptionPenalty() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: INITIAL_COUPON_REDEMPTION_PENALTY});
     }
 
@@ -181,43 +159,23 @@ library Constants {
         return COUPON_REDEMPTION_PENALTY_DECAY;
     }
 
-    function getSupplyChangeLimit()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
     }
 
-    function getSupplyChangeDivisor()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: SUPPLY_CHANGE_DIVISOR});
     }
 
-    function getCouponSupplyChangeLimit()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: COUPON_SUPPLY_CHANGE_LIMIT});
     }
 
-    function getCouponSupplyChangeDivisor()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getCouponSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: COUPON_SUPPLY_CHANGE_DIVISOR});
     }
 
-    function getNegativeSupplyChangeDivisor()
-        internal
-        pure
-        returns (Decimal.D256 memory)
-    {
+    function getNegativeSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: NEGATIVE_SUPPLY_CHANGE_DIVISOR});
     }
 

@@ -17,14 +17,18 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import './Setters.sol';
-import '../external/Require.sol';
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./Setters.sol";
+import "../external/Require.sol";
 
 contract Comptroller is Setters {
     using SafeMath for uint256;
 
-    bytes32 private constant FILE = 'Comptroller';
+    bytes32 private constant FILE = "Comptroller";
+
+    function setPrice(Decimal.D256 memory price) internal {
+        _state13.price = price;
+    }
 
     function mintToAccount(address account, uint256 amount) internal {
         dollar().mint(account, amount);
@@ -38,27 +42,25 @@ contract Comptroller is Setters {
     function burnFromAccount(address account, uint256 amount) internal {
         dollar().transferFrom(account, address(this), amount);
         dollar().burn(amount);
-        decrementTotalDebt(amount, 'Comptroller: not enough outstanding debt');
+        decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
 
         balanceCheck();
     }
 
-    function redeemToAccount(address account, uint256 amount) internal {
-        dollar().transfer(account, amount);
-        decrementTotalRedeemable(
-            amount,
-            'Comptroller: not enough redeemable balance'
-        );
+    function redeemToAccount(address account, uint256 amount, uint256 couponAmount) internal {
+        dollar().mint(account, amount);
+
+        if (couponAmount != 0) {
+            dollar().transfer(account, couponAmount);
+            decrementTotalRedeemable(couponAmount, "Comptroller: not enough redeemable balance");
+        }
 
         balanceCheck();
     }
 
     function burnRedeemable(uint256 amount) internal {
         dollar().burn(amount);
-        decrementTotalRedeemable(
-            amount,
-            'Comptroller: not enough redeemable balance'
-        );
+        decrementTotalRedeemable(amount, "Comptroller: not enough redeemable balance");
 
         balanceCheck();
     }
@@ -73,23 +75,18 @@ contract Comptroller is Setters {
     }
 
     function decreaseDebt(uint256 amount) internal {
-        decrementTotalDebt(amount, 'Comptroller: not enough debt');
+        decrementTotalDebt(amount, "Comptroller: not enough debt");
 
         balanceCheck();
     }
 
-    function increaseSupply(uint256 newSupply)
-        internal
-        returns (uint256, uint256)
-    {
+    function increaseSupply(uint256 newSupply) internal returns (uint256, uint256) {
         // 0-a. Pay out to Pool
-        uint256 poolReward =
-            newSupply.mul(Constants.getOraclePoolRatio()).div(100);
+        uint256 poolReward = newSupply.mul(Constants.getOraclePoolRatio()).div(100);
         mintToPool(poolReward);
 
         // 0-b. Pay out to Treasury
-        uint256 treasuryReward =
-            newSupply.mul(Constants.getTreasuryRatio()).div(100);
+        uint256 treasuryReward = newSupply.mul(Constants.getTreasuryRatio()).div(100);
         mintToTreasury(treasuryReward);
 
         uint256 rewards = poolReward.add(treasuryReward);
@@ -101,9 +98,7 @@ contract Comptroller is Setters {
         uint256 totalCoupons = totalCoupons();
         if (totalRedeemable < totalCoupons) {
             newRedeemable = totalCoupons.sub(totalRedeemable);
-            newRedeemable = newRedeemable > newSupply
-                ? newSupply
-                : newRedeemable;
+            newRedeemable = newRedeemable > newSupply ? newSupply : newRedeemable;
             mintToRedeemable(newRedeemable);
             newSupply = newSupply.sub(newRedeemable);
         }
@@ -121,12 +116,8 @@ contract Comptroller is Setters {
         return (newRedeemable, newSupply.add(rewards));
     }
 
-    function resetDebt(Decimal.D256 memory targetDebtRatio)
-        internal
-        returns (uint256)
-    {
-        uint256 targetDebt =
-            targetDebtRatio.mul(dollar().totalSupply()).asUint256();
+    function resetDebt(Decimal.D256 memory targetDebtRatio) internal returns (uint256) {
+        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply()).asUint256();
         uint256 currentDebt = totalDebt();
 
         if (currentDebt > targetDebt) {
@@ -141,10 +132,9 @@ contract Comptroller is Setters {
 
     function balanceCheck() private {
         Require.that(
-            dollar().balanceOf(address(this)) >=
-                totalBonded().add(totalStaged()).add(totalRedeemable()),
+            dollar().balanceOf(address(this)) >= totalBonded().add(totalStaged()).add(totalRedeemable()),
             FILE,
-            'Inconsistent balances'
+            "Inconsistent balances"
         );
     }
 

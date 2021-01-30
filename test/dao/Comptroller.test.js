@@ -253,20 +253,21 @@ describe('Comptroller', function () {
             beforeEach(async function () {
                 await this.comptroller.redeemToAccountE(
                     userAddress,
-                    new BN(100)
+                    new BN(100),
+                    new BN(100),
                 )
             })
 
             it('doesnt mint new Dollar tokens', async function () {
                 expect(await this.dollar.totalSupply()).to.be.bignumber.equal(
-                    new BN(300)
+                    new BN(400)
                 )
                 expect(
                     await this.dollar.balanceOf(this.comptroller.address)
                 ).to.be.bignumber.equal(new BN(200))
                 expect(
                     await this.dollar.balanceOf(userAddress)
-                ).to.be.bignumber.equal(new BN(100))
+                ).to.be.bignumber.equal(new BN(200))
             })
 
             it('updates total redeemable', async function () {
@@ -280,24 +281,26 @@ describe('Comptroller', function () {
             beforeEach(async function () {
                 await this.comptroller.redeemToAccountE(
                     userAddress,
-                    new BN(100)
+                    new BN(100),
+                    new BN(100),
                 )
                 await this.comptroller.redeemToAccountE(
                     userAddress,
+                    new BN(200),
                     new BN(200)
                 )
             })
 
             it('doesnt mint new Dollar tokens', async function () {
                 expect(await this.dollar.totalSupply()).to.be.bignumber.equal(
-                    new BN(300)
+                    new BN(600)
                 )
                 expect(
                     await this.dollar.balanceOf(this.comptroller.address)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(
                     await this.dollar.balanceOf(userAddress)
-                ).to.be.bignumber.equal(new BN(300))
+                ).to.be.bignumber.equal(new BN(600))
             })
 
             it('updates total redeemable', async function () {
@@ -324,7 +327,7 @@ describe('Comptroller', function () {
 
             it('reverts', async function () {
                 await expectRevert(
-                    this.comptroller.redeemToAccountE(userAddress, new BN(400)),
+                    this.comptroller.redeemToAccountE(userAddress, new BN(400), new BN(400)),
                     'not enough redeemable'
                 )
             })

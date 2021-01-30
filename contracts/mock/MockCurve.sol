@@ -17,10 +17,10 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '../dao/Curve.sol';
+import "../dao/Curve.sol";
 
 contract MockCurve is Curve {
-    constructor() public {}
+    constructor () public { }
 
     function calculateCouponsE(
         uint256 totalSupply,

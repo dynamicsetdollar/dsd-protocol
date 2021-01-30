@@ -17,11 +17,11 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '../dao/Upgradeable.sol';
-import '../dao/Permission.sol';
+import "../dao/Upgradeable.sol";
+import "../dao/Permission.sol";
 
 contract MockImplB is Upgradeable, Permission {
-    constructor() public {}
+    constructor () public { }
 
     event MockInitializedB();
 

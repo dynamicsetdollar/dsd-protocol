@@ -20,9 +20,6 @@ const copyJsonFilesToNewDir = (files, path) => {
                     `build/contracts/${file}`,
                     (err) => {
                         if (err) throw err
-                        // console.log(
-                        //     `${file} was copied to build/contracts/${file}`
-                        // )
                     }
                 )
             }
