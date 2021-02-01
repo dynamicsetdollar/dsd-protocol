@@ -78,8 +78,8 @@ contract Setters is State, Getters {
         _state10.totalCDSDBonded = _state10.totalCDSDBonded.add(amount);
     }
 
-    function decrementTotalCDSDBonded(uint256 amount) internal {
-        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount);
+    function decrementTotalCDSDBonded(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount, reason);
     }
 
     /**
@@ -150,9 +150,9 @@ contract Setters is State, Getters {
         incrementTotalCDSDBonded(amount);
     }
 
-    function decrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
-        _state10.bondedCDSD[account] = _state10.bondedCDSD[account].sub(amount);
-        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount);
+    function decrementBalanceOfBondedCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.bondedCDSD[account] = _state10.bondedCDSD[account].sub(amount, reason);
+        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount, reason);
     }
 
     function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal {

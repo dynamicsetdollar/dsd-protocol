@@ -54,6 +54,14 @@ contract MockState is Setters {
         super.decrementTotalRedeemable(amount, reason);
     }
 
+    function incrementTotalCDSDBondedE(uint256 amount) external {
+        super.incrementTotalCDSDBonded(amount);
+    }
+
+    function decrementTotalCDSDBondedE(uint256 amount, string calldata reason) external {
+        super.decrementTotalCDSDBonded(amount, reason);
+    }
+
     /**
      * Account
      */
@@ -92,6 +100,14 @@ contract MockState is Setters {
 
     function decrementAllowanceCouponsE(address owner, address spender, uint256 amount, string calldata reason) external {
         super.decrementAllowanceCoupons(owner, spender, amount, reason);
+    }
+    
+    function incrementBalanceOfBondedCDSDE(address account, uint256 amount) external {
+        super.incrementBalanceOfBondedCDSD(account, amount);
+    }
+
+    function decrementBalanceOfBondedCDSDE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfBondedCDSD(account, amount, reason);
     }
 
     /**

@@ -271,6 +271,60 @@ describe('State', function () {
         })
     })
 
+    // DIP-10
+    describe.only('incrementTotalCDSDBonded', function () {
+        describe('when called', function () {
+            beforeEach('call', async function () {
+                await this.setters.incrementTotalCDSDBondedE(100)
+                await this.setters.incrementTotalCDSDBondedE(100)
+            })
+
+            it('increments total cDSD bonded', async function () {
+                expect(await this.setters.totalCDSDBonded()).to.be.bignumber.equal(
+                    new BN(200)
+                )
+            })
+        })
+    })
+
+    describe.only('decrementTotalCDSDBonded', function () {
+        describe('when called', function () {
+            beforeEach('call', async function () {
+                await this.setters.incrementTotalCDSDBondedE(500)
+                await this.setters.decrementTotalCDSDBondedE(
+                    100,
+                    'decrementTotalCDSDBondedE - 1'
+                )
+                await this.setters.decrementTotalCDSDBondedE(
+                    100,
+                    'decrementTotalCDSDBondedE - 2'
+                )
+            })
+
+            it('decrements total bonded cDSD', async function () {
+                expect(await this.setters.totalCDSDBonded()).to.be.bignumber.equal(
+                    new BN(300)
+                )
+            })
+        })
+
+        describe('when called erroneously', function () {
+            beforeEach('call', async function () {
+                await this.setters.incrementTotalCDSDBondedE(100)
+            })
+
+            it('reverts', async function () {
+                await expectRevert(
+                    this.setters.decrementTotalCDSDBondedE(
+                        200,
+                        'decrementTotalCDSDBondedE'
+                    ),
+                    'decrementTotalCDSDBondedE'
+                )
+            })
+        })
+    })
+
     /**
      * Account
      */
@@ -713,6 +767,74 @@ describe('State', function () {
                         'decrementAllowanceCouponsE'
                     ),
                     'decrementAllowanceCouponsE'
+                )
+            })
+        })
+    })
+
+    // DIP-10
+    describe.only('incrementBalanceOfBondedCDSD', function () {
+        describe('when called', function () {
+            beforeEach('call', async function () {
+                await this.setters.incrementBalanceOfBondedCDSDE(userAddress, 100)
+                await this.setters.incrementBalanceOfBondedCDSDE(userAddress, 100)
+            })
+
+            it('increments balance of bonded cDSD for user', async function () {
+                expect(
+                    await this.setters.balanceOfBondedCDSD(userAddress)
+                ).to.be.bignumber.equal(new BN(200))
+            })
+
+            it('increments total bonded cDSD', async function () {
+                expect(await this.setters.totalCDSDBonded()).to.be.bignumber.equal(
+                    new BN(200)
+                )
+            })
+        })
+    })
+
+    describe.only('decrementBalanceOfBondedCDSD', function () {
+        describe('when called', function () {
+            beforeEach('call', async function () {
+                await this.setters.incrementBalanceOfBondedCDSDE(userAddress, 500)
+                await this.setters.decrementBalanceOfBondedCDSDE(
+                    userAddress,
+                    100,
+                    'decrementBalanceOfBondedCDSDE - 1'
+                )
+                await this.setters.decrementBalanceOfBondedCDSDE(
+                    userAddress,
+                    100,
+                    'decrementBalanceOfBondedCDSDE - 2'
+                )
+            })
+
+            it('decrements balance of bonded cDSD for user', async function () {
+                expect(
+                    await this.setters.balanceOfBondedCDSD(userAddress)
+                ).to.be.bignumber.equal(new BN(300))
+            })
+
+            it('decrements total bonded cDSD', async function () {
+                expect(await this.setters.totalCDSDBonded()).to.be.bignumber.equal(
+                    new BN(300)
+                )
+            })
+        })
+
+        describe('when called erroneously', function () {
+            beforeEach('call', async function () {
+                await this.setters.incrementBalanceOfBondedCDSDE(userAddress, 100)
+            })
+
+            it('reverts', async function () {
+                await expectRevert(
+                    this.setters.decrementBalanceOfBondedCDSDE(
+                        200,
+                        'decrementBalanceOfBondedCDSDE'
+                    ),
+                    'decrementBalanceOfBondedCDSDE'
                 )
             })
         })

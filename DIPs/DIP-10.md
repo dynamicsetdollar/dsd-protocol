@@ -11,7 +11,7 @@ In any state:
 When the protocol is in contraction:
 
 - Bonded cDSD receive 95% of contraction rewards (former debt) per epoch
-  ..\* As a user with bonded cDSD, I am only up to receive up to 100% of the value of the DSD that I burned for cDSD
+  ..\* As a user with bonded cDSD, I am only up to receive up to 100% of cDSD that I have bonded to the DAO
 - Bonded DSD receives 5% of contraction rewards per epoch (capped at 0.006% > 20% APY)
 - As a user I am not able to buy coupons anymore (as there is no debt anymore)
 - As a user who holds freefloat or bonded cDSD, I am NOT able to redeem cDSD for DSD
