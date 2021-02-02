@@ -11,7 +11,7 @@ In any state:
 When the protocol is in contraction:
 
 - Bonded cDSD receive 95% of contraction rewards (former debt) per epoch
-  ..\* As a user with bonded cDSD, I am only up to receive up to 100% of cDSD that I have bonded to the DAO
+  ..\* As a user with bonded cDSD, I am only able to receive up to 100% of cDSD that I have bonded to the DAO
 - Bonded DSD receives 5% of contraction rewards per epoch (capped at 0.006% > 20% APY)
 - As a user I am not able to buy coupons anymore (as there is no debt anymore)
 - As a user who holds freefloat or bonded cDSD, I am NOT able to redeem cDSD for DSD
@@ -45,18 +45,18 @@ When the protocol is in expansion:
 
   **DAO**
 
-  `function burnDSDForCDSD(uin256 amount) external onlyContraction // burn DSD for CDSD for the msg.sender`
-  `function burnCouponsForCDSD(uin256 amount) external onlyContraction // burn Coupons for CDSD for the msg.sender`
-  `function mintCDSD(uin256 amount) internal // mint CDSD to the msg.sender, used in burn* functions`
+  `function burnDSDForCDSD(uint256 amount) external onlyContraction // burn DSD for CDSD for the msg.sender`
+  `function burnCouponsForCDSD(uint256 amount) external onlyContraction // burn Coupons for CDSD for the msg.sender`
+  `function mintCDSD(uint256 amount) internal // mint CDSD to the msg.sender, used in burn* functions`
 
-  `function bondCDSD(uin256 amount) external // bond CDSD for the msg.sender`
-  `function burnDSDForCDSDAndBond(uin256 amount) external // burn DSD for CDSD plus bond to DAO for the msg.sender`
-  `function burnCouponsForCDSDAndBond(uin256 amount) external // burn Coupons for CDSD plus bond to DAO for the msg.sender`
-  `function bondCDSD(uin256 amount) internal // bond CDSD to the msg.sender, used in bond CDSD functions`
-  `function unbondCDSD(uin256 amount) external // unbond CDSD for the msg.sender`
+  `function bondCDSD(uint256 amount) external // bond CDSD for the msg.sender`
+  `function burnDSDForCDSDAndBond(uint256 amount) external // burn DSD for CDSD plus bond to DAO for the msg.sender`
+  `function burnCouponsForCDSDAndBond(uint256 amount) external // burn Coupons for CDSD plus bond to DAO for the msg.sender`
+  `function bondCDSD(uint256 amount) internal // bond CDSD to the msg.sender, used in bond CDSD functions`
+  `function unbondCDSD(uint256 amount) external // unbond CDSD for the msg.sender`
 
-  `function redeemCDSD() external onlyExpansion() // redeems redeemable bonded CDSD to DSD for the msg.sender `
-  `function redeemCDSD(uin256 amount) internal onlyExpansion() // calculates redeemable CDSD. Supports redeemCDSD external function`
+  `function redeemCDSD(uint256 amount) external onlyExpansion() // redeems redeemable bonded CDSD to DSD for the msg.sender `
+  `function redeemCDSD(uint256 amount) internal onlyExpansion() // calculates redeemable CDSD. Supports redeemCDSD external function`
 
 - Removals
 

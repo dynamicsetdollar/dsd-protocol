@@ -99,9 +99,24 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
-    function totalCDSDBonded() public view returns (uint256) {
-        return _state10.totalCDSDBonded;
+    // DIP-10
+    function totalCDSDUnderlying() public view returns (uint256) {
+        return _state10.totalCDSDUnderlying;
     }
+
+    function totalCDSDEarned() public view returns (uint256) {
+        return _state10.totalCDSDEarned;
+    }
+
+    function totalEarnableCDSD() public view returns (uint256) {
+        uint256 cDSDUnderlying = totalCDSDUnderlying();
+        return  cDSDUnderlying.add(cDSDUnderlying.mul(Constants.getEarnableCap()).div(100));
+    }
+
+    function cdsd() public view returns (IDollar) {
+        return _state10.cDSD;
+    }
+    // end DIP-10
 
     /**
      * Account
@@ -150,17 +165,25 @@ contract Getters is State {
         return _state.accounts[owner].couponAllowances[spender];
     }
 
-    function balanceOfBondedCDSD(address account) public view returns (uint256) {
-        return _state10.bondedCDSD[account];
-    }
-
-    function balanceOfEarnableCDSD(address account) public view returns (uint256) {
-        return _state10.earnableCDSD[account];
+    // DIP-10
+    function balanceOfUnderlyingCDSD(address account) public view returns (uint256) {
+        return _state10.cDSDUnderlyingByAccount[account];
     }
 
     function balanceOfEarnedCDSD(address account) public view returns (uint256) {
         return _state10.earnedCDSD[account];
     }
+
+    function balanceOfRedeemableCDSD(address account) public view returns (uint256) {
+        return _state10.redeemableCDSD[account];
+    }
+
+    function balanceOfEarnableCDSD(address account) public view returns (uint256) {
+        uint256 accountCDSDUnderlying = balanceOfUnderlyingCDSD(account);
+        return  accountCDSDUnderlying.add(accountCDSDUnderlying.mul(Constants.getEarnableCap()).div(100));
+    }
+    // end DIP-10
+
 
     /**
      * Epoch

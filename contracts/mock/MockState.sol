@@ -54,13 +54,23 @@ contract MockState is Setters {
         super.decrementTotalRedeemable(amount, reason);
     }
 
-    function incrementTotalCDSDBondedE(uint256 amount) external {
-        super.incrementTotalCDSDBonded(amount);
+    // DIP-10
+    function incrementTotalCDSDUnderlyingE(uint256 amount) external {
+        super.incrementTotalCDSDUnderlying(amount);
     }
 
-    function decrementTotalCDSDBondedE(uint256 amount, string calldata reason) external {
-        super.decrementTotalCDSDBonded(amount, reason);
+    function decrementTotalCDSDUnderlyingE(uint256 amount, string calldata reason) external {
+        super.decrementTotalCDSDUnderlying(amount, reason);
     }
+
+    function incrementTotalCDSDEarnedE(uint256 amount) external {
+        super.incrementTotalCDSDEarned(amount);
+    }
+
+    function decrementTotalCDSDEarnedE(uint256 amount, string calldata reason) external {
+        super.decrementTotalCDSDEarned(amount, reason);
+    }
+    // end DIP-10
 
     /**
      * Account
@@ -101,14 +111,32 @@ contract MockState is Setters {
     function decrementAllowanceCouponsE(address owner, address spender, uint256 amount, string calldata reason) external {
         super.decrementAllowanceCoupons(owner, spender, amount, reason);
     }
-    
-    function incrementBalanceOfBondedCDSDE(address account, uint256 amount) external {
-        super.incrementBalanceOfBondedCDSD(account, amount);
+
+    // DIP-10
+    function incrementBalanceOfUnderlyingCDSDE(address account, uint256 amount) external {
+        super.incrementBalanceOfUnderlyingCDSD(account, amount);
     }
 
-    function decrementBalanceOfBondedCDSDE(address account, uint256 amount, string calldata reason) external {
-        super.decrementBalanceOfBondedCDSD(account, amount, reason);
+    function decrementBalanceOfUnderlyingCDSDE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfUnderlyingCDSD(account, amount, reason);
     }
+
+    function incrementBalanceOfRedeemableCDSDE(address account, uint256 amount) external {
+        super.incrementBalanceOfRedeemableCDSD(account, amount);
+    }
+
+    function decrementBalanceOfRedeemableCDSDE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfRedeemableCDSD(account, amount, reason);
+    }
+
+    function incrementBalanceOfEarnedCDSDE(address account, uint256 amount) external {
+        super.incrementBalanceOfEarnedCDSD(account, amount);
+    }
+
+    function decrementBalanceOfEarnedCDSDE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfEarnedCDSD(account, amount, reason);
+    }
+    // end DIP-10
 
     /**
      * Epoch

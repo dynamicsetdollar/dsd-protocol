@@ -34,6 +34,9 @@ contract Market is Comptroller, Curve {
     event CouponTransfer(address indexed from, address indexed to, uint256 indexed epoch, uint256 value);
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
 
+    event CDSDMinted(address indexed account, uint256 amount);
+    event CDSDBurned(address indexed account, uint256 amount);
+
     function step() internal {
         // Expire prior coupons
         for (uint256 i = 0; i < expiringCoupons(epoch()); i++) {
@@ -107,79 +110,142 @@ contract Market is Comptroller, Curve {
         emit CouponPurchase(msg.sender, couponEpoch, couponUnderlying, 0);
     }
 
-    function purchaseCoupons(uint256 amount) external returns (uint256) {
-        Require.that(
-            amount > 0,
-            FILE,
-            "Must purchase non-zero amount"
-        );
+     // DIP-10
 
-        Require.that(
-            totalDebt() >= amount,
-            FILE,
-            "Not enough debt"
-        );
-
-        uint256 epoch = epoch();
-
-        // coupon total (deposit + premium)
-        uint256 balanceOfCoupons = amount.add(couponPremium(amount));
-
-        // split total by 1/2
-        uint256 couponUnderlying = balanceOfCoupons.div(2);
-
-        // 1/2 can expire
-        incrementBalanceOfCoupons(msg.sender, epoch, couponUnderlying);
-
-        // 1/2 can always be reclaimed
-        incrementBalanceOfCouponUnderlying(msg.sender, epoch, couponUnderlying);
-
+    function burnDSDForCDSD(uint256 amount) public {
         burnFromAccount(msg.sender, amount);
+        mintCDSD(amount);
 
-        emit CouponPurchase(msg.sender, epoch, amount, couponUnderlying);
-
-        return couponUnderlying;
+        emit CDSDMinted(msg.sender, amount);
     }
 
-    function redeemCoupons(uint256 couponEpoch, uint256 amount, uint256 minOutput) external {
-        require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
-        require(epoch().sub(couponEpoch) >= 2, "Market: Too early to redeem");
-		require(amount != 0, "Market: Amount too low");
+    function burnCouponsForCDSD(uint256 couponEpoch) public returns(uint256) {
+        uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch);
+        uint256 couponUnderlyingAmount = balanceOfCouponUnderlying(msg.sender, couponEpoch);
 
-        uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch)
-            .mul(amount).div(balanceOfCouponUnderlying(msg.sender, couponEpoch), "Market: No underlying");
-
-        uint256 totalAmount = couponAmount.add(amount);
-
-        // penalty burn will be applied to premium and underlying
-        uint256 burnAmount = couponRedemptionPenalty(couponEpoch, totalAmount);
+        uint256 totalAmount = couponAmount.add(couponUnderlyingAmount);
 
         if (couponAmount != 0) {
             decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
-
-            // reduce premium by redemption penalty
-            couponAmount = couponAmount - burnAmount.mul(couponAmount).div(totalAmount);
         }
+        decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlyingAmount, "Market: Insufficient coupon underlying balance");
 
-        decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, amount, "Market: Insufficient coupon underlying balance");
+        mintCDSD(totalAmount);
 
-        // reduce underlying by redemption penalty
-        amount = amount - burnAmount.mul(amount).div(totalAmount);
+        emit CDSDMinted(msg.sender, totalAmount);
 
-        Require.that(
-            couponAmount.add(amount) >= minOutput,
-            FILE,
-            "Insufficient output amount"
-        );
-
-        redeemToAccount(msg.sender, amount, couponAmount);
-
-        if (burnAmount != 0) {
-            emit CouponBurn(msg.sender, couponEpoch, burnAmount);
-        }
-
-        emit CouponRedemption(msg.sender, couponEpoch, amount, couponAmount);
+        return totalAmount;
     }
+
+    function bondCDSD(uint256 amount) public  {
+        cdsd().transferFrom(msg.sender, address(this), amount);
+        incrementBalanceOfUnderlyingCDSD(msg.sender, amount);
+    }
+
+    function burnDSDForCDSDAndBond(uint256 amount) external {
+        burnDSDForCDSD(amount);
+
+        cdsd().approve(address(this), amount);
+        bondCDSD(amount);
+    }
+
+    function burnCouponsForCDSDAndBond(uint256 couponEpoch) external {
+       uint256 amountToBond = burnCouponsForCDSD(couponEpoch);
+
+        cdsd().approve(address(this), amountToBond);
+        bondCDSD(amountToBond);
+    }
+
+    function unbondCDSD(uint256 amount) external {
+        cdsd().transfer(msg.sender, amount);
+        decrementBalanceOfUnderlyingCDSD(msg.sender, amount, "Market: insufficient amount to unbound");
+    }
+
+
+    function redeemCDSD(uint256 amount) external {
+        require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
+
+        require(amount <= balanceOfRedeemableCDSD(msg.sender), "Market: amount is higher than redeemable cDSD");
+
+        cdsd().burn(amount);
+        mintToAccount(msg.sender, amount);
+
+        emit CDSDBurned(msg.sender, amount);
+    }
+
+    // function purchaseCoupons(uint256 amount) external returns (uint256) {
+    //     Require.that(
+    //         amount > 0,
+    //         FILE,
+    //         "Must purchase non-zero amount"
+    //     );
+
+    //     Require.that(
+    //         totalDebt() >= amount,
+    //         FILE,
+    //         "Not enough debt"
+    //     );
+
+    //     uint256 epoch = epoch();
+
+    //     // coupon total (deposit + premium)
+    //     uint256 balanceOfCoupons = amount.add(couponPremium(amount));
+
+    //     // split total by 1/2
+    //     uint256 couponUnderlying = balanceOfCoupons.div(2);
+
+    //     // 1/2 can expire
+    //     incrementBalanceOfCoupons(msg.sender, epoch, couponUnderlying);
+
+    //     // 1/2 can always be reclaimed
+    //     incrementBalanceOfCouponUnderlying(msg.sender, epoch, couponUnderlying);
+
+    //     burnFromAccount(msg.sender, amount);
+
+    //     emit CouponPurchase(msg.sender, epoch, amount, couponUnderlying);
+
+    //     return couponUnderlying;
+    // }
+
+    // function redeemCoupons(uint256 couponEpoch, uint256 amount, uint256 minOutput) external {
+    //     require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
+    //     require(epoch().sub(couponEpoch) >= 2, "Market: Too early to redeem");
+	// 	require(amount != 0, "Market: Amount too low");
+
+    //     uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch)
+    //         .mul(amount).div(balanceOfCouponUnderlying(msg.sender, couponEpoch), "Market: No underlying");
+
+    //     uint256 totalAmount = couponAmount.add(amount);
+
+    //     // penalty burn will be applied to premium and underlying
+    //     uint256 burnAmount = couponRedemptionPenalty(couponEpoch, totalAmount);
+
+    //     if (couponAmount != 0) {
+    //         decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
+
+    //         // reduce premium by redemption penalty
+    //         couponAmount = couponAmount - burnAmount.mul(couponAmount).div(totalAmount);
+    //     }
+
+    //     decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, amount, "Market: Insufficient coupon underlying balance");
+
+    //     // reduce underlying by redemption penalty
+    //     amount = amount - burnAmount.mul(amount).div(totalAmount);
+
+    //     Require.that(
+    //         couponAmount.add(amount) >= minOutput,
+    //         FILE,
+    //         "Insufficient output amount"
+    //     );
+
+    //     redeemToAccount(msg.sender, amount, couponAmount);
+
+    //     if (burnAmount != 0) {
+    //         emit CouponBurn(msg.sender, couponEpoch, burnAmount);
+    //     }
+
+    //     emit CouponRedemption(msg.sender, couponEpoch, amount, couponAmount);
+    // }
 
     function approveCoupons(address spender, uint256 amount) external {
         require(spender != address(0), "Market: Coupon approve to the zero address");

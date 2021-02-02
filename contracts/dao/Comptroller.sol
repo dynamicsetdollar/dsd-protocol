@@ -30,6 +30,12 @@ contract Comptroller is Setters {
         _state13.price = price;
     }
 
+    // DIP-10
+    function mintCDSD(uint256 amount) internal {
+        cdsd().mint(msg.sender, amount);
+    }
+    // end DIP-10
+
     function mintToAccount(address account, uint256 amount) internal {
         dollar().mint(account, amount);
         if (!bootstrappingAt(epoch())) {

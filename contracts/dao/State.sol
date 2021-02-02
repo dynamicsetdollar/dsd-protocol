@@ -108,10 +108,11 @@ contract Storage {
     }
 
     struct State10 {
-        mapping(address => uint256) bondedCDSD;
-        mapping(address => uint256) earnableCDSD;
+        mapping(address => uint256) cDSDUnderlyingByAccount;
         mapping(address => uint256) earnedCDSD;
-        uint256 totalCDSDBonded;
+        mapping(address => uint256) redeemableCDSD;
+        uint256 totalCDSDUnderlying;
+        uint256 totalCDSDEarned;
         IDollar cDSD;
     }
 }

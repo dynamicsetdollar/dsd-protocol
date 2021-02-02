@@ -74,13 +74,23 @@ contract Setters is State, Getters {
         _state.balance.redeemable = _state.balance.redeemable.sub(amount, reason);
     }
 
-    function incrementTotalCDSDBonded(uint256 amount) internal {
-        _state10.totalCDSDBonded = _state10.totalCDSDBonded.add(amount);
+    // DIP-10
+    function incrementTotalCDSDUnderlying(uint256 amount) internal {
+        _state10.totalCDSDUnderlying = _state10.totalCDSDUnderlying.add(amount);
     }
 
-    function decrementTotalCDSDBonded(uint256 amount, string memory reason) internal {
-        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount, reason);
+    function decrementTotalCDSDUnderlying(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDUnderlying = _state10.totalCDSDUnderlying.sub(amount, reason);
     }
+
+    function incrementTotalCDSDEarned(uint256 amount) internal {
+        _state10.totalCDSDEarned = _state10.totalCDSDEarned.add(amount);
+    }
+
+    function decrementTotalCDSDEarned(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDEarned = _state10.totalCDSDEarned.sub(amount, reason);
+    }
+    // end DIP-10
 
     /**
      * Account
@@ -145,25 +155,44 @@ contract Setters is State, Getters {
             _state.accounts[owner].couponAllowances[spender].sub(amount, reason);
     }
 
-    function incrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
-        _state10.bondedCDSD[account] = _state10.bondedCDSD[account].add(amount);
-        incrementTotalCDSDBonded(amount);
+    // DIP-10
+    function incrementBalanceOfUnderlyingCDSD(address account, uint256 amount) internal {
+        _state10.cDSDUnderlyingByAccount[account] = _state10.cDSDUnderlyingByAccount[account].add(amount);
+        incrementTotalCDSDUnderlying(amount);
     }
 
-    function decrementBalanceOfBondedCDSD(address account, uint256 amount, string memory reason) internal {
-        _state10.bondedCDSD[account] = _state10.bondedCDSD[account].sub(amount, reason);
-        _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount, reason);
+    function decrementBalanceOfUnderlyingCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.cDSDUnderlyingByAccount[account] = _state10.cDSDUnderlyingByAccount[account].sub(amount, reason);
+        decrementTotalCDSDUnderlying(amount, reason);
     }
 
-    function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal {
-        uint256 cappedEarnableAmount = burnedDSDamount.add(burnedDSDamount.mul(Constants.getEarnableCap()).div(100));
-        _state10.earnableCDSD[account] = _state10.earnableCDSD[account].add(cappedEarnableAmount);
+    function incrementBalanceOfRedeemableCDSD(address account, uint256 amount) internal {
+        _state10.redeemableCDSD[account] = _state10.redeemableCDSD[account].add(amount);
+    }
+
+    function decrementBalanceOfRedeemableCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.redeemableCDSD[account] = _state10.redeemableCDSD[account].sub(amount, reason);
     }
 
     function incrementBalanceOfEarnedCDSD(address account, uint256 amount) internal {
         _state10.earnedCDSD[account] = _state10.earnedCDSD[account].add(amount);
-        require(_state10.earnedCDSD[account] <= _state10.earnableCDSD[account], "cannot earn more than earnable rewards!");
+        incrementTotalCDSDEarned(amount);
+
+        require(
+            _state10.earnedCDSD[account] <= balanceOfEarnableCDSD(account),
+            "State: cannot earn more than earnable rewards!"
+        );
+        require(
+            totalCDSDEarned() <= totalEarnableCDSD(),
+            "State: cannot have more earnable rewards than possible total earned"
+        );
     }
+
+    function decrementBalanceOfEarnedCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.earnedCDSD[account] = _state10.earnedCDSD[account].sub(amount);
+        decrementTotalCDSDEarned(amount, reason);
+    }
+    // end DIP-10
 
     /**
      * Epoch
