@@ -10,7 +10,7 @@ In any state:
 
 When the protocol is in contraction:
 
-- Bonded cDSD receive 95% of contraction rewards (former debt) per epoch
+- Bonded cDSD receives 95% of contraction rewards (former debt) per epoch
   ..\* As a user with bonded cDSD, I am only able to receive up to 100% of cDSD that I have bonded to the DAO
 - Bonded DSD receives 5% of contraction rewards per epoch (capped at 0.006% > 20% APY)
 - As a user I am not able to buy coupons anymore (as there is no debt anymore)
@@ -75,7 +75,7 @@ When the protocol is in expansion:
 ```
 struct State10 {
     mapping(address => uint256) cDSDSharesByAccount;
-    mapping(address => uint256) earnedCDSD;
+    mapping(address => uint256) burnedCDSD;
     mapping(address => uint256) redeemableCDSD;
     uint256 totalCDSDShares;
     IDollar cDSD;
@@ -87,56 +87,31 @@ struct State10 {
 - Getters
 
 ```
-function cDSD() public view returns (IDollar) {
-    return _state10.cdsd;
-}
+function cDSD() public view returns (IDollar)
 
-function totalCDSDShares() public view returns (uint256) {
-    return _state10.totalCDSDShares;
-}
+function totalCDSDBonded() public view returns (uint256)
+function totalCDSDShares() public view returns (uint256)
 
-function balanceOfBondedCDSD(address account) public view returns (uint256) {
-    return _state10.cDSDSharesByAccount[account];
-}
+function balanceOfBondedCDSD(address account) public view returns (uint256)
 
-function balanceOfEarnableCDSD(address account) public view returns (uint256) {
-    return _state10.earnableCDSD[account];
-}
+function balanceOfEarnableCDSD(address account) public view returns (uint256)
 
-function balanceOfEarnedCDSD(address account) public view returns (uint256) {
-    return _state10.earnedCDSD[account];
-}
+function balanceOfBurnedCDSD(address account) public view returns (uint256)
 ```
 
 - Setters
 
 ```
-function incrementTotalCDSDShares(uint256 amount) internal {
-    _state10.totalCDSDShares = _state10.totalCDSDShares.add(amount);
-}
+function incrementTotalCDSDShares(uint256 amount) internal
 
-function decrementTotalCDSDShares(uint256 amount) internal {
-    _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount);
-}
+function decrementTotalCDSDShares(uint256 amount) internal
 
-function incrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
-    _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].add(amount);
-    incrementTotalCDSDShares(amount);
-}
+function incrementBalanceOfBondedCDSD(address account, uint256 amount) internal
 
-function decrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
-    _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount);
-    _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount);
-}
+function decrementBalanceOfBondedCDSD(address account, uint256 amount) internal
 
-function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal {
-    uint256 cappedEarnableAmount = burnedDSDamount.add(burnedDSDamount.mul(Constants.getEarnableCap()).div(100));
-    _state10.earnableCDSD[account] = _state10.earnableCDSD[account].add(cappedEarnableAmount);
-}
+function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal
 
-function incrementBalanceOfEarnedCDSD(address account, uint256 amount) internal {
-    _state10.earnedCDSD[account] = _state10.earnedCDSD[account].add(amount);
-    require(_state10.earnedCDSD[account] <= _state10.earnableCDSD[account], "cannot earn more than earnable rewards!");
-}
+function incrementBalanceOfBurnedCDSD(address account, uint256 amount) internal
 
 ```

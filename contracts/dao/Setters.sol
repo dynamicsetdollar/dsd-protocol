@@ -83,12 +83,12 @@ contract Setters is State, Getters {
         _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount, reason);
     }
 
-    function incrementTotalCDSDEarned(uint256 amount) internal {
-        _state10.totalCDSDEarned = _state10.totalCDSDEarned.add(amount);
+    function incrementTotalCDSDBurned(uint256 amount) internal {
+        _state10.totalCDSDBurned = _state10.totalCDSDBurned.add(amount);
     }
 
-    function decrementTotalCDSDEarned(uint256 amount, string memory reason) internal {
-        _state10.totalCDSDEarned = _state10.totalCDSDEarned.sub(amount, reason);
+    function decrementTotalCDSDBurned(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDBurned = _state10.totalCDSDBurned.sub(amount, reason);
     }
     // end DIP-10
 
@@ -174,23 +174,23 @@ contract Setters is State, Getters {
         _state10.redeemableCDSD[account] = _state10.redeemableCDSD[account].sub(amount, reason);
     }
 
-    function incrementBalanceOfEarnedCDSD(address account, uint256 amount) internal {
-        _state10.earnedCDSD[account] = _state10.earnedCDSD[account].add(amount);
-        incrementTotalCDSDEarned(amount);
+    function incrementBalanceOfBurnedCDSD(address account, uint256 amount) internal {
+        _state10.burnedCDSD[account] = _state10.burnedCDSD[account].add(amount);
+        incrementTotalCDSDBurned(amount);
 
         require(
-            _state10.earnedCDSD[account] <= balanceOfEarnableCDSD(account),
+            _state10.burnedCDSD[account] <= balanceOfEarnableCDSD(account),
             "State: cannot earn more than earnable rewards!"
         );
         require(
-            totalCDSDEarned() <= totalEarnableCDSD(),
+            totalCDSDBurned() <= totalEarnableCDSD(),
             "State: cannot have more earnable rewards than possible total earned"
         );
     }
 
-    function decrementBalanceOfEarnedCDSD(address account, uint256 amount, string memory reason) internal {
-        _state10.earnedCDSD[account] = _state10.earnedCDSD[account].sub(amount);
-        decrementTotalCDSDEarned(amount, reason);
+    function decrementBalanceOfBurnedCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.burnedCDSD[account] = _state10.burnedCDSD[account].sub(amount);
+        decrementTotalCDSDBurned(amount, reason);
     }
     // end DIP-10
 

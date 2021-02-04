@@ -104,12 +104,16 @@ contract Getters is State {
         return _state10.totalCDSDShares;
     }
 
-    function totalCDSDEarned() public view returns (uint256) {
-        return _state10.totalCDSDEarned;
+    function totalCDSDBonded() public view returns (uint256) {
+        return cdsd().balanceOf(address(this));
+    }
+
+    function totalCDSDBurned() public view returns (uint256) {
+        return _state10.totalCDSDBurned;
     }
 
     function totalEarnableCDSD() public view returns (uint256) {
-        uint256 cDSDShares = totalCDSDShares();
+        uint256 cDSDShares = totalCDSDBurned();
         return  cDSDShares.add(cDSDShares.mul(Constants.getEarnableCap()).div(100));
     }
 
@@ -179,8 +183,8 @@ contract Getters is State {
         return _state10.cDSDSharesByAccount[account];
     }
 
-    function balanceOfEarnedCDSD(address account) public view returns (uint256) {
-        return _state10.earnedCDSD[account];
+    function balanceOfBurnedCDSD(address account) public view returns (uint256) {
+        return _state10.burnedCDSD[account];
     }
 
     function balanceOfRedeemableCDSD(address account) public view returns (uint256) {
@@ -188,7 +192,7 @@ contract Getters is State {
     }
 
     function balanceOfEarnableCDSD(address account) public view returns (uint256) {
-        uint256 accountCDSDShares = balanceOfCDSDShares(account);
+        uint256 accountCDSDShares = balanceOfBurnedCDSD(account);
         return  accountCDSDShares.add(accountCDSDShares.mul(Constants.getEarnableCap()).div(100));
     }
     // end DIP-10

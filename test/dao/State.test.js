@@ -325,37 +325,37 @@ describe('State', function () {
         })
     })
 
-    describe.only('incrementTotalCDSDEarned', function () {
+    describe.only('incrementTotalCDSDBurned', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDEarnedE(100)
-                await this.setters.incrementTotalCDSDEarnedE(100)
+                await this.setters.incrementTotalCDSDBurnedE(100)
+                await this.setters.incrementTotalCDSDBurnedE(100)
             })
 
             it('increments total cDSD earned', async function () {
-                expect(await this.setters.totalCDSDEarned()).to.be.bignumber.equal(
+                expect(await this.setters.totalCDSDBurned()).to.be.bignumber.equal(
                     new BN(200)
                 )
             })
         })
     })
 
-    describe.only('decrementTotalCDSDEarned', function () {
+    describe.only('decrementTotalCDSDBurned', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDEarnedE(500)
-                await this.setters.decrementTotalCDSDEarnedE(
+                await this.setters.incrementTotalCDSDBurnedE(500)
+                await this.setters.decrementTotalCDSDBurnedE(
                     100,
-                    'decrementTotalCDSDEarnedE - 1'
+                    'decrementTotalCDSDBurnedE - 1'
                 )
-                await this.setters.decrementTotalCDSDEarnedE(
+                await this.setters.decrementTotalCDSDBurnedE(
                     100,
-                    'decrementTotalCDSDEarnedE - 2'
+                    'decrementTotalCDSDBurnedE - 2'
                 )
             })
 
             it('decrements total earned cDSD', async function () {
-                expect(await this.setters.totalCDSDEarned()).to.be.bignumber.equal(
+                expect(await this.setters.totalCDSDBurned()).to.be.bignumber.equal(
                     new BN(300)
                 )
             })
@@ -363,16 +363,16 @@ describe('State', function () {
 
         describe('when called erroneously', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDEarnedE(100)
+                await this.setters.incrementTotalCDSDBurnedE(100)
             })
 
             it('reverts', async function () {
                 await expectRevert(
-                    this.setters.decrementTotalCDSDEarnedE(
+                    this.setters.decrementTotalCDSDBurnedE(
                         200,
-                        'decrementTotalCDSDEarnedE'
+                        'decrementTotalCDSDBurnedE'
                     ),
-                    'decrementTotalCDSDEarnedE'
+                    'decrementTotalCDSDBurnedE'
                 )
             })
         })
@@ -950,7 +950,7 @@ describe('State', function () {
         })
     })
 
-    describe('incrementBalanceOfEarnedCDSD', function () {
+    describe('incrementBalanceOfBurnedCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 // add shares first
@@ -958,52 +958,52 @@ describe('State', function () {
                 await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100)
 
                 // then add earned
-                await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 100)
-                await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 100)
+                await this.setters.incrementBalanceOfBurnedCDSDE(userAddress, 100)
+                await this.setters.incrementBalanceOfBurnedCDSDE(userAddress, 100)
             })
 
             it('increments balance of Earned cDSD for user', async function () {
                 expect(
-                    await this.setters.balanceOfEarnedCDSD(userAddress)
+                    await this.setters.balanceOfBurnedCDSD(userAddress)
                 ).to.be.bignumber.equal(new BN(200))
             })
 
             it('increments total Earned cDSD', async function () {
-                expect(await this.setters.totalCDSDEarned()).to.be.bignumber.equal(
+                expect(await this.setters.totalCDSDBurned()).to.be.bignumber.equal(
                     new BN(200)
                 )
             })
         })
     })
 
-    describe('decrementBalanceOfEarnedCDSD', function () {
+    describe('decrementBalanceOfBurnedCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 // add shares first
                 await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500)
 
                 // add earned
-                await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 500)
-                await this.setters.decrementBalanceOfEarnedCDSDE(
+                await this.setters.incrementBalanceOfBurnedCDSDE(userAddress, 500)
+                await this.setters.decrementBalanceOfBurnedCDSDE(
                     userAddress,
                     100,
-                    'decrementBalanceOfEarnedCDSDE - 1'
+                    'decrementBalanceOfBurnedCDSDE - 1'
                 )
-                await this.setters.decrementBalanceOfEarnedCDSDE(
+                await this.setters.decrementBalanceOfBurnedCDSDE(
                     userAddress,
                     100,
-                    'decrementBalanceOfEarnedCDSDE - 2'
+                    'decrementBalanceOfBurnedCDSDE - 2'
                 )
             })
 
             it('decrements balance of earned cDSD for user', async function () {
                 expect(
-                    await this.setters.balanceOfEarnedCDSD(userAddress)
+                    await this.setters.balanceOfBurnedCDSD(userAddress)
                 ).to.be.bignumber.equal(new BN(300))
             })
 
             it('decrements total earned cDSD', async function () {
-                expect(await this.setters.totalCDSDEarned()).to.be.bignumber.equal(
+                expect(await this.setters.totalCDSDBurned()).to.be.bignumber.equal(
                     new BN(300)
                 )
             })
@@ -1015,16 +1015,16 @@ describe('State', function () {
                 await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500)
 
                 // add earned
-                await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 100)
+                await this.setters.incrementBalanceOfBurnedCDSDE(userAddress, 100)
             })
 
             it('reverts', async function () {
                 await expectRevert(
-                    this.setters.decrementBalanceOfEarnedCDSDE(
+                    this.setters.decrementBalanceOfBurnedCDSDE(
                         200,
-                        'decrementBalanceOfEarnedCDSDE'
+                        'decrementBalanceOfBurnedCDSDE'
                     ),
-                    'decrementBalanceOfEarnedCDSDE'
+                    'decrementBalanceOfBurnedCDSDE'
                 )
             })
         })
