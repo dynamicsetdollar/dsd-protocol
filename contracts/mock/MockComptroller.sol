@@ -19,12 +19,14 @@ pragma experimental ABIEncoderV2;
 
 import "../dao/Comptroller.sol";
 import "../token/Dollar.sol";
+import "../token/ContractionDollar.sol";
 import "./MockState.sol";
 
 contract MockComptroller is Comptroller, MockState {
     constructor(address pool) public {
         _state.provider.dollar = new Dollar();
         _state.provider.pool = pool;
+        _state10.cDSD = new ContractionDollar();
     }
 
     function mintToAccountE(address account, uint256 amount) external {
@@ -58,5 +60,9 @@ contract MockComptroller is Comptroller, MockState {
     /* For testing only */
     function mintToE(address account, uint256 amount) external {
         dollar().mint(account, amount);
+    }
+
+    function mintCDSDToE(address account, uint256 amount) external {
+        cdsd().mint(account, amount);
     }
 }

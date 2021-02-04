@@ -10,7 +10,7 @@ const Dollar = contract.fromArtifact('Dollar')
 const POOL_REWARD_PERCENT = 40
 const TREASURE_REWARD_PERCENT = 3
 
-function lessPoolIncentive(baseAmount, newAmount) {
+function lessPoolAndTreasureIncentive(baseAmount, newAmount) {
     return new BN(baseAmount + newAmount - poolIncentive(newAmount) - treasureIncentive(newAmount))
 }
 
@@ -77,7 +77,7 @@ describe('Regulator', function () {
                         expect(
                             await this.dollar.balanceOf(this.regulator.address)
                         ).to.be.bignumber.equal(
-                            lessPoolIncentive(1000000, this.expectedReward)
+                            lessPoolAndTreasureIncentive(1000000, this.expectedReward)
                         )
                         expect(
                             await this.dollar.balanceOf(poolAddress)
@@ -93,7 +93,7 @@ describe('Regulator', function () {
                         expect(
                             await this.regulator.totalBonded()
                         ).to.be.bignumber.equal(
-                            lessPoolIncentive(1000000, this.expectedReward)
+                            lessPoolAndTreasureIncentive(1000000, this.expectedReward)
                         )
                         expect(
                             await this.regulator.totalDebt()
@@ -165,7 +165,7 @@ describe('Regulator', function () {
                         expect(
                             await this.dollar.balanceOf(this.regulator.address)
                         ).to.be.bignumber.equal(
-                            lessPoolIncentive(1000000, this.expectedReward)
+                            lessPoolAndTreasureIncentive(1000000, this.expectedReward)
                         )
                         expect(
                             await this.dollar.balanceOf(poolAddress)
@@ -181,7 +181,7 @@ describe('Regulator', function () {
                         expect(
                             await this.regulator.totalBonded()
                         ).to.be.bignumber.equal(
-                            lessPoolIncentive(1000000, this.expectedReward)
+                            lessPoolAndTreasureIncentive(1000000, this.expectedReward)
                         )
                         expect(
                             await this.regulator.totalDebt()
@@ -370,7 +370,7 @@ describe('Regulator', function () {
                     expect(
                         await this.dollar.balanceOf(this.regulator.address)
                     ).to.be.bignumber.equal(
-                        lessPoolIncentive(
+                        lessPoolAndTreasureIncentive(
                             1000000,
                             this.expectedReward
                         )
@@ -467,7 +467,7 @@ describe('Regulator', function () {
                     expect(
                         await this.dollar.balanceOf(this.regulator.address)
                     ).to.be.bignumber.equal(
-                        lessPoolIncentive(
+                        lessPoolAndTreasureIncentive(
                             1000000,
                             this.expectedReward
                         )

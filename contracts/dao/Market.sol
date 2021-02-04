@@ -36,6 +36,8 @@ contract Market is Comptroller, Curve {
 
     event CDSDMinted(address indexed account, uint256 amount);
     event CDSDBurned(address indexed account, uint256 amount);
+    event BondCDSD(address indexed account, uint256 start, uint256 value, uint256 valueUnderlying);
+    event UnbondCDSD(address indexed account, uint256 start, uint256 value, uint256 valueUnderlying);
 
     function step() internal {
         // Expire prior coupons
@@ -187,8 +189,11 @@ contract Market is Comptroller, Curve {
       // DIP-10
 
     function burnDSDForCDSD(uint256 amount) public {
-        burnFromAccount(msg.sender, amount);
-        mintCDSD(amount);
+        dollar().transferFrom(msg.sender, address(this), amount);
+        dollar().burn(amount);
+        balanceCheck();
+
+        cdsd().mint(msg.sender, amount);
 
         emit CDSDMinted(msg.sender, amount);
     }
@@ -204,48 +209,62 @@ contract Market is Comptroller, Curve {
         }
         decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlyingAmount, "Market: Insufficient coupon underlying balance");
 
-        mintCDSD(totalAmount);
+        cdsd().mint(msg.sender, totalAmount);
 
         emit CDSDMinted(msg.sender, totalAmount);
 
         return totalAmount;
     }
 
-    function bondCDSD(uint256 amount) public  {
-        cdsd().transferFrom(msg.sender, address(this), amount);
-        incrementBalanceOfUnderlyingCDSD(msg.sender, amount);
-    }
-
     function burnDSDForCDSDAndBond(uint256 amount) external {
         burnDSDForCDSD(amount);
 
-        cdsd().approve(address(this), amount);
         bondCDSD(amount);
     }
 
     function burnCouponsForCDSDAndBond(uint256 couponEpoch) external {
        uint256 amountToBond = burnCouponsForCDSD(couponEpoch);
 
-        cdsd().approve(address(this), amountToBond);
         bondCDSD(amountToBond);
     }
 
-    function unbondCDSD(uint256 amount) external {
-        cdsd().transfer(msg.sender, amount);
-        decrementBalanceOfUnderlyingCDSD(msg.sender, amount, "Market: insufficient amount to unbound");
+    function bondCDSD(uint256 amount) public  {
+        uint256 shares = totalCDSDUnderlying() == 0 ?
+            amount :
+            amount.mul(totalCDSDUnderlying()).div(cdsd().balanceOf(address(this)));
+
+        incrementBalanceOfUnderlyingCDSD(msg.sender, shares);
+        cdsd().transferFrom(msg.sender, address(this), amount);
+
+        emit BondCDSD(msg.sender, epoch().add(1), shares, amount);
     }
 
+    function unbondCDSD(uint256 shares) external {
+        require(shares > 0, "Market: unbound must be greater than 0");
+        require(shares <= balanceOfUnderlyingCDSD(msg.sender), "Market: insufficient shares to unbound");
 
-    function redeemCDSD(uint256 amount) external {
+        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDUnderlying());
+        decrementBalanceOfUnderlyingCDSD(msg.sender, shares, "Market: insufficient shares to unbound");
+        cdsd().transfer(msg.sender, amount);
+
+        emit UnbondCDSD(msg.sender, epoch().add(1), shares, amount);
+    }
+
+    function redeemBondedCDSDForDSD(uint256 shares) external {
         require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
+
+        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDUnderlying());
 
         require(amount <= balanceOfRedeemableCDSD(msg.sender), "Market: amount is higher than redeemable cDSD");
 
         cdsd().burn(amount);
-        mintToAccount(msg.sender, amount);
+
+        dollar().mint(msg.sender, amount);
+        balanceCheck();
 
         emit CDSDBurned(msg.sender, amount);
     }
+    // end DIP-10
 
 
     function approveCoupons(address spender, uint256 amount) external {

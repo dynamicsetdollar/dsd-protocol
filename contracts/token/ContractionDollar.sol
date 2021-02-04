@@ -34,6 +34,8 @@ contract ContractionDollar is IDollar, MinterRole, ERC20Detailed, Permittable, E
 
     function mint(address account, uint256 amount) public onlyMinter returns (bool) {
         _mint(account, amount);
+        _approve(account, _msgSender(), amount); // DAO is always allowed to transfer account's cDSD
+
         return true;
     }
 
