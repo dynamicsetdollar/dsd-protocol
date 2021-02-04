@@ -74,10 +74,10 @@ When the protocol is in expansion:
 
 ```
 struct State10 {
-    mapping(address => uint256) bondedCDSD;
-    mapping(address => uint256) earnableCDSD;
+    mapping(address => uint256) cDSDSharesByAccount;
     mapping(address => uint256) earnedCDSD;
-    uint256 totalCDSDBonded;
+    mapping(address => uint256) redeemableCDSD;
+    uint256 totalCDSDShares;
     IDollar cDSD;
 }
 ```
@@ -91,12 +91,12 @@ function cDSD() public view returns (IDollar) {
     return _state10.cdsd;
 }
 
-function totalCDSDBonded() public view returns (uint256) {
-    return _state10.totalCDSDBonded;
+function totalCDSDShares() public view returns (uint256) {
+    return _state10.totalCDSDShares;
 }
 
 function balanceOfBondedCDSD(address account) public view returns (uint256) {
-    return _state10.bondedCDSD[account];
+    return _state10.cDSDSharesByAccount[account];
 }
 
 function balanceOfEarnableCDSD(address account) public view returns (uint256) {
@@ -111,22 +111,22 @@ function balanceOfEarnedCDSD(address account) public view returns (uint256) {
 - Setters
 
 ```
-function incrementTotalCDSDBonded(uint256 amount) internal {
-    _state10.totalCDSDBonded = _state10.totalCDSDBonded.add(amount);
+function incrementTotalCDSDShares(uint256 amount) internal {
+    _state10.totalCDSDShares = _state10.totalCDSDShares.add(amount);
 }
 
-function decrementTotalCDSDBonded(uint256 amount) internal {
-    _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount);
+function decrementTotalCDSDShares(uint256 amount) internal {
+    _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount);
 }
 
 function incrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
-    _state10.bondedCDSD[account] = _state10.bondedCDSD[account].add(amount);
-    incrementTotalCDSDBonded(amount);
+    _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].add(amount);
+    incrementTotalCDSDShares(amount);
 }
 
 function decrementBalanceOfBondedCDSD(address account, uint256 amount) internal {
-    _state10.bondedCDSD[account] = _state10.bondedCDSD[account].sub(amount);
-    _state10.totalCDSDBonded = _state10.totalCDSDBonded.sub(amount);
+    _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount);
+    _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount);
 }
 
 function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal {

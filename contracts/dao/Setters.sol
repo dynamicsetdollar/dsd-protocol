@@ -75,12 +75,12 @@ contract Setters is State, Getters {
     }
 
     // DIP-10
-    function incrementTotalCDSDUnderlying(uint256 amount) internal {
-        _state10.totalCDSDUnderlying = _state10.totalCDSDUnderlying.add(amount);
+    function incrementTotalCDSDShares(uint256 amount) internal {
+        _state10.totalCDSDShares = _state10.totalCDSDShares.add(amount);
     }
 
-    function decrementTotalCDSDUnderlying(uint256 amount, string memory reason) internal {
-        _state10.totalCDSDUnderlying = _state10.totalCDSDUnderlying.sub(amount, reason);
+    function decrementTotalCDSDShares(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount, reason);
     }
 
     function incrementTotalCDSDEarned(uint256 amount) internal {
@@ -156,14 +156,14 @@ contract Setters is State, Getters {
     }
 
     // DIP-10
-    function incrementBalanceOfUnderlyingCDSD(address account, uint256 amount) internal {
-        _state10.cDSDUnderlyingByAccount[account] = _state10.cDSDUnderlyingByAccount[account].add(amount);
-        incrementTotalCDSDUnderlying(amount);
+    function incrementBalanceOfCDSDShares(address account, uint256 amount) internal {
+        _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].add(amount);
+        incrementTotalCDSDShares(amount);
     }
 
-    function decrementBalanceOfUnderlyingCDSD(address account, uint256 amount, string memory reason) internal {
-        _state10.cDSDUnderlyingByAccount[account] = _state10.cDSDUnderlyingByAccount[account].sub(amount, reason);
-        decrementTotalCDSDUnderlying(amount, reason);
+    function decrementBalanceOfCDSDShares(address account, uint256 amount, string memory reason) internal {
+        _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount, reason);
+        decrementTotalCDSDShares(amount, reason);
     }
 
     function incrementBalanceOfRedeemableCDSD(address account, uint256 amount) internal {

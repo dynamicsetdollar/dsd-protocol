@@ -55,12 +55,12 @@ contract MockState is Setters {
     }
 
     // DIP-10
-    function incrementTotalCDSDUnderlyingE(uint256 amount) external {
-        super.incrementTotalCDSDUnderlying(amount);
+    function incrementTotalCDSDSharesE(uint256 amount) external {
+        super.incrementTotalCDSDShares(amount);
     }
 
-    function decrementTotalCDSDUnderlyingE(uint256 amount, string calldata reason) external {
-        super.decrementTotalCDSDUnderlying(amount, reason);
+    function decrementTotalCDSDSharesE(uint256 amount, string calldata reason) external {
+        super.decrementTotalCDSDShares(amount, reason);
     }
 
     function incrementTotalCDSDEarnedE(uint256 amount) external {
@@ -117,12 +117,12 @@ contract MockState is Setters {
     }
 
     // DIP-10
-    function incrementBalanceOfUnderlyingCDSDE(address account, uint256 amount) external {
-        super.incrementBalanceOfUnderlyingCDSD(account, amount);
+    function incrementBalanceOfCDSDSharesE(address account, uint256 amount) external {
+        super.incrementBalanceOfCDSDShares(account, amount);
     }
 
-    function decrementBalanceOfUnderlyingCDSDE(address account, uint256 amount, string calldata reason) external {
-        super.decrementBalanceOfUnderlyingCDSD(account, amount, reason);
+    function decrementBalanceOfCDSDSharesE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfCDSDShares(account, amount, reason);
     }
 
     function incrementBalanceOfRedeemableCDSDE(address account, uint256 amount) external {

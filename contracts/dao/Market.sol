@@ -229,11 +229,11 @@ contract Market is Comptroller, Curve {
     }
 
     function bondCDSD(uint256 amount) public  {
-        uint256 shares = totalCDSDUnderlying() == 0 ?
+        uint256 shares = totalCDSDShares() == 0 ?
             amount :
-            amount.mul(totalCDSDUnderlying()).div(cdsd().balanceOf(address(this)));
+            amount.mul(totalCDSDShares()).div(cdsd().balanceOf(address(this)));
 
-        incrementBalanceOfUnderlyingCDSD(msg.sender, shares);
+        incrementBalanceOfCDSDShares(msg.sender, shares);
         cdsd().transferFrom(msg.sender, address(this), amount);
 
         emit BondCDSD(msg.sender, epoch().add(1), shares, amount);
@@ -241,10 +241,10 @@ contract Market is Comptroller, Curve {
 
     function unbondCDSD(uint256 shares) external {
         require(shares > 0, "Market: unbound must be greater than 0");
-        require(shares <= balanceOfUnderlyingCDSD(msg.sender), "Market: insufficient shares to unbound");
+        require(shares <= balanceOfCDSDShares(msg.sender), "Market: insufficient shares to unbound");
 
-        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDUnderlying());
-        decrementBalanceOfUnderlyingCDSD(msg.sender, shares, "Market: insufficient shares to unbound");
+        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDShares());
+        decrementBalanceOfCDSDShares(msg.sender, shares, "Market: insufficient shares to unbound");
         cdsd().transfer(msg.sender, amount);
 
         emit UnbondCDSD(msg.sender, epoch().add(1), shares, amount);
@@ -253,7 +253,7 @@ contract Market is Comptroller, Curve {
     function redeemBondedCDSDForDSD(uint256 shares) external {
         require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
 
-        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDUnderlying());
+        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDShares());
 
         require(amount <= balanceOfRedeemableCDSD(msg.sender), "Market: amount is higher than redeemable cDSD");
 

@@ -57,7 +57,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(userAddress)
                 ).to.be.bignumber.equal(new BN(1000))
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(0)) // user has not deposited
             })
 
@@ -70,7 +70,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(this.market.address)
                 ).to.be.bignumber.equal(new BN(0))
 
-                expect(await this.market.totalCDSDUnderlying()).to.be.bignumber.equal(
+                expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(0)
                 )
             })
@@ -115,7 +115,7 @@ describe('Market', function () {
                     await this.market.balanceOfCouponUnderlying(userAddress, 1)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(0)) // user has not deposited
             })
 
@@ -136,7 +136,7 @@ describe('Market', function () {
                     await this.market.totalCouponUnderlying()
                 ).to.be.bignumber.equal(new BN(0))
 
-                expect(await this.market.totalCDSDUnderlying()).to.be.bignumber.equal(
+                expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(0)
                 )
             })
@@ -179,7 +179,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(userAddress)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(1000)) // user bonded cDSD
             })
 
@@ -192,7 +192,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(this.market.address)
                 ).to.be.bignumber.equal(new BN(1000))
 
-                expect(await this.market.totalCDSDUnderlying()).to.be.bignumber.equal(
+                expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(1000)
                 )
             })
@@ -253,7 +253,7 @@ describe('Market', function () {
                     await this.market.balanceOfCouponUnderlying(userAddress, 1)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(2000)) // user bonded cDSD
             })
 
@@ -274,7 +274,7 @@ describe('Market', function () {
                     await this.market.totalCouponUnderlying()
                 ).to.be.bignumber.equal(new BN(0))
 
-                expect(await this.market.totalCDSDUnderlying()).to.be.bignumber.equal(
+                expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(2000)
                 )
             })
@@ -329,7 +329,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(userAddress)
                 ).to.be.bignumber.equal(new BN(0))
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(1000)) // user bonded cDSD
             })
 
@@ -342,7 +342,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(this.market.address)
                 ).to.be.bignumber.equal(new BN(1000))
 
-                expect(await this.market.totalCDSDUnderlying()).to.be.bignumber.equal(
+                expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(1000)
                 )
             })
@@ -382,7 +382,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(userAddress)
                 ).to.be.bignumber.equal(new BN(700))
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(300)) // user bonded cDSD
             })
 
@@ -391,7 +391,7 @@ describe('Market', function () {
                     await this.cdsd.balanceOf(this.market.address)
                 ).to.be.bignumber.equal(new BN(300))
 
-                expect(await this.market.totalCDSDUnderlying()).to.be.bignumber.equal(
+                expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(300)
                 )
             })
@@ -446,7 +446,7 @@ describe('Market', function () {
                 )
 
                 expect(
-                    await this.market.balanceOfUnderlyingCDSD(userAddress)
+                    await this.market.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(250)) // user shares of bonded cDSD
             })
 
@@ -456,7 +456,7 @@ describe('Market', function () {
                 ).to.be.bignumber.equal(new BN(600).add(new BN(400)).add(new BN(1000)).add(new BN(500)))
 
                 expect(
-                    await this.market.totalCDSDUnderlying()
+                    await this.market.totalCDSDShares()
                 ).to.be.bignumber.equal(
                     new BN(1250)
                 )

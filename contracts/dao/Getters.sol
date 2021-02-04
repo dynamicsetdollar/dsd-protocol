@@ -100,8 +100,8 @@ contract Getters is State {
     }
 
     // DIP-10
-    function totalCDSDUnderlying() public view returns (uint256) {
-        return _state10.totalCDSDUnderlying;
+    function totalCDSDShares() public view returns (uint256) {
+        return _state10.totalCDSDShares;
     }
 
     function totalCDSDEarned() public view returns (uint256) {
@@ -109,8 +109,8 @@ contract Getters is State {
     }
 
     function totalEarnableCDSD() public view returns (uint256) {
-        uint256 cDSDUnderlying = totalCDSDUnderlying();
-        return  cDSDUnderlying.add(cDSDUnderlying.mul(Constants.getEarnableCap()).div(100));
+        uint256 cDSDShares = totalCDSDShares();
+        return  cDSDShares.add(cDSDShares.mul(Constants.getEarnableCap()).div(100));
     }
 
     function cdsd() public view returns (IDollar) {
@@ -166,8 +166,17 @@ contract Getters is State {
     }
 
     // DIP-10
-    function balanceOfUnderlyingCDSD(address account) public view returns (uint256) {
-        return _state10.cDSDUnderlyingByAccount[account];
+    function balanceOfCDSDBonded(address account) public view returns (uint256) {
+        uint256 totalBalanceOfCDSDShares = totalCDSDShares();
+        if (totalBalanceOfCDSDShares == 0) {
+            return 0;
+        }
+
+        return balanceOfCDSDShares(account).mul(cdsd().balanceOf(address(this))).div(totalBalanceOfCDSDShares);
+    }
+
+    function balanceOfCDSDShares(address account) public view returns (uint256) {
+        return _state10.cDSDSharesByAccount[account];
     }
 
     function balanceOfEarnedCDSD(address account) public view returns (uint256) {
@@ -179,8 +188,8 @@ contract Getters is State {
     }
 
     function balanceOfEarnableCDSD(address account) public view returns (uint256) {
-        uint256 accountCDSDUnderlying = balanceOfUnderlyingCDSD(account);
-        return  accountCDSDUnderlying.add(accountCDSDUnderlying.mul(Constants.getEarnableCap()).div(100));
+        uint256 accountCDSDShares = balanceOfCDSDShares(account);
+        return  accountCDSDShares.add(accountCDSDShares.mul(Constants.getEarnableCap()).div(100));
     }
     // end DIP-10
 

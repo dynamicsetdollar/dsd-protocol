@@ -272,37 +272,37 @@ describe('State', function () {
     })
 
     // DIP-10
-    describe.only('incrementTotalCDSDUnderlying', function () {
+    describe.only('incrementTotalCDSDShares', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDUnderlyingE(100)
-                await this.setters.incrementTotalCDSDUnderlyingE(100)
+                await this.setters.incrementTotalCDSDSharesE(100)
+                await this.setters.incrementTotalCDSDSharesE(100)
             })
 
-            it('increments total cDSD underlying', async function () {
-                expect(await this.setters.totalCDSDUnderlying()).to.be.bignumber.equal(
+            it('increments total cDSD shares', async function () {
+                expect(await this.setters.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(200)
                 )
             })
         })
     })
 
-    describe.only('decrementTotalCDSDUnderlying', function () {
+    describe.only('decrementTotalCDSDShares', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDUnderlyingE(500)
-                await this.setters.decrementTotalCDSDUnderlyingE(
+                await this.setters.incrementTotalCDSDSharesE(500)
+                await this.setters.decrementTotalCDSDSharesE(
                     100,
-                    'decrementTotalCDSDUnderlyingE - 1'
+                    'decrementTotalCDSDSharesE - 1'
                 )
-                await this.setters.decrementTotalCDSDUnderlyingE(
+                await this.setters.decrementTotalCDSDSharesE(
                     100,
-                    'decrementTotalCDSDUnderlyingE - 2'
+                    'decrementTotalCDSDSharesE - 2'
                 )
             })
 
-            it('decrements total underlying cDSD', async function () {
-                expect(await this.setters.totalCDSDUnderlying()).to.be.bignumber.equal(
+            it('decrements total shares of cDSD', async function () {
+                expect(await this.setters.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(300)
                 )
             })
@@ -310,16 +310,16 @@ describe('State', function () {
 
         describe('when called erroneously', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDUnderlyingE(100)
+                await this.setters.incrementTotalCDSDSharesE(100)
             })
 
             it('reverts', async function () {
                 await expectRevert(
-                    this.setters.decrementTotalCDSDUnderlyingE(
+                    this.setters.decrementTotalCDSDSharesE(
                         200,
-                        'decrementTotalCDSDUnderlyingE'
+                        'decrementTotalCDSDSharesE'
                     ),
-                    'decrementTotalCDSDUnderlyingE'
+                    'decrementTotalCDSDSharesE'
                 )
             })
         })
@@ -828,51 +828,51 @@ describe('State', function () {
     })
 
     // DIP-10
-    describe.only('incrementBalanceOfUnderlyingCDSD', function () {
+    describe('incrementBalanceOfCDSDShares', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 100)
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 100)
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100)
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100)
             })
 
-            it('increments balance of underlying cDSD for user', async function () {
+            it('increments balance of shares of cDSD for user', async function () {
                 expect(
-                    await this.setters.balanceOfUnderlyingCDSD(userAddress)
+                    await this.setters.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(200))
             })
 
-            it('increments total underlying cDSD', async function () {
-                expect(await this.setters.totalCDSDUnderlying()).to.be.bignumber.equal(
+            it('increments total shares of cDSD', async function () {
+                expect(await this.setters.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(200)
                 )
             })
         })
     })
 
-    describe.only('decrementBalanceOfUnderlyingCDSD', function () {
+    describe('decrementBalanceOfCDSDShares', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 500)
-                await this.setters.decrementBalanceOfUnderlyingCDSDE(
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500)
+                await this.setters.decrementBalanceOfCDSDSharesE(
                     userAddress,
                     100,
-                    'decrementBalanceOfUnderlyingCDSDE - 1'
+                    'decrementBalanceOfCDSDSharesE - 1'
                 )
-                await this.setters.decrementBalanceOfUnderlyingCDSDE(
+                await this.setters.decrementBalanceOfCDSDSharesE(
                     userAddress,
                     100,
-                    'decrementBalanceOfUnderlyingCDSDE - 2'
+                    'decrementBalanceOfCDSDSharesE - 2'
                 )
             })
 
-            it('decrements balance of underlying cDSD for user', async function () {
+            it('decrements balance of shares of cDSD for user', async function () {
                 expect(
-                    await this.setters.balanceOfUnderlyingCDSD(userAddress)
+                    await this.setters.balanceOfCDSDShares(userAddress)
                 ).to.be.bignumber.equal(new BN(300))
             })
 
-            it('decrements total underlying cDSD', async function () {
-                expect(await this.setters.totalCDSDUnderlying()).to.be.bignumber.equal(
+            it('decrements total shares of cDSD', async function () {
+                expect(await this.setters.totalCDSDShares()).to.be.bignumber.equal(
                     new BN(300)
                 )
             })
@@ -880,22 +880,22 @@ describe('State', function () {
 
         describe('when called erroneously', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 100)
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100)
             })
 
             it('reverts', async function () {
                 await expectRevert(
-                    this.setters.decrementBalanceOfUnderlyingCDSDE(
+                    this.setters.decrementBalanceOfCDSDSharesE(
                         200,
-                        'decrementBalanceOfUnderlyingCDSDE'
+                        'decrementBalanceOfCDSDSharesE'
                     ),
-                    'decrementBalanceOfUnderlyingCDSDE'
+                    'decrementBalanceOfCDSDSharesE'
                 )
             })
         })
     })
 
-    describe.only('incrementBalanceOfRedeemableCDSD', function () {
+    describe('incrementBalanceOfRedeemableCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 await this.setters.incrementBalanceOfRedeemableCDSDE(userAddress, 100)
@@ -910,7 +910,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('decrementBalanceOfRedeemableCDSD', function () {
+    describe('decrementBalanceOfRedeemableCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 await this.setters.incrementBalanceOfRedeemableCDSDE(userAddress, 500)
@@ -950,12 +950,12 @@ describe('State', function () {
         })
     })
 
-    describe.only('incrementBalanceOfEarnedCDSD', function () {
+    describe('incrementBalanceOfEarnedCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                // add underlying first
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 100)
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 100)
+                // add shares first
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100)
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100)
 
                 // then add earned
                 await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 100)
@@ -976,11 +976,11 @@ describe('State', function () {
         })
     })
 
-    describe.only('decrementBalanceOfEarnedCDSD', function () {
+    describe('decrementBalanceOfEarnedCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                // add underlying first
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 500)
+                // add shares first
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500)
 
                 // add earned
                 await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 500)
@@ -1011,8 +1011,8 @@ describe('State', function () {
 
         describe('when called erroneously', function () {
             beforeEach('call', async function () {
-                // add underlying first
-                await this.setters.incrementBalanceOfUnderlyingCDSDE(userAddress, 500)
+                // add shares first
+                await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500)
 
                 // add earned
                 await this.setters.incrementBalanceOfEarnedCDSDE(userAddress, 100)
