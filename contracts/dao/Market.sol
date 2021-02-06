@@ -120,7 +120,7 @@ contract Market is Comptroller, Curve {
         balanceCheck();
 
         cdsd().mint(msg.sender, amount);
-        incrementBalanceOfBurnedCDSD(msg.sender, amount);
+        incrementBalanceOfBurnedDSD(msg.sender, amount);
 
         emit CDSDMinted(msg.sender, amount);
     }
@@ -137,7 +137,7 @@ contract Market is Comptroller, Curve {
         decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlyingAmount, "Market: Insufficient coupon underlying balance");
 
         cdsd().mint(msg.sender, totalAmount);
-        incrementBalanceOfBurnedCDSD(msg.sender, totalAmount);
+        incrementBalanceOfBurnedDSD(msg.sender, totalAmount);
 
         emit CDSDMinted(msg.sender, totalAmount);
 
@@ -183,12 +183,18 @@ contract Market is Comptroller, Curve {
 
         uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDShares());
 
-        require(amount <= balanceOfRedeemableCDSD(msg.sender), "Market: amount is higher than redeemable cDSD");
+        require(
+            amount.add(balanceOfRedeemedCDSD(msg.sender)) <= balanceOfEarnableCDSD(msg.sender),
+            "Market: amount is higher than redeemable cDSD"
+        );
 
         cdsd().burn(amount);
 
         dollar().mint(msg.sender, amount);
         balanceCheck();
+
+        incrementBalanceOfRedeemedCDSD(msg.sender, amount); // cDSD redeemed increases
+        decrementTotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
 
         emit CDSDBurned(msg.sender, amount);
     }

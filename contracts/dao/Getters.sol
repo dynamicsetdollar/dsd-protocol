@@ -96,7 +96,13 @@ contract Getters is State {
     }
 
     function totalNet() public view returns (uint256) {
-        return dollar().totalSupply().sub(totalDebt());
+        uint256 totalNetAmount = 0;
+
+        if (dollar().totalSupply() <= cdsd().totalSupply()) {
+            totalNetAmount = dollar().totalSupply().sub(cdsd().totalSupply());
+        }
+
+        return totalNetAmount;
     }
 
     // DIP-10
@@ -108,13 +114,17 @@ contract Getters is State {
         return cdsd().balanceOf(address(this));
     }
 
-    function totalCDSDBurned() public view returns (uint256) {
-        return _state10.totalCDSDBurned;
+    function totalBurnedDSD() public view returns (uint256) {
+        return _state10.totalBurnedDSD;
+    }
+
+    function totalCDSDRedeemed() public view returns (uint256) {
+        return _state10.totalCDSDRedeemed;
     }
 
     function totalEarnableCDSD() public view returns (uint256) {
-        uint256 cDSDShares = totalCDSDBurned();
-        return  cDSDShares.add(cDSDShares.mul(Constants.getEarnableCap()).div(100));
+        uint256 totalDSDBurned = totalBurnedDSD();
+        return  totalDSDBurned.add(totalDSDBurned.mul(Constants.getEarnableCap()).div(100));
     }
 
     function cdsd() public view returns (IDollar) {
@@ -131,11 +141,11 @@ contract Getters is State {
     }
 
     function balanceOfBonded(address account) public view returns (uint256) {
-        uint256 totalSupply = totalSupply();
-        if (totalSupply == 0) {
+        uint256 totalSupplyAmount = totalSupply();
+        if (totalSupplyAmount == 0) {
             return 0;
         }
-        return totalBonded().mul(balanceOf(account)).div(totalSupply);
+        return totalBonded().mul(balanceOf(account)).div(totalSupplyAmount);
     }
 
     function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
@@ -187,8 +197,8 @@ contract Getters is State {
         return _state10.burnedCDSD[account];
     }
 
-    function balanceOfRedeemableCDSD(address account) public view returns (uint256) {
-        return _state10.redeemableCDSD[account];
+    function balanceOfRedeemedCDSD(address account) public view returns (uint256) {
+        return _state10.redeemedCDSD[account];
     }
 
     function balanceOfEarnableCDSD(address account) public view returns (uint256) {

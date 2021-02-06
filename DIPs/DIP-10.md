@@ -56,7 +56,6 @@ When the protocol is in expansion:
   `function unbondCDSD(uint256 amount) external // unbond CDSD for the msg.sender`
 
   `function redeemCDSD(uint256 amount) external onlyExpansion() // redeems redeemable bonded CDSD to DSD for the msg.sender `
-  `function redeemCDSD(uint256 amount) internal onlyExpansion() // calculates redeemable CDSD. Supports redeemCDSD external function`
 
 - Removals
 
@@ -76,8 +75,9 @@ When the protocol is in expansion:
 struct State10 {
     mapping(address => uint256) cDSDSharesByAccount;
     mapping(address => uint256) burnedCDSD;
-    mapping(address => uint256) redeemableCDSD;
+    mapping(address => uint256) redeemedCDSD;
     uint256 totalCDSDShares;
+    uint256 totalBurnedDSD;
     IDollar cDSD;
 }
 ```
@@ -90,7 +90,14 @@ struct State10 {
 function cDSD() public view returns (IDollar)
 
 function totalCDSDBonded() public view returns (uint256)
+
 function totalCDSDShares() public view returns (uint256)
+
+function totalBurnedDSD() public view returns (uint256)
+
+
+
+function balanceOfCDSDShares(address account) public view returns (uint256)
 
 function balanceOfBondedCDSD(address account) public view returns (uint256)
 
@@ -104,14 +111,23 @@ function balanceOfBurnedCDSD(address account) public view returns (uint256)
 ```
 function incrementTotalCDSDShares(uint256 amount) internal
 
-function decrementTotalCDSDShares(uint256 amount) internal
+function decrementTotalCDSDShares(uint256 amount, string memory reason) internal
 
-function incrementBalanceOfBondedCDSD(address account, uint256 amount) internal
+function incrementTotalCDSDBurned(uint256 amount) internal
 
-function decrementBalanceOfBondedCDSD(address account, uint256 amount) internal
+function decrementTotalCDSDBurned(uint256 amount, string memory reason) internal
 
-function incrementBalanceOfEarnableCDSD(address account, uint256 burnedDSDamount) internal
 
-function incrementBalanceOfBurnedCDSD(address account, uint256 amount) internal
+function incrementBalanceOfCDSDShares(uint256 amount) internal
+
+function decrementBalanceOfCDSDShares(uint256 amount) internal
+
+function incrementBalanceOfRedeemedCDSD(address account, uint256 amount) internal
+
+function decrementBalanceOfRedeemedCDSD(address account, uint256 amount) internal
+
+function incrementBalanceOfBurnedDSD(address account, uint256 amount) internal
+
+function decrementBalanceOfBurnedDSD(address account, uint256 amount) internal
 
 ```

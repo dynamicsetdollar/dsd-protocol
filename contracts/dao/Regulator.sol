@@ -27,7 +27,7 @@ contract Regulator is Comptroller {
     using Decimal for Decimal.D256;
 
     event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 lessDebt, uint256 newBonded);
-    event SupplyDecrease(uint256 indexed epoch, uint256 price, uint256 newDebt);
+    event CDSDSupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newCDSDSupply);
     event SupplyNeutral(uint256 indexed epoch);
 
     function step() internal {
@@ -41,47 +41,48 @@ contract Regulator is Comptroller {
         }
 
         if (price.lessThan(Decimal.one())) {
-            shrinkSupply(price);
+            triggerCDSDSupply(price);
             return;
         }
 
         emit SupplyNeutral(epoch());
     }
 
-    function shrinkSupply(Decimal.D256 memory price) private {
+    function triggerCDSDSupply(Decimal.D256 memory price) private {
         Decimal.D256 memory delta = limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
-        uint256 newDebt = delta.mul(totalNet()).asUint256();
-        uint256 cappedNewDebt = increaseDebt(newDebt);
+        uint256 newCDSDSupply = delta.mul(totalNet()).asUint256();
+        uint256 cappedNewCDSDSupply = increaseCDSDSupply(newCDSDSupply);
 
-        emit SupplyDecrease(epoch(), price.value, cappedNewDebt);
+        emit CDSDSupplyIncrease(epoch(), price.value, cappedNewCDSDSupply);
         return;
     }
 
     function growSupply(Decimal.D256 memory price) private {
-        uint256 lessDebt = resetDebt(Decimal.zero());
+        // uint256 lessDebt = resetDebt(Decimal.zero());
 
         Decimal.D256 memory supplyChangeDivisor = Constants.getSupplyChangeDivisor();
 
-        uint256 totalRedeemable = totalRedeemable();
-        uint256 totalCoupons = totalCoupons();
-        if (totalRedeemable < totalCoupons) {
-            supplyChangeDivisor = Constants.getCouponSupplyChangeDivisor();
-        }
+        // uint256 totalRedeemable = totalRedeemable();
+        // uint256 totalCoupons = totalCoupons();
+        // if (totalRedeemable < totalCoupons) {
+        //     supplyChangeDivisor = Constants.getCouponSupplyChangeDivisor();
+        // }
 
         Decimal.D256 memory delta = limit(price.sub(Decimal.one()).div(supplyChangeDivisor), price);
         uint256 newSupply = delta.mul(totalNet()).asUint256();
         (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
-        emit SupplyIncrease(epoch(), price.value, newRedeemable, lessDebt, newBonded);
+
+        emit SupplyIncrease(epoch(), price.value, newRedeemable, 0, newBonded);
     }
 
     function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {
         Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
-        
-        uint256 totalRedeemable = totalRedeemable();
-        uint256 totalCoupons = totalCoupons();
-        if (price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)) {
-            supplyChangeLimit = Constants.getCouponSupplyChangeLimit();
-        }
+
+        // uint256 totalRedeemable = totalRedeemable();
+        // uint256 totalCoupons = totalCoupons();
+        // if (price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)) {
+        //     supplyChangeLimit = Constants.getCouponSupplyChangeLimit();
+        // }
 
         return delta.greaterThan(supplyChangeLimit) ? supplyChangeLimit : delta;
     }

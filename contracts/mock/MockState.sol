@@ -70,6 +70,14 @@ contract MockState is Setters {
     function decrementTotalCDSDBurnedE(uint256 amount, string calldata reason) external {
         super.decrementTotalCDSDBurned(amount, reason);
     }
+
+    function incrementTotalCDSDRedeemedE(uint256 amount) external {
+        super.incrementTotalCDSDRedeemed(amount);
+    }
+
+    function decrementTotalCDSDRedeemedE(uint256 amount, string calldata reason) external {
+        super.decrementTotalCDSDRedeemed(amount, reason);
+    }
     // end DIP-10
 
     /**
@@ -125,20 +133,20 @@ contract MockState is Setters {
         super.decrementBalanceOfCDSDShares(account, amount, reason);
     }
 
-    function incrementBalanceOfRedeemableCDSDE(address account, uint256 amount) external {
-        super.incrementBalanceOfRedeemableCDSD(account, amount);
+    function incrementBalanceOfRedeemedCDSDE(address account, uint256 amount) external {
+        super.incrementBalanceOfRedeemedCDSD(account, amount);
     }
 
-    function decrementBalanceOfRedeemableCDSDE(address account, uint256 amount, string calldata reason) external {
-        super.decrementBalanceOfRedeemableCDSD(account, amount, reason);
+    function decrementBalanceOfRedeemedCDSDE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfRedeemedCDSD(account, amount, reason);
     }
 
-    function incrementBalanceOfBurnedCDSDE(address account, uint256 amount) external {
-        super.incrementBalanceOfBurnedCDSD(account, amount);
+    function incrementBalanceOfBurnedDSDE(address account, uint256 amount) external {
+        super.incrementBalanceOfBurnedDSD(account, amount);
     }
 
-    function decrementBalanceOfBurnedCDSDE(address account, uint256 amount, string calldata reason) external {
-        super.decrementBalanceOfBurnedCDSD(account, amount, reason);
+    function decrementBalanceOfBurnedDSDE(address account, uint256 amount, string calldata reason) external {
+        super.decrementBalanceOfBurnedDSD(account, amount, reason);
     }
     // end DIP-10
 

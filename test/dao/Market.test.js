@@ -58,7 +58,7 @@ describe("Market", function () {
         expect(await this.cdsd.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(0));
 
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(0));
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(1000));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(1000));
       });
 
       it("emits CDSDMinted event", async function () {
@@ -106,7 +106,7 @@ describe("Market", function () {
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(0));
         expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(0));
 
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(2000));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(2000));
       });
 
       it("emits CDSDMinted event", async function () {
@@ -149,7 +149,7 @@ describe("Market", function () {
 
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(1000));
         expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(1000));
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(1000));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(1000));
       });
 
       it("emits CDSDMinted event", async function () {
@@ -207,7 +207,7 @@ describe("Market", function () {
 
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(2000));
         expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(2000));
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(2000));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(2000));
       });
 
       it("emits CDSDMinted event", async function () {
@@ -259,7 +259,7 @@ describe("Market", function () {
 
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(1000));
         expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(1000));
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(0));
       });
 
       it("emits BondCDSD event", async function () {
@@ -298,7 +298,7 @@ describe("Market", function () {
 
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(300));
         expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(300));
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(0));
       });
 
       it("emits BondCDSD event", async function () {
@@ -353,7 +353,7 @@ describe("Market", function () {
 
         expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(1250));
         expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(2500));
-        expect(await this.market.totalCDSDBurned()).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(0));
       });
 
       it("emits BondCDSD event", async function () {
@@ -365,6 +365,164 @@ describe("Market", function () {
         expect(event.args.start).to.be.bignumber.equal(new BN(3));
         expect(event.args.value).to.be.bignumber.equal(new BN(250));
         expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(500));
+      });
+    });
+  });
+
+  describe.only("unbondCDSD", function () {
+    describe("calls that reverts", function () {
+      beforeEach(async function () {
+        await this.market.mintCDSDToE(userAddress, 1000, {
+          from: userAddress,
+        });
+
+        await this.market.bondCDSD(1000, {
+          from: userAddress,
+        });
+
+        await this.market.incrementEpochE({ from: userAddress });
+      });
+
+      it("cannot unbound more shares than owned", async function () {
+        await expectRevert(
+          this.market.unbondCDSD(new BN(1500), { from: userAddress }),
+          "Market: insufficient shares to unbound",
+        );
+      });
+
+      it("cannot have no amount", async function () {
+        await expectRevert(
+          this.market.unbondCDSD(new BN(0), { from: userAddress }),
+          "Market: unbound must be greater than 0",
+        );
+      });
+    });
+
+    describe("when unbonding cdsd", function () {
+      beforeEach(async function () {
+        await this.market.mintCDSDToE(userAddress, 1000, {
+          from: userAddress,
+        });
+
+        await this.market.bondCDSD(1000, {
+          from: userAddress,
+        });
+
+        await this.market.incrementEpochE({ from: userAddress });
+      });
+
+      describe("simple", function () {
+        beforeEach(async function () {
+          this.result = await this.market.unbondCDSD(new BN(1000), { from: userAddress });
+          this.txHash = this.result.tx;
+        });
+
+        it("updates users balances", async function () {
+          expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000));
+          expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+        });
+
+        it("updates dao balances", async function () {
+          expect(await this.cdsd.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(0));
+        });
+
+        it("emits UnbondCDSD event", async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockMarket, "UnbondCDSD", {
+            account: userAddress,
+          });
+
+          expect(event.args.account).to.be.bignumber.equal(userAddress);
+          expect(event.args.start).to.be.bignumber.equal(new BN(3));
+          expect(event.args.value).to.be.bignumber.equal(new BN(1000));
+          expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(1000));
+        });
+      });
+
+      describe("partially unbounding", function () {
+        beforeEach(async function () {
+          this.result = await this.market.unbondCDSD(new BN(800), { from: userAddress });
+          this.txHash = this.result.tx;
+        });
+
+        it("updates users balances", async function () {
+          expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(800));
+          expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(200));
+          expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(200));
+          expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+        });
+
+        it("updates dao balances", async function () {
+          expect(await this.cdsd.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(200));
+          expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(200));
+          expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(200));
+          expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(0));
+        });
+
+        it("emits UnbondCDSD event", async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockMarket, "UnbondCDSD", {
+            account: userAddress,
+          });
+
+          expect(event.args.account).to.be.bignumber.equal(userAddress);
+          expect(event.args.start).to.be.bignumber.equal(new BN(3));
+          expect(event.args.value).to.be.bignumber.equal(new BN(800));
+          expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(800));
+        });
+      });
+
+      describe("multiple", function () {
+        beforeEach(async function () {
+          await this.market.mintCDSDToE(userAddress1, 1000);
+          await this.market.mintCDSDToE(userAddress2, 1000);
+
+          await this.market.bondCDSD(600, { from: userAddress1 });
+          await this.market.bondCDSD(400, { from: userAddress2 });
+
+          await this.market.incrementEpochE({ from: userAddress });
+
+          await this.market.mintCDSDToE(this.market.address, 1000);
+
+          this.result = await this.market.unbondCDSD(800, {
+            from: userAddress,
+          });
+
+          this.txHash = this.result.tx;
+        });
+
+        it("updates users balances", async function () {
+          const userBalanceAfterUnbonding = new BN(800)
+            .mul(await this.cdsd.balanceOf(this.market.address))
+            .div(await this.market.totalCDSDShares());
+          expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(userBalanceAfterUnbonding);
+          expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(200)); // user shares of bonded cDSD
+          expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(300)); // actual bonded in total by cDSD
+          expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+        });
+
+        it("updates dao balances", async function () {
+          expect(await this.cdsd.balanceOf(this.market.address)).to.be.bignumber.equal(
+            new BN(600).add(new BN(400)).add(new BN(1000)).add(new BN(1000)).sub(new BN(1200)), // 800 shares was removed which equals 1200 cDSD so 3000 - 1200 = 1800
+          );
+          expect(await this.market.totalCDSDShares()).to.be.bignumber.equal(new BN(1200));
+          expect(await this.market.totalCDSDBonded()).to.be.bignumber.equal(new BN(1800)); // should be same as cdsd.balanceOf(address(this))
+          expect(await this.market.totalBurnedDSD()).to.be.bignumber.equal(new BN(0));
+        });
+
+        it("emits UnbondCDSD event", async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockMarket, "UnbondCDSD", {
+            account: userAddress,
+          });
+
+          expect(event.args.account).to.be.bignumber.equal(userAddress);
+          expect(event.args.start).to.be.bignumber.equal(new BN(4));
+          expect(event.args.value).to.be.bignumber.equal(new BN(800));
+          expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(1200));
+        });
       });
     });
   });

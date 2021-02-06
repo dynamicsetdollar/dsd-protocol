@@ -80,8 +80,10 @@ library Constants {
     address private constant PAIR_ADDRESS = address(0x66e33d2605c5fB25eBb7cd7528E7997b0afA55E8);
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
-    /* DIP-10 DAO */
+    /* DIP-10 */
     uint256 private constant EARNABLE_CAP = 100; // % of capped earnable contraction rewards
+    uint256 private constant CDSD_REDEMPTION_REWARD_RATIO = 50; // 50%
+    uint256 private constant CDSD_CONTRACTION_REWARD_RATIO = 95; // 59%
 
     /**
      * Getters
@@ -212,5 +214,13 @@ library Constants {
 
     function getEarnableCap() internal pure returns (uint256) {
         return EARNABLE_CAP;
+    }
+
+    function getCDSDRedemptionRewardRatio() internal pure returns (uint256) {
+        return CDSD_REDEMPTION_REWARD_RATIO;
+    }
+
+    function getCDSDContractionRewardRatio() internal pure returns (uint256) {
+        return CDSD_CONTRACTION_REWARD_RATIO;
     }
 }
