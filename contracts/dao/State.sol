@@ -114,6 +114,7 @@ contract Storage {
         uint256 totalCDSDShares;
         uint256 totalBurnedDSD;
         uint256 totalCDSDRedeemed;
+        uint256 dip10TotalRedeemable;
         IDollar cDSD;
     }
 }

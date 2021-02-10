@@ -98,7 +98,7 @@ contract Getters is State {
     function totalNet() public view returns (uint256) {
         uint256 totalNetAmount = 0;
 
-        if (dollar().totalSupply() <= cdsd().totalSupply()) {
+        if (dollar().totalSupply() >= cdsd().totalSupply()) {
             totalNetAmount = dollar().totalSupply().sub(cdsd().totalSupply());
         }
 
@@ -127,8 +127,20 @@ contract Getters is State {
         return  totalDSDBurned.add(totalDSDBurned.mul(Constants.getEarnableCap()).div(100));
     }
 
+    function dip10TotalRedeemable() public view returns (uint256) {
+        return _state10.dip10TotalRedeemable;
+    }
+
+    function totalCDSD() public view returns (uint256) {
+        return cdsd().totalSupply();
+    }
+
     function cdsd() public view returns (IDollar) {
         return _state10.cDSD;
+    }
+
+    function treasury() public view returns (address) {
+        return Constants.getTreasuryAddress();
     }
     // end DIP-10
 

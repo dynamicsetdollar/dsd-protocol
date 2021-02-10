@@ -98,6 +98,14 @@ contract Setters is State, Getters {
     function decrementTotalCDSDRedeemed(uint256 amount, string memory reason) internal {
         _state10.totalCDSDRedeemed = _state10.totalCDSDRedeemed.sub(amount, reason);
     }
+
+    function incrementState10TotalRedeemable(uint256 amount) internal {
+        _state10.dip10TotalRedeemable = _state10.dip10TotalRedeemable.add(amount);
+    }
+
+    function decrementState10TotalRedeemable(uint256 amount, string memory reason) internal {
+        _state10.dip10TotalRedeemable = _state10.dip10TotalRedeemable.sub(amount, reason);
+    }
     // end DIP-10
 
     /**

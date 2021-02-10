@@ -32,9 +32,6 @@ contract Comptroller is Setters {
 
     function mintToAccount(address account, uint256 amount) internal {
         dollar().mint(account, amount);
-        // if (!bootstrappingAt(epoch())) {
-        //     increaseDebt(amount);
-        // }
 
         balanceCheck();
     }
@@ -42,18 +39,6 @@ contract Comptroller is Setters {
     function burnFromAccount(address account, uint256 amount) internal {
         dollar().transferFrom(account, address(this), amount);
         dollar().burn(amount);
-        // decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
-
-        balanceCheck();
-    }
-
-    function redeemToAccount(address account, uint256 amount, uint256 couponAmount) internal {
-        dollar().mint(account, amount);
-
-        if (couponAmount != 0) {
-            dollar().transfer(account, couponAmount);
-            decrementTotalRedeemable(couponAmount, "Comptroller: not enough redeemable balance");
-        }
 
         balanceCheck();
     }
@@ -72,26 +57,22 @@ contract Comptroller is Setters {
 
         // no more than earnable CDSD rewards is minted
         if (cDSDSupplyReward.add(totalCDSDBonded()) > totalEarnableCDSD()) {
-            cDSDSupplyReward = totalEarnableCDSD().sub(cDSDSupplyReward.add(totalCDSDBonded()));
+
+            cDSDSupplyReward = totalCDSDBonded() < totalEarnableCDSD() ? totalEarnableCDSD().sub(totalCDSDBonded()) : 0;
         }
 
         cdsd().mint(address(this), cDSDSupplyReward);
 
-        // figure out how to cap dao Rewards at 20% APY
+        // TODO: figure out how to cap dao Rewards at 20% APY
         if (totalBonded() != 0) {
             mintToDAO(daoContractionRewards);
         }
 
         balanceCheck();
 
-        return cDSDSupplyReward; // lessDebt > amount ? 0 : amount.sub(lessDebt);
+        return cDSDSupplyReward;
     }
 
-    // function decreaseDebt(uint256 amount) internal {
-    //     decrementTotalDebt(amount, "Comptroller: not enough debt");
-
-    //     balanceCheck();
-    // }
 
     function increaseSupply(uint256 newSupply) internal returns (uint256, uint256) {
         // 0-a. Pay out to Pool
@@ -103,58 +84,34 @@ contract Comptroller is Setters {
         mintToTreasury(treasuryReward);
 
         uint256 rewards = poolReward.add(treasuryReward);
-        uint256 supply = newSupply > rewards ? newSupply.sub(rewards) : 0;
+        uint256 amount = newSupply > rewards ? newSupply.sub(rewards) : 0;
 
         // cDSD redemption logic
+
         uint256 newCDSDRedeemable = 0;
         if (totalCDSDRedeemed() < totalEarnableCDSD()) {
-            uint256 cDSDReward = supply.mul(Constants.getCDSDRedemptionRewardRatio()).div(100);
+
+            uint256 cDSDReward = amount.mul(Constants.getCDSDRedemptionRewardRatio()).div(100);
 
             newCDSDRedeemable = totalEarnableCDSD().sub(totalCDSDRedeemed());
             newCDSDRedeemable = newCDSDRedeemable > cDSDReward ? cDSDReward : newCDSDRedeemable;
 
             mintToRedeemable(newCDSDRedeemable);
-            supply = supply.sub(newCDSDRedeemable);
+            amount = amount.sub(newCDSDRedeemable);
         }
-
-
-        // // 1. True up redeemable pool
-        // uint256 newRedeemable = 0;
-        // uint256 totalRedeemable = totalRedeemable();
-        // uint256 totalCoupons = totalCoupons();
-        // if (totalRedeemable < totalCoupons) {
-        //     newRedeemable = totalCoupons.sub(totalRedeemable);
-        //     newRedeemable = newRedeemable > newSupply ? newSupply : newRedeemable;
-        //     mintToRedeemable(newRedeemable);
-        //     newSupply = newSupply.sub(newRedeemable);
-        // }
 
         // 2. Payout to DAO
         if (totalBonded() == 0) {
-            supply = 0;
+            amount = 0;
         }
-        if (supply > 0) {
-            mintToDAO(supply);
+        if (amount > 0) {
+            mintToDAO(amount);
         }
 
         balanceCheck();
 
-        return (newCDSDRedeemable, supply.add(rewards));
+        return (newCDSDRedeemable, amount.add(rewards));
     }
-
-    // function resetDebt(Decimal.D256 memory targetDebtRatio) internal returns (uint256) {
-    //     uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply()).asUint256();
-    //     uint256 currentDebt = cdsd().totalSupply();
-
-    //     if (currentDebt > targetDebt) {
-    //         uint256 lessDebt = currentDebt.sub(targetDebt);
-    //         // decreaseDebt(lessDebt);
-
-    //         return lessDebt;
-    //     }
-
-    //     return 0;
-    // }
 
     function balanceCheck() internal view {
         Require.that(
@@ -185,7 +142,7 @@ contract Comptroller is Setters {
 
     function mintToRedeemable(uint256 amount) private {
         dollar().mint(address(this), amount);
-        incrementTotalRedeemable(amount);
+        incrementState10TotalRedeemable(amount);
 
         balanceCheck();
     }

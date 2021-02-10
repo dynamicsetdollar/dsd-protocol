@@ -112,6 +112,28 @@ contract Market is Comptroller, Curve {
         emit CouponPurchase(msg.sender, couponEpoch, couponUnderlying, 0);
     }
 
+    function approveCoupons(address spender, uint256 amount) external {
+        require(spender != address(0), "Market: Coupon approve to the zero address");
+
+        updateAllowanceCoupons(msg.sender, spender, amount);
+
+        emit CouponApproval(msg.sender, spender, amount);
+    }
+
+    function transferCoupons(address sender, address recipient, uint256 epoch, uint256 amount) external {
+        require(sender != address(0), "Market: Coupon transfer from the zero address");
+        require(recipient != address(0), "Market: Coupon transfer to the zero address");
+
+        decrementBalanceOfCoupons(sender, epoch, amount, "Market: Insufficient coupon balance");
+        incrementBalanceOfCoupons(recipient, epoch, amount);
+
+        if (msg.sender != sender && allowanceCoupons(sender, msg.sender) != uint256(-1)) {
+            decrementAllowanceCoupons(sender, msg.sender, amount, "Market: Insufficient coupon approval");
+        }
+
+        emit CouponTransfer(sender, recipient, epoch, amount);
+    }
+
     // DIP-10
 
     function burnDSDForCDSD(uint256 amount) public {
@@ -194,32 +216,9 @@ contract Market is Comptroller, Curve {
         balanceCheck();
 
         incrementBalanceOfRedeemedCDSD(msg.sender, amount); // cDSD redeemed increases
-        decrementTotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
+        decrementState10TotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
 
         emit CDSDBurned(msg.sender, amount);
     }
     // end DIP-10
-
-
-    function approveCoupons(address spender, uint256 amount) external {
-        require(spender != address(0), "Market: Coupon approve to the zero address");
-
-        updateAllowanceCoupons(msg.sender, spender, amount);
-
-        emit CouponApproval(msg.sender, spender, amount);
-    }
-
-    function transferCoupons(address sender, address recipient, uint256 epoch, uint256 amount) external {
-        require(sender != address(0), "Market: Coupon transfer from the zero address");
-        require(recipient != address(0), "Market: Coupon transfer to the zero address");
-
-        decrementBalanceOfCoupons(sender, epoch, amount, "Market: Insufficient coupon balance");
-        incrementBalanceOfCoupons(recipient, epoch, amount);
-
-        if (msg.sender != sender && allowanceCoupons(sender, msg.sender) != uint256(-1)) {
-            decrementAllowanceCoupons(sender, msg.sender, amount, "Market: Insufficient coupon approval");
-        }
-
-        emit CouponTransfer(sender, recipient, epoch, amount);
-    }
 }

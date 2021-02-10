@@ -325,7 +325,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('incrementTotalCDSDBurned', function () {
+    describe('incrementTotalCDSDBurned', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 await this.setters.incrementTotalCDSDBurnedE(100)
@@ -340,7 +340,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('decrementTotalCDSDBurned', function () {
+    describe('decrementTotalCDSDBurned', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 await this.setters.incrementTotalCDSDBurnedE(500)
@@ -895,7 +895,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('incrementBalanceOfRedeemedCDSD', function () {
+    describe('incrementBalanceOfRedeemedCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 await this.setters.incrementBalanceOfRedeemedCDSDE(userAddress, 100)
@@ -910,7 +910,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('decrementBalanceOfRedeemedCDSD', function () {
+    describe('decrementBalanceOfRedeemedCDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 await this.setters.incrementBalanceOfRedeemedCDSDE(userAddress, 500)
@@ -950,7 +950,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('incrementBalanceOfBurnedDSD', function () {
+    describe('incrementBalanceOfBurnedDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 // add shares first
@@ -976,7 +976,7 @@ describe('State', function () {
         })
     })
 
-    describe.only('decrementBalanceOfBurnedDSD', function () {
+    describe('decrementBalanceOfBurnedDSD', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
                 // add shares first

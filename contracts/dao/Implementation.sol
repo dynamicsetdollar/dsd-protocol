@@ -41,9 +41,6 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
         // deploy cDSD
         _state10.cDSD = new ContractionDollar();
-
-        _state.balance.redeemable = 0; // redeemable is zeroed
-        setDebtToZero(); // no more debts
     }
 
     function advance() external incentivized {

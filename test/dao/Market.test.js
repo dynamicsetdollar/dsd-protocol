@@ -30,7 +30,7 @@ describe("Market", function () {
     });
   });
 
-  describe.only("burnDSDForCDSD", function () {
+  describe("burnDSDForCDSD", function () {
     describe("when burning DSD", function () {
       beforeEach(async function () {
         await this.market.mintToE(userAddress, 1000); // added to initial balance
@@ -72,7 +72,7 @@ describe("Market", function () {
     });
   });
 
-  describe.only("burnCouponsForCDSD", function () {
+  describe("burnCouponsForCDSD", function () {
     describe("when burning coupons", function () {
       beforeEach(async function () {
         const couponEpoch = 1;
@@ -120,7 +120,7 @@ describe("Market", function () {
     });
   });
 
-  describe.only("burnDSDForCDSDAndBond", function () {
+  describe("burnDSDForCDSDAndBond", function () {
     describe("when burning DSD plus bonding cDSD", function () {
       beforeEach(async function () {
         await this.market.mintToE(userAddress, 1000); // added to initial balance
@@ -174,7 +174,7 @@ describe("Market", function () {
     });
   });
 
-  describe.only("burnCouponsForCDSDAndBond", function () {
+  describe("burnCouponsForCDSDAndBond", function () {
     describe("when burning coupons plus bonding cDSD", function () {
       beforeEach(async function () {
         const couponEpoch = 1;
@@ -232,7 +232,7 @@ describe("Market", function () {
     });
   });
 
-  describe.only("bondCDSD", function () {
+  describe("bondCDSD", function () {
     describe("when user simply bonds cDSD", function () {
       beforeEach(async function () {
         await this.market.mintCDSDToE(userAddress, 1000, {
@@ -369,7 +369,7 @@ describe("Market", function () {
     });
   });
 
-  describe.only("unbondCDSD", function () {
+  describe("unbondCDSD", function () {
     describe("calls that reverts", function () {
       beforeEach(async function () {
         await this.market.mintCDSDToE(userAddress, 1000, {
@@ -527,7 +527,8 @@ describe("Market", function () {
     });
   });
 
-  describe("purchaseCoupons", function () {
+  // legacy: coupons are not purchasable anymore
+  describe.skip("purchaseCoupons - legacy", function () {
     describe("before call", function () {
       beforeEach(async function () {
         await this.market.incrementTotalDebtE(100000);
@@ -636,8 +637,8 @@ describe("Market", function () {
     });
   });
 
+  // legacy: coupons are not redeemable anymore
   describe.skip("redeemCoupons - legacy", function () {
-    // tests are outdated given https://github.com/dynamicsetdollar/dsd-protocol/commit/bc1256cc898093d3b146882e4e85e047c7714b47
     const minOutput = 0;
     beforeEach(async function () {
       await this.market.incrementTotalDebtE(100000);
@@ -831,8 +832,7 @@ describe("Market", function () {
 
   describe("transferCoupons", function () {
     beforeEach(async function () {
-      await this.market.incrementTotalDebtE(100000);
-      await this.market.purchaseCoupons(100000, { from: userAddress });
+      await this.market.incrementBalanceOfCouponsE(userAddress,1 , 100000);
     });
 
     describe("sender zero address", function () {
@@ -855,15 +855,15 @@ describe("Market", function () {
 
     describe("on call from self", function () {
       beforeEach(async function () {
-        this.result = await this.market.transferCoupons(userAddress, ownerAddress, 1, 100000 / 2, {
+        this.result = await this.market.transferCoupons(userAddress, ownerAddress, 1, 100000, {
           from: userAddress,
         });
         this.txHash = this.result.tx;
       });
 
       it("updates balances", async function () {
-        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(3703 / 2));
-        expect(await this.market.balanceOfCoupons(ownerAddress, 1)).to.be.bignumber.equal(new BN(100000 / 2));
+        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.balanceOfCoupons(ownerAddress, 1)).to.be.bignumber.equal(new BN(100000));
       });
 
       it("emits CouponTransfer event", async function () {
@@ -873,7 +873,7 @@ describe("Market", function () {
         });
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
-        expect(event.args.value).to.be.bignumber.equal(new BN(100000 / 2));
+        expect(event.args.value).to.be.bignumber.equal(new BN(100000));
       });
     });
 
@@ -889,7 +889,7 @@ describe("Market", function () {
     describe("on unapproved call from other", function () {
       it("reverts", async function () {
         await expectRevert(
-          this.market.transferCoupons(userAddress, ownerAddress, 1, 100000 / 2, { from: ownerAddress }),
+          this.market.transferCoupons(userAddress, ownerAddress, 1, 100000, { from: ownerAddress }),
           "Market: Insufficient coupon approval",
         );
       });
@@ -897,18 +897,18 @@ describe("Market", function () {
 
     describe("on approved call from other", function () {
       beforeEach(async function () {
-        await this.market.approveCoupons(ownerAddress, 100000 / 2, {
+        await this.market.approveCoupons(ownerAddress, 100000, {
           from: userAddress,
         });
-        this.result = await this.market.transferCoupons(userAddress, ownerAddress, 1, 100000 / 2, {
+        this.result = await this.market.transferCoupons(userAddress, ownerAddress, 1, 100000, {
           from: ownerAddress,
         });
         this.txHash = this.result.tx;
       });
 
       it("updates balances", async function () {
-        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(3703 / 2));
-        expect(await this.market.balanceOfCoupons(ownerAddress, 1)).to.be.bignumber.equal(new BN(100000 / 2));
+        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.balanceOfCoupons(ownerAddress, 1)).to.be.bignumber.equal(new BN(100000));
       });
 
       it("updates approval", async function () {
@@ -922,7 +922,7 @@ describe("Market", function () {
         });
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
-        expect(event.args.value).to.be.bignumber.equal(new BN(100000 / 2));
+        expect(event.args.value).to.be.bignumber.equal(new BN(100000));
       });
     });
 
@@ -931,7 +931,7 @@ describe("Market", function () {
         await this.market.approveCoupons(ownerAddress, MAX_UINT256, {
           from: userAddress,
         });
-        await this.market.transferCoupons(userAddress, ownerAddress, 1, 100000 / 2, { from: ownerAddress });
+        await this.market.transferCoupons(userAddress, ownerAddress, 1, 100000, { from: ownerAddress });
       });
 
       it("doesnt update approval", async function () {
@@ -959,8 +959,8 @@ describe("Market", function () {
       this.timeout(3000000);
 
       beforeEach(async function () {
-        await this.market.incrementTotalDebtE(100000);
-        await this.market.purchaseCoupons(100000, { from: userAddress });
+        const currentEpoch = await this.market.epoch()
+        await this.market.incrementBalanceOfCouponsE(userAddress, currentEpoch, 100000);
 
         await this.market.incrementEpochE();
         await this.market.stepE();
@@ -977,7 +977,7 @@ describe("Market", function () {
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
         expect(event.args.couponsExpired).to.be.bignumber.equal(
-          new BN(103703 / 2), // coupons have been divided by 2: half can expire the other can be reclaimed
+          new BN(100000),
         );
         expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
         expect(event.args.newBonded).to.be.bignumber.equal(new BN(0));
@@ -988,8 +988,8 @@ describe("Market", function () {
       this.timeout(3000000);
 
       beforeEach(async function () {
-        await this.market.incrementTotalDebtE(100000);
-        await this.market.purchaseCoupons(100000, { from: userAddress });
+        const currentEpoch = await this.market.epoch()
+        await this.market.incrementBalanceOfCouponsE(userAddress, currentEpoch, 100000);
 
         await this.market.mintToE(this.market.address, 100000);
         await this.market.incrementTotalRedeemableE(100000);
@@ -1009,7 +1009,7 @@ describe("Market", function () {
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
         expect(event.args.couponsExpired).to.be.bignumber.equal(
-          new BN(103703 / 2), // coupons have been divided by 2: half can expire the other can be reclaimed
+          new BN(100000),
         );
         expect(event.args.lessRedeemable).to.be.bignumber.equal(new BN(100000));
         expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
@@ -1027,10 +1027,8 @@ describe("Market", function () {
         this.timeout(30000000);
 
         beforeEach(async function () {
-          await this.market.incrementTotalDebtE(100000);
-          await this.market.purchaseCoupons(100000, {
-            from: userAddress,
-          });
+          const currentEpoch = await this.market.epoch()
+          await this.market.incrementBalanceOfCouponsE(userAddress, currentEpoch, 100000);
 
           await this.market.mintToE(this.market.address, 100000);
           await this.market.incrementTotalRedeemableE(100000);
@@ -1051,7 +1049,7 @@ describe("Market", function () {
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
           expect(event.args.couponsExpired).to.be.bignumber.equal(
-            new BN(103333 / 2), // coupons have been divided by 2: half can expire the other can be reclaimed
+            new BN(100000),
           );
           expect(event.args.lessRedeemable).to.be.bignumber.equal(new BN(100000));
           expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
@@ -1063,15 +1061,11 @@ describe("Market", function () {
         this.timeout(30000000);
 
         beforeEach(async function () {
-          await this.market.incrementTotalDebtE(100000);
-          await this.market.purchaseCoupons(50000, {
-            from: userAddress,
-          });
-
+          const currentEpoch = await this.market.epoch()
+          await this.market.incrementBalanceOfCouponsE(userAddress, currentEpoch, 50000);
+          const newCurrentEpoch = await this.market.epoch()
           await this.market.incrementEpochE();
-          await this.market.purchaseCoupons(50000, {
-            from: userAddress,
-          });
+          await this.market.incrementBalanceOfCouponsE(userAddress, newCurrentEpoch, 50000);
 
           await this.market.mintToE(this.market.address, 100000);
           await this.market.incrementTotalRedeemableE(100000);
@@ -1091,10 +1085,10 @@ describe("Market", function () {
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
           expect(event.args.couponsExpired).to.be.bignumber.equal(
-            new BN(52583 / 2), // coupons have been divided by 2: half can expire the other can be reclaimed
+            new BN(100000),
           );
           expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(74584));
+          expect(event.args.newBonded).to.be.bignumber.equal(new BN(100000));
         });
       });
 
@@ -1102,15 +1096,13 @@ describe("Market", function () {
         this.timeout(3000000);
 
         beforeEach(async function () {
-          await this.market.incrementTotalDebtE(150000);
-          await this.market.purchaseCoupons(50000, {
-            from: userAddress,
-          });
+          const currentEpoch = await this.market.epoch()
+          await this.market.incrementBalanceOfCouponsE(userAddress, currentEpoch, 50000);
 
+
+          const newCurrentEpoch = await this.market.epoch()
           await this.market.incrementEpochE();
-          await this.market.purchaseCoupons(50000, {
-            from: userAddress,
-          });
+          await this.market.incrementBalanceOfCouponsE(userAddress, newCurrentEpoch, 50000);
 
           await this.market.mintToE(this.market.address, 100000);
           await this.market.incrementTotalRedeemableE(100000);
@@ -1130,10 +1122,10 @@ describe("Market", function () {
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
           expect(event.args.couponsExpired).to.be.bignumber.equal(
-            new BN(54662 / 2), // coupons have been divided by 2: half can expire the other can be reclaimed
+            new BN(100000),
           );
           expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(73639));
+          expect(event.args.newBonded).to.be.bignumber.equal(new BN(100000));
         });
       });
 
@@ -1141,15 +1133,12 @@ describe("Market", function () {
         this.timeout(30000000);
 
         beforeEach(async function () {
-          await this.market.incrementTotalDebtE(120000);
-          await this.market.purchaseCoupons(50000, {
-            from: userAddress,
-          });
+          const currentEpoch = await this.market.epoch()
+          await this.market.incrementBalanceOfCouponsE(userAddress, currentEpoch, 50000);
 
           await this.market.incrementEpochE();
-          await this.market.purchaseCoupons(50000, {
-            from: userAddress,
-          });
+          const newCurrentEpoch = await this.market.epoch()
+          await this.market.incrementBalanceOfCouponsE(userAddress, newCurrentEpoch, 50000);
 
           await this.market.mintToE(this.market.address, 100000);
           await this.market.incrementTotalRedeemableE(100000);
@@ -1169,10 +1158,10 @@ describe("Market", function () {
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
           expect(event.args.couponsExpired).to.be.bignumber.equal(
-            new BN(53377 / 2), // coupons have been divided by 2: half can expire the other can be reclaimed
+            new BN(50000),
           );
           expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(74223));
+          expect(event.args.newBonded).to.be.bignumber.equal(new BN(50000));
         });
       });
     });

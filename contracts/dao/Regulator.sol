@@ -54,7 +54,6 @@ contract Regulator is Comptroller {
         uint256 cappedNewCDSDSupply = increaseCDSDSupply(newCDSDSupply);
 
         emit CDSDSupplyIncrease(epoch(), price.value, cappedNewCDSDSupply);
-        return;
     }
 
     function growSupply(Decimal.D256 memory price) private {
