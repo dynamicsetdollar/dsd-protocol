@@ -26,7 +26,7 @@ contract Regulator is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
-    event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 lessDebt, uint256 newBonded);
+    event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 newBonded);
     event CDSDSupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newCDSDSupply);
     event SupplyNeutral(uint256 indexed epoch);
 
@@ -49,7 +49,8 @@ contract Regulator is Comptroller {
     }
 
     function triggerCDSDSupply(Decimal.D256 memory price) private {
-        Decimal.D256 memory delta = limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
+        Decimal.D256 memory delta =
+            limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
         uint256 newCDSDSupply = delta.mul(totalNet()).asUint256();
         uint256 cappedNewCDSDSupply = increaseCDSDSupply(newCDSDSupply);
 
@@ -71,7 +72,7 @@ contract Regulator is Comptroller {
         uint256 newSupply = delta.mul(totalNet()).asUint256();
         (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
 
-        emit SupplyIncrease(epoch(), price.value, newRedeemable, 0, newBonded);
+        emit SupplyIncrease(epoch(), price.value, newRedeemable, newBonded);
     }
 
     function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {

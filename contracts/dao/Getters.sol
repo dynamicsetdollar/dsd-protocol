@@ -124,7 +124,7 @@ contract Getters is State {
 
     function totalEarnableCDSD() public view returns (uint256) {
         uint256 totalDSDBurned = totalBurnedDSD();
-        return  totalDSDBurned.add(totalDSDBurned.mul(Constants.getEarnableCap()).div(100));
+        return totalDSDBurned.add(totalDSDBurned.mul(Constants.getEarnableCap()).div(100));
     }
 
     function dip10TotalRedeemable() public view returns (uint256) {
@@ -142,6 +142,7 @@ contract Getters is State {
     function treasury() public view returns (address) {
         return Constants.getTreasuryAddress();
     }
+
     // end DIP-10
 
     /**
@@ -215,10 +216,10 @@ contract Getters is State {
 
     function balanceOfEarnableCDSD(address account) public view returns (uint256) {
         uint256 accountCDSDShares = balanceOfBurnedCDSD(account);
-        return  accountCDSDShares.add(accountCDSDShares.mul(Constants.getEarnableCap()).div(100));
+        return accountCDSDShares.add(accountCDSDShares.mul(Constants.getEarnableCap()).div(100));
     }
-    // end DIP-10
 
+    // end DIP-10
 
     /**
      * Epoch
@@ -235,10 +236,7 @@ contract Getters is State {
     }
 
     function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
-        return blockTimestamp()
-            .sub(strategy.start)
-            .div(strategy.period)
-            .add(strategy.offset);
+        return blockTimestamp().sub(strategy.start).div(strategy.period).add(strategy.offset);
     }
 
     // Overridable for testing

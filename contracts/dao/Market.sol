@@ -27,7 +27,13 @@ contract Market is Comptroller, Curve {
 
     bytes32 private constant FILE = "Market";
 
-    event CouponExpiration(uint256 indexed epoch, uint256 couponsExpired, uint256 lessRedeemable, uint256 lessDebt, uint256 newBonded);
+    event CouponExpiration(
+        uint256 indexed epoch,
+        uint256 couponsExpired,
+        uint256 lessRedeemable,
+        uint256 lessDebt,
+        uint256 newBonded
+    );
     event CouponPurchase(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 couponAmount);
     event CouponRedemption(address indexed account, uint256 indexed epoch, uint256 amount, uint256 couponAmount);
     event CouponBurn(address indexed account, uint256 indexed epoch, uint256 couponAmount);
@@ -72,24 +78,33 @@ contract Market is Comptroller, Curve {
     }
 
     function couponRedemptionPenalty(uint256 couponEpoch, uint256 couponAmount) public view returns (uint256) {
-        uint timeIntoEpoch = block.timestamp % Constants.getEpochStrategy().period;
-        uint couponAge = epoch().sub(couponEpoch, "Market: Future couponEpoch");
+        uint256 timeIntoEpoch = block.timestamp % Constants.getEpochStrategy().period;
+        uint256 couponAge = epoch().sub(couponEpoch, "Market: Future couponEpoch");
 
         if (couponAge >= Constants.getCouponExpiration()) {
             return 0;
         }
 
-        uint couponEpochDecay = Constants.getCouponRedemptionPenaltyDecay() * (Constants.getCouponExpiration() - couponAge) / Constants.getCouponExpiration();
+        uint256 couponEpochDecay =
+            (Constants.getCouponRedemptionPenaltyDecay() * (Constants.getCouponExpiration() - couponAge)) /
+                Constants.getCouponExpiration();
 
         if (timeIntoEpoch >= couponEpochDecay) {
             return 0;
         }
 
-        Decimal.D256 memory couponEpochInitialPenalty = Constants.getInitialCouponRedemptionPenalty().div(Decimal.D256({value: Constants.getCouponExpiration() })).mul(Decimal.D256({value: Constants.getCouponExpiration() - couponAge}));
+        Decimal.D256 memory couponEpochInitialPenalty =
+            Constants
+                .getInitialCouponRedemptionPenalty()
+                .div(Decimal.D256({ value: Constants.getCouponExpiration() }))
+                .mul(Decimal.D256({ value: Constants.getCouponExpiration() - couponAge }));
 
-        Decimal.D256 memory couponEpochDecayedPenalty = couponEpochInitialPenalty.div(Decimal.D256({value: couponEpochDecay})).mul(Decimal.D256({value: couponEpochDecay - timeIntoEpoch}));
+        Decimal.D256 memory couponEpochDecayedPenalty =
+            couponEpochInitialPenalty.div(Decimal.D256({ value: couponEpochDecay })).mul(
+                Decimal.D256({ value: couponEpochDecay - timeIntoEpoch })
+            );
 
-        return Decimal.D256({value: couponAmount}).mul(couponEpochDecayedPenalty).value;
+        return Decimal.D256({ value: couponAmount }).mul(couponEpochDecayedPenalty).value;
     }
 
     function migrateCoupons(uint256 couponEpoch) external {
@@ -120,7 +135,12 @@ contract Market is Comptroller, Curve {
         emit CouponApproval(msg.sender, spender, amount);
     }
 
-    function transferCoupons(address sender, address recipient, uint256 epoch, uint256 amount) external {
+    function transferCoupons(
+        address sender,
+        address recipient,
+        uint256 epoch,
+        uint256 amount
+    ) external {
         require(sender != address(0), "Market: Coupon transfer from the zero address");
         require(recipient != address(0), "Market: Coupon transfer to the zero address");
 
@@ -147,7 +167,7 @@ contract Market is Comptroller, Curve {
         emit CDSDMinted(msg.sender, amount);
     }
 
-    function burnCouponsForCDSD(uint256 couponEpoch) public returns(uint256) {
+    function burnCouponsForCDSD(uint256 couponEpoch) public returns (uint256) {
         uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch);
         uint256 couponUnderlyingAmount = balanceOfCouponUnderlying(msg.sender, couponEpoch);
 
@@ -156,7 +176,12 @@ contract Market is Comptroller, Curve {
         if (couponAmount != 0) {
             decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
         }
-        decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlyingAmount, "Market: Insufficient coupon underlying balance");
+        decrementBalanceOfCouponUnderlying(
+            msg.sender,
+            couponEpoch,
+            couponUnderlyingAmount,
+            "Market: Insufficient coupon underlying balance"
+        );
 
         cdsd().mint(msg.sender, totalAmount);
         incrementBalanceOfBurnedDSD(msg.sender, totalAmount);
@@ -173,15 +198,14 @@ contract Market is Comptroller, Curve {
     }
 
     function burnCouponsForCDSDAndBond(uint256 couponEpoch) external {
-       uint256 amountToBond = burnCouponsForCDSD(couponEpoch);
+        uint256 amountToBond = burnCouponsForCDSD(couponEpoch);
 
         bondCDSD(amountToBond);
     }
 
-    function bondCDSD(uint256 amount) public  {
-        uint256 shares = totalCDSDShares() == 0 ?
-            amount :
-            amount.mul(totalCDSDShares()).div(cdsd().balanceOf(address(this)));
+    function bondCDSD(uint256 amount) public {
+        uint256 shares =
+            totalCDSDShares() == 0 ? amount : amount.mul(totalCDSDShares()).div(cdsd().balanceOf(address(this)));
 
         incrementBalanceOfCDSDShares(msg.sender, shares);
         cdsd().transferFrom(msg.sender, address(this), amount);
