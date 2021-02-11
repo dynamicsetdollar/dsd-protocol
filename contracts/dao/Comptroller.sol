@@ -53,26 +53,27 @@ contract Comptroller is Setters {
     function increaseCDSDSupply(uint256 newSupply) internal returns (uint256) {
         uint256 cDSDSupplyReward = newSupply.mul(Constants.getCDSDContractionRewardRatio()).div(100); // 95% or rewards go to bonded cDSD
 
-        uint256 daoContractionRewards = newSupply.sub(cDSDSupplyReward); // the rest i.e. 5% goes to bonded DSD.
+        if (totalBonded() != 0) {
+            // the remaining, i.e. 5%, goes to bonded DSD, capped at 20% APY
+            uint256 daoContractionRewards = newSupply.sub(cDSDSupplyReward);
+            uint256 daoContractionRewardsCap = Constants.getDSDContractionRewardCap().mul(totalBonded()).asUint256();
+
+            uint256 rewards =
+                daoContractionRewards > daoContractionRewardsCap ? daoContractionRewardsCap : daoContractionRewards;
+            mintToDAO(rewards);
+        }
 
         // no more than earnable CDSD rewards is minted
         if (cDSDSupplyReward.add(totalCDSDBonded()) > totalEarnableCDSD()) {
-
             cDSDSupplyReward = totalCDSDBonded() < totalEarnableCDSD() ? totalEarnableCDSD().sub(totalCDSDBonded()) : 0;
         }
 
         cdsd().mint(address(this), cDSDSupplyReward);
 
-        // TODO: figure out how to cap dao Rewards at 20% APY
-        if (totalBonded() != 0) {
-            mintToDAO(daoContractionRewards);
-        }
-
         balanceCheck();
 
         return cDSDSupplyReward;
     }
-
 
     function increaseSupply(uint256 newSupply) internal returns (uint256, uint256) {
         // 0-a. Pay out to Pool
@@ -83,22 +84,21 @@ contract Comptroller is Setters {
         uint256 treasuryReward = newSupply.mul(Constants.getTreasuryRatio()).div(100);
         mintToTreasury(treasuryReward);
 
-        uint256 rewards = poolReward.add(treasuryReward);
-        uint256 amount = newSupply > rewards ? newSupply.sub(rewards) : 0;
-
         // cDSD redemption logic
-
         uint256 newCDSDRedeemable = 0;
         if (totalCDSDRedeemed() < totalEarnableCDSD()) {
-
-            uint256 cDSDReward = amount.mul(Constants.getCDSDRedemptionRewardRatio()).div(100);
+            // 50% of expansion rewards when there is still unredeemable
+            uint256 cDSDReward = newSupply.mul(Constants.getCDSDRedemptionRewardRatio()).div(100);
 
             newCDSDRedeemable = totalEarnableCDSD().sub(totalCDSDRedeemed());
             newCDSDRedeemable = newCDSDRedeemable > cDSDReward ? cDSDReward : newCDSDRedeemable;
 
             mintToRedeemable(newCDSDRedeemable);
-            amount = amount.sub(newCDSDRedeemable);
         }
+
+        // remaining is for DAO
+        uint256 rewards = poolReward.add(treasuryReward).add(newCDSDRedeemable);
+        uint256 amount = newSupply > rewards ? newSupply.sub(rewards) : 0;
 
         // 2. Payout to DAO
         if (totalBonded() == 0) {

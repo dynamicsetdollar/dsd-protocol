@@ -83,7 +83,8 @@ library Constants {
     /* DIP-10 */
     uint256 private constant EARNABLE_CAP = 100; // % of capped earnable contraction rewards
     uint256 private constant CDSD_REDEMPTION_REWARD_RATIO = 50; // 50%
-    uint256 private constant CDSD_CONTRACTION_REWARD_RATIO = 95; // 59%
+    uint256 private constant CDSD_CONTRACTION_REWARD_RATIO = 95; // 95%
+    uint256 private constant DSD_CONTRACTION_REWARD_CAP = 5e14; // 5 bps
 
     /**
      * Getters
@@ -222,5 +223,9 @@ library Constants {
 
     function getCDSDContractionRewardRatio() internal pure returns (uint256) {
         return CDSD_CONTRACTION_REWARD_RATIO;
+    }
+
+    function getDSDContractionRewardCap() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: DSD_CONTRACTION_REWARD_CAP});
     }
 }
