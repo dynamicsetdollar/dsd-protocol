@@ -444,7 +444,7 @@ describe("Comptroller", function () {
           new BN(900000).add(this.daoContractionRewards),
         );
         expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
-          this.cDSDSupplyReward.add(new BN(10)),
+          this.cDSDSupplyReward,
         );
 
         expect(

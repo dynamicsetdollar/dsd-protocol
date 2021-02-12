@@ -51,6 +51,7 @@ contract Regulator is Comptroller {
     function triggerCDSDSupply(Decimal.D256 memory price) private {
         Decimal.D256 memory delta =
             limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
+
         uint256 newCDSDSupply = delta.mul(totalNet()).asUint256();
         uint256 cappedNewCDSDSupply = increaseCDSDSupply(newCDSDSupply);
 
@@ -58,15 +59,8 @@ contract Regulator is Comptroller {
     }
 
     function growSupply(Decimal.D256 memory price) private {
-        // uint256 lessDebt = resetDebt(Decimal.zero());
 
         Decimal.D256 memory supplyChangeDivisor = Constants.getSupplyChangeDivisor();
-
-        // uint256 totalRedeemable = totalRedeemable();
-        // uint256 totalCoupons = totalCoupons();
-        // if (totalRedeemable < totalCoupons) {
-        //     supplyChangeDivisor = Constants.getCouponSupplyChangeDivisor();
-        // }
 
         Decimal.D256 memory delta = limit(price.sub(Decimal.one()).div(supplyChangeDivisor), price);
         uint256 newSupply = delta.mul(totalNet()).asUint256();
@@ -77,12 +71,6 @@ contract Regulator is Comptroller {
 
     function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {
         Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
-
-        // uint256 totalRedeemable = totalRedeemable();
-        // uint256 totalCoupons = totalCoupons();
-        // if (price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)) {
-        //     supplyChangeLimit = Constants.getCouponSupplyChangeLimit();
-        // }
 
         return delta.greaterThan(supplyChangeLimit) ? supplyChangeLimit : delta;
     }

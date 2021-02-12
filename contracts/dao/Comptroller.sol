@@ -64,8 +64,10 @@ contract Comptroller is Setters {
         }
 
         // no more than earnable CDSD rewards is minted
-        if (cDSDSupplyReward.add(totalCDSDBonded()) > totalEarnableCDSD()) {
-            cDSDSupplyReward = totalCDSDBonded() < totalEarnableCDSD() ? totalEarnableCDSD().sub(totalCDSDBonded()) : 0;
+        if (cDSDSupplyReward.add(cdsd().totalSupply()) > totalEarnableCDSD()) {
+            cDSDSupplyReward = cdsd().totalSupply() < totalEarnableCDSD()
+                ? totalEarnableCDSD().sub(cdsd().totalSupply())
+                : 0;
         }
 
         cdsd().mint(address(this), cDSDSupplyReward);
