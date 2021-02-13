@@ -432,7 +432,7 @@ describe("Comptroller", function () {
         await this.dollarFromComptrollerWithMarket.approve(this.comptrollerWithMarket.address, new BN(10), {
           from: userAddress,
         });
-        await this.comptrollerWithMarket.burnDSDForCDSD(new BN(10), { from: userAddress }); // can earn only 20 i.e 100% of burned
+        await this.comptrollerWithMarket.burnDSDForCDSDAndBond(new BN(10), { from: userAddress }); // can earn only 20 i.e 100% of burned
 
         await this.comptrollerWithMarket.increaseCDSDSupplyE(new BN(1000));
         this.cDSDSupplyReward = new BN(20); // limit redeemable

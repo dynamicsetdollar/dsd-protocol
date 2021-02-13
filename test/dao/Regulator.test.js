@@ -23,7 +23,7 @@ function treasureIncentive(newAmount) {
 }
 
 describe("Regulator", function () {
-  const [ownerAddress, userAddress, poolAddress] = accounts;
+  const [ownerAddress, userAddress, poolAddress, userAddress1, userAddress2] = accounts;
 
   beforeEach(async function () {
     this.oracle = await MockSettableOracle.new({
@@ -471,7 +471,7 @@ describe("Regulator", function () {
 
             expect(await this.regulator.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(0));
-            expect(await this.regulator.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(100));
+            expect(await this.regulator.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(100));
             expect(await this.regulator.balanceOfRedeemedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.balanceOfEarnableCDSD(userAddress)).to.be.bignumber.equal(new BN(200)); // 100% of what was burned
           });
@@ -539,7 +539,7 @@ describe("Regulator", function () {
 
             expect(await this.regulator.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(200));
             expect(await this.regulator.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(100));
-            expect(await this.regulator.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(100));
+            expect(await this.regulator.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(100));
             expect(await this.regulator.balanceOfRedeemedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.balanceOfEarnableCDSD(userAddress)).to.be.bignumber.equal(new BN(200)); // 100% of what was burned
           });
@@ -607,7 +607,7 @@ describe("Regulator", function () {
 
             expect(await this.regulator.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(2000));
             expect(await this.regulator.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(1000));
-            expect(await this.regulator.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(1000));
+            expect(await this.regulator.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(1000));
             expect(await this.regulator.balanceOfRedeemedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.balanceOfEarnableCDSD(userAddress)).to.be.bignumber.equal(new BN(2000)); // 100% of what was burned
           });
@@ -635,6 +635,108 @@ describe("Regulator", function () {
             expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
             expect(event.args.price).to.be.bignumber.equal(new BN(95).mul(new BN(10).pow(new BN(16))));
             expect(event.args.newCDSDSupply).to.be.bignumber.equal(new BN(1000));
+          });
+        });
+      });
+
+      describe("price under (0.95), multiple buyers business as usual", function () {
+        beforeEach(async function () {
+          await this.regulator.incrementEpochE(); // 1
+
+          await this.regulator.incrementTotalBondedE(1000000);
+          await this.regulator.mintToE(this.regulator.address, 1000000);
+
+          // user0
+          await this.regulator.mintToE(userAddress, new BN(1000));
+          await this.dollar.approve(this.regulator.address, new BN(500), {
+            from: userAddress,
+          });
+          await this.regulator.burnDSDForCDSDAndBond(new BN(500), { from: userAddress });
+          // user1
+          await this.regulator.mintToE(userAddress1, new BN(100));
+          await this.dollar.approve(this.regulator.address, new BN(100), {
+            from: userAddress1,
+          });
+          await this.regulator.burnDSDForCDSDAndBond(new BN(100), { from: userAddress1 });
+          // user2
+          await this.regulator.mintToE(userAddress2, new BN(400));
+          await this.dollar.approve(this.regulator.address, new BN(400), {
+            from: userAddress2,
+          });
+          await this.regulator.burnDSDForCDSD(new BN(200), { from: userAddress2 }); // only burning
+          await this.regulator.burnDSDForCDSDAndBond(new BN(200), { from: userAddress2 });
+
+          await this.regulator.incrementEpochE(); // 2
+        });
+
+        describe("on step", function () {
+          beforeEach(async function () {
+            await this.oracle.set(95, 100, true);
+            this.expectedDSDContraction = 1000;
+            this.cdsdCreatedFromBurnedDSD = 500 + 100 + 400;
+            this.cdsdCreatedFromBurnedDSDAndBonded = 500 + 100 + 200;
+            this.cdsdRewardedInContraction = 1000;
+
+            this.result = await this.regulator.stepE();
+            this.txHash = this.result.tx;
+          });
+
+          it("mints new Dollar for bonded tokens", async function () {
+            expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedDSDContraction)));
+            expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedDSDContraction - 500))); // userAddress burned 500 of his DSD, leaving 500 freefloating
+            expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(500)); // only burned and 500
+            expect(await this.dollar.balanceOf(userAddress1)).to.be.bignumber.equal(new BN(0));
+            expect(await this.dollar.balanceOf(userAddress2)).to.be.bignumber.equal(new BN(0));
+
+            expect(await this.cdsd.totalSupply()).to.be.bignumber.equal(new BN(this.cdsdCreatedFromBurnedDSD).add(new BN(this.cdsdRewardedInContraction)));
+            expect(await this.cdsd.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(this.cdsdCreatedFromBurnedDSDAndBonded).add(new BN(this.cdsdRewardedInContraction))); // burned + 100% of burned
+            expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(0)); // value is bonded to DAO
+            expect(await this.cdsd.balanceOf(userAddress1)).to.be.bignumber.equal(new BN(0)); // value is bonded to DAO
+            expect(await this.cdsd.balanceOf(userAddress2)).to.be.bignumber.equal(new BN(200)); // burned 400 and bonded 200; still 200 in wallet
+
+            expect(await this.regulator.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(1000));
+            expect(await this.regulator.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(500));
+            expect(await this.regulator.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(500));
+            expect(await this.regulator.balanceOfRedeemedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.balanceOfEarnableCDSD(userAddress)).to.be.bignumber.equal(new BN(1000)); // 100% of what was burned
+
+
+            expect(await this.regulator.balanceOfCDSDBonded(userAddress1)).to.be.bignumber.equal(new BN(200));
+            expect(await this.regulator.balanceOfCDSDShares(userAddress1)).to.be.bignumber.equal(new BN(100));
+            expect(await this.regulator.balanceOfBurnedDSD(userAddress1)).to.be.bignumber.equal(new BN(100));
+            expect(await this.regulator.balanceOfRedeemedCDSD(userAddress1)).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.balanceOfEarnableCDSD(userAddress1)).to.be.bignumber.equal(new BN(200)); // 100% of what was burned
+
+            expect(await this.regulator.balanceOfCDSDBonded(userAddress2)).to.be.bignumber.equal(new BN(450)); // burned 400 but bonded 200
+            expect(await this.regulator.balanceOfCDSDShares(userAddress2)).to.be.bignumber.equal(new BN(200));
+            expect(await this.regulator.balanceOfBurnedDSD(userAddress2)).to.be.bignumber.equal(new BN(400));
+            expect(await this.regulator.balanceOfRedeemedCDSD(userAddress2)).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.balanceOfEarnableCDSD(userAddress2)).to.be.bignumber.equal(new BN(800)); // 100% of what was burned
+          });
+
+          it("updates totals", async function () {
+            expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.totalBonded()).to.be.bignumber.equal(
+              new BN(1000000).add(new BN(this.expectedDSDContraction - 500)),
+            );
+            expect(await this.regulator.totalCDSDBonded()).to.be.bignumber.equal(
+              new BN(this.cdsdCreatedFromBurnedDSDAndBonded).add(new BN(this.cdsdRewardedInContraction)), // same as this.cdsd.balanceOf(this.regulator.address)
+            );
+            expect(await this.regulator.totalCDSDShares()).to.be.bignumber.equal(
+              new BN(this.cdsdCreatedFromBurnedDSDAndBonded)
+            );
+            expect(await this.regulator.totalBurnedDSD()).to.be.bignumber.equal(
+              new BN(this.cdsdCreatedFromBurnedDSD)
+            );
+            expect(await this.regulator.dip10TotalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it("emits CDSDSupplyIncrease event", async function () {
+            const event = await expectEvent.inTransaction(this.txHash, MockRegulator, "CDSDSupplyIncrease", {});
+
+            expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
+            expect(event.args.price).to.be.bignumber.equal(new BN(95).mul(new BN(10).pow(new BN(16))));
+            expect(event.args.newCDSDSupply).to.be.bignumber.equal(new BN(this.cdsdRewardedInContraction));
           });
         });
       });

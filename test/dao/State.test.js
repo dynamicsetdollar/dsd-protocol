@@ -325,11 +325,11 @@ describe('State', function () {
         })
     })
 
-    describe('incrementTotalCDSDBurned', function () {
+    describe('incrementTotalDSDBurned', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDBurnedE(100)
-                await this.setters.incrementTotalCDSDBurnedE(100)
+                await this.setters.incrementTotalDSDBurnedE(100)
+                await this.setters.incrementTotalDSDBurnedE(100)
             })
 
             it('increments total cDSD earned', async function () {
@@ -340,17 +340,17 @@ describe('State', function () {
         })
     })
 
-    describe('decrementTotalCDSDBurned', function () {
+    describe('decrementTotalDSDBurned', function () {
         describe('when called', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDBurnedE(500)
-                await this.setters.decrementTotalCDSDBurnedE(
+                await this.setters.incrementTotalDSDBurnedE(500)
+                await this.setters.decrementTotalDSDBurnedE(
                     100,
-                    'decrementTotalCDSDBurnedE - 1'
+                    'decrementTotalDSDBurnedE - 1'
                 )
-                await this.setters.decrementTotalCDSDBurnedE(
+                await this.setters.decrementTotalDSDBurnedE(
                     100,
-                    'decrementTotalCDSDBurnedE - 2'
+                    'decrementTotalDSDBurnedE - 2'
                 )
             })
 
@@ -363,16 +363,16 @@ describe('State', function () {
 
         describe('when called erroneously', function () {
             beforeEach('call', async function () {
-                await this.setters.incrementTotalCDSDBurnedE(100)
+                await this.setters.incrementTotalDSDBurnedE(100)
             })
 
             it('reverts', async function () {
                 await expectRevert(
-                    this.setters.decrementTotalCDSDBurnedE(
+                    this.setters.decrementTotalDSDBurnedE(
                         200,
-                        'decrementTotalCDSDBurnedE'
+                        'decrementTotalDSDBurnedE'
                     ),
-                    'decrementTotalCDSDBurnedE'
+                    'decrementTotalDSDBurnedE'
                 )
             })
         })
@@ -964,7 +964,7 @@ describe('State', function () {
 
             it('increments balance of Earned cDSD for user', async function () {
                 expect(
-                    await this.setters.balanceOfBurnedCDSD(userAddress)
+                    await this.setters.balanceOfBurnedDSD(userAddress)
                 ).to.be.bignumber.equal(new BN(200))
             })
 
@@ -998,7 +998,7 @@ describe('State', function () {
 
             it('decrements balance of earned cDSD for user', async function () {
                 expect(
-                    await this.setters.balanceOfBurnedCDSD(userAddress)
+                    await this.setters.balanceOfBurnedDSD(userAddress)
                 ).to.be.bignumber.equal(new BN(300))
             })
 

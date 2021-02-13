@@ -204,8 +204,7 @@ contract Market is Comptroller, Curve {
     }
 
     function bondCDSD(uint256 amount) public {
-        uint256 shares =
-            totalCDSDShares() == 0 ? amount : amount.mul(totalCDSDShares()).div(cdsd().balanceOf(address(this)));
+        uint256 shares = totalCDSDShares() == 0 ? amount : amount.mul(totalCDSDShares()).div(totalCDSDBonded());
 
         incrementBalanceOfCDSDShares(msg.sender, shares);
         cdsd().transferFrom(msg.sender, address(this), amount);
@@ -217,7 +216,7 @@ contract Market is Comptroller, Curve {
         require(shares > 0, "Market: unbound must be greater than 0");
         require(shares <= balanceOfCDSDShares(msg.sender), "Market: insufficient shares to unbound");
 
-        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDShares());
+        uint256 amount = shares.mul(totalCDSDBonded()).div(totalCDSDShares());
         decrementBalanceOfCDSDShares(msg.sender, shares, "Market: insufficient shares to unbound");
         cdsd().transfer(msg.sender, amount);
 
@@ -227,12 +226,16 @@ contract Market is Comptroller, Curve {
     function redeemBondedCDSDForDSD(uint256 shares) external {
         require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
 
-        uint256 amount = shares.mul(cdsd().balanceOf(address(this))).div(totalCDSDShares());
+        uint256 amount = shares.mul(totalCDSDBonded()).div(totalCDSDShares());
 
         require(
             amount.add(balanceOfRedeemedCDSD(msg.sender)) <= balanceOfEarnableCDSD(msg.sender),
             "Market: amount is higher than redeemable cDSD"
         );
+
+        // CDSD are partially redeemable; when 10% becomes redeemable, participants can redeem 10% of their bonded CDSD
+        uint256 limitOnRedeem = balanceOfEarnableCDSD(msg.sender).mul(getRedemptionPercentage());
+        require(amount > limitOnRedeem, "Market: amount is higher than current redeemable limit");
 
         cdsd().burn(amount);
 
@@ -243,6 +246,12 @@ contract Market is Comptroller, Curve {
         decrementState10TotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
 
         emit CDSDBurned(msg.sender, amount);
+    }
+
+    function getRedemptionPercentage() internal view returns (uint256) {
+        uint256 amountRedeemable = totalCDSDRedeemed().add(dip10TotalRedeemable());
+
+        return amountRedeemable.div(totalEarnableCDSD());
     }
     // end DIP-10
 }

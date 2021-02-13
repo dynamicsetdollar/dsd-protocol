@@ -38,7 +38,11 @@ contract Setters is State, Getters {
         return false;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool) {
         return false;
     }
 
@@ -83,11 +87,11 @@ contract Setters is State, Getters {
         _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount, reason);
     }
 
-    function incrementTotalCDSDBurned(uint256 amount) internal {
+    function incrementTotalDSDBurned(uint256 amount) internal {
         _state10.totalBurnedDSD = _state10.totalBurnedDSD.add(amount);
     }
 
-    function decrementTotalCDSDBurned(uint256 amount, string memory reason) internal {
+    function decrementTotalDSDBurned(uint256 amount, string memory reason) internal {
         _state10.totalBurnedDSD = _state10.totalBurnedDSD.sub(amount, reason);
     }
 
@@ -106,6 +110,7 @@ contract Setters is State, Getters {
     function decrementState10TotalRedeemable(uint256 amount, string memory reason) internal {
         _state10.dip10TotalRedeemable = _state10.dip10TotalRedeemable.sub(amount, reason);
     }
+
     // end DIP-10
 
     /**
@@ -119,7 +124,11 @@ contract Setters is State, Getters {
         emit Transfer(address(0), account, amount);
     }
 
-    function decrementBalanceOf(address account, uint256 amount, string memory reason) internal {
+    function decrementBalanceOf(
+        address account,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state.accounts[account].balance = _state.accounts[account].balance.sub(amount, reason);
         _state.balance.supply = _state.balance.supply.sub(amount, reason);
 
@@ -131,30 +140,57 @@ contract Setters is State, Getters {
         _state.balance.staged = _state.balance.staged.add(amount);
     }
 
-    function decrementBalanceOfStaged(address account, uint256 amount, string memory reason) internal {
+    function decrementBalanceOfStaged(
+        address account,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state.accounts[account].staged = _state.accounts[account].staged.sub(amount, reason);
         _state.balance.staged = _state.balance.staged.sub(amount, reason);
     }
 
-    function incrementBalanceOfCoupons(address account, uint256 epoch, uint256 amount) internal {
+    function incrementBalanceOfCoupons(
+        address account,
+        uint256 epoch,
+        uint256 amount
+    ) internal {
         _state.accounts[account].coupons[epoch] = _state.accounts[account].coupons[epoch].add(amount);
         _state.epochs[epoch].coupons.outstanding = _state.epochs[epoch].coupons.outstanding.add(amount);
         _state.balance.coupons = _state.balance.coupons.add(amount);
     }
 
-    function incrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount) internal {
-        _state13.couponUnderlyingByAccount[account][epoch] = _state13.couponUnderlyingByAccount[account][epoch].add(amount);
+    function incrementBalanceOfCouponUnderlying(
+        address account,
+        uint256 epoch,
+        uint256 amount
+    ) internal {
+        _state13.couponUnderlyingByAccount[account][epoch] = _state13.couponUnderlyingByAccount[account][epoch].add(
+            amount
+        );
         _state13.couponUnderlying = _state13.couponUnderlying.add(amount);
     }
 
-    function decrementBalanceOfCoupons(address account, uint256 epoch, uint256 amount, string memory reason) internal {
+    function decrementBalanceOfCoupons(
+        address account,
+        uint256 epoch,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state.accounts[account].coupons[epoch] = _state.accounts[account].coupons[epoch].sub(amount, reason);
         _state.epochs[epoch].coupons.outstanding = _state.epochs[epoch].coupons.outstanding.sub(amount, reason);
         _state.balance.coupons = _state.balance.coupons.sub(amount, reason);
     }
 
-    function decrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount, string memory reason) internal {
-        _state13.couponUnderlyingByAccount[account][epoch] = _state13.couponUnderlyingByAccount[account][epoch].sub(amount, reason);
+    function decrementBalanceOfCouponUnderlying(
+        address account,
+        uint256 epoch,
+        uint256 amount,
+        string memory reason
+    ) internal {
+        _state13.couponUnderlyingByAccount[account][epoch] = _state13.couponUnderlyingByAccount[account][epoch].sub(
+            amount,
+            reason
+        );
         _state13.couponUnderlying = _state13.couponUnderlying.sub(amount, reason);
     }
 
@@ -162,13 +198,24 @@ contract Setters is State, Getters {
         _state.accounts[account].fluidUntil = epoch().add(Constants.getDAOExitLockupEpochs());
     }
 
-    function updateAllowanceCoupons(address owner, address spender, uint256 amount) internal {
+    function updateAllowanceCoupons(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal {
         _state.accounts[owner].couponAllowances[spender] = amount;
     }
 
-    function decrementAllowanceCoupons(address owner, address spender, uint256 amount, string memory reason) internal {
-        _state.accounts[owner].couponAllowances[spender] =
-            _state.accounts[owner].couponAllowances[spender].sub(amount, reason);
+    function decrementAllowanceCoupons(
+        address owner,
+        address spender,
+        uint256 amount,
+        string memory reason
+    ) internal {
+        _state.accounts[owner].couponAllowances[spender] = _state.accounts[owner].couponAllowances[spender].sub(
+            amount,
+            reason
+        );
     }
 
     // DIP-10
@@ -177,7 +224,11 @@ contract Setters is State, Getters {
         incrementTotalCDSDShares(amount);
     }
 
-    function decrementBalanceOfCDSDShares(address account, uint256 amount, string memory reason) internal {
+    function decrementBalanceOfCDSDShares(
+        address account,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount, reason);
         decrementTotalCDSDShares(amount, reason);
     }
@@ -187,17 +238,21 @@ contract Setters is State, Getters {
         incrementTotalCDSDRedeemed(amount);
     }
 
-    function decrementBalanceOfRedeemedCDSD(address account, uint256 amount, string memory reason) internal {
+    function decrementBalanceOfRedeemedCDSD(
+        address account,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state10.redeemedCDSD[account] = _state10.redeemedCDSD[account].sub(amount, reason);
         decrementTotalCDSDRedeemed(amount, reason);
     }
 
     function incrementBalanceOfBurnedDSD(address account, uint256 amount) internal {
-        _state10.burnedCDSD[account] = _state10.burnedCDSD[account].add(amount);
-        incrementTotalCDSDBurned(amount);
+        _state10.burnedDSD[account] = _state10.burnedDSD[account].add(amount);
+        incrementTotalDSDBurned(amount);
 
         require(
-            _state10.burnedCDSD[account] <= balanceOfEarnableCDSD(account),
+            _state10.burnedDSD[account] <= balanceOfEarnableCDSD(account),
             "State: cannot earn more than earnable rewards!"
         );
         require(
@@ -206,10 +261,15 @@ contract Setters is State, Getters {
         );
     }
 
-    function decrementBalanceOfBurnedDSD(address account, uint256 amount, string memory reason) internal {
-        _state10.burnedCDSD[account] = _state10.burnedCDSD[account].sub(amount);
-        decrementTotalCDSDBurned(amount, reason);
+    function decrementBalanceOfBurnedDSD(
+        address account,
+        uint256 amount,
+        string memory reason
+    ) internal {
+        _state10.burnedDSD[account] = _state10.burnedDSD[account].sub(amount);
+        decrementTotalDSDBurned(amount, reason);
     }
+
     // end DIP-10
 
     /**
@@ -231,7 +291,7 @@ contract Setters is State, Getters {
 
     function eliminateOutstandingCoupons(uint256 epoch) internal {
         uint256 outstandingCouponsForEpoch = outstandingCoupons(epoch);
-        if(outstandingCouponsForEpoch == 0) {
+        if (outstandingCouponsForEpoch == 0) {
             return;
         }
         _state.balance.coupons = _state.balance.coupons.sub(outstandingCouponsForEpoch);
@@ -247,7 +307,11 @@ contract Setters is State, Getters {
         _state.candidates[candidate].period = period;
     }
 
-    function recordVote(address account, address candidate, Candidate.Vote vote) internal {
+    function recordVote(
+        address account,
+        address candidate,
+        Candidate.Vote vote
+    ) internal {
         _state.candidates[candidate].votes[account] = vote;
     }
 
@@ -255,7 +319,11 @@ contract Setters is State, Getters {
         _state.candidates[candidate].approve = _state.candidates[candidate].approve.add(amount);
     }
 
-    function decrementApproveFor(address candidate, uint256 amount, string memory reason) internal {
+    function decrementApproveFor(
+        address candidate,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state.candidates[candidate].approve = _state.candidates[candidate].approve.sub(amount, reason);
     }
 
@@ -263,7 +331,11 @@ contract Setters is State, Getters {
         _state.candidates[candidate].reject = _state.candidates[candidate].reject.add(amount);
     }
 
-    function decrementRejectFor(address candidate, uint256 amount, string memory reason) internal {
+    function decrementRejectFor(
+        address candidate,
+        uint256 amount,
+        string memory reason
+    ) internal {
         _state.candidates[candidate].reject = _state.candidates[candidate].reject.sub(amount, reason);
     }
 

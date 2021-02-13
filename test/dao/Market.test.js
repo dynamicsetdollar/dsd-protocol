@@ -49,7 +49,7 @@ describe("Market", function () {
         expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000));
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(0)); // user has not deposited
 
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(1000));
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(1000));
       });
 
       it("updates dao balances", async function () {
@@ -91,7 +91,7 @@ describe("Market", function () {
         expect(await this.market.balanceOfCouponUnderlying(userAddress, 1)).to.be.bignumber.equal(new BN(0));
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(0)); // user has not deposited/bonded
         expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(0)); // not bonded
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(2000));
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(2000));
       });
 
       it("updates dao balances", async function () {
@@ -139,7 +139,7 @@ describe("Market", function () {
         expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(0));
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(1000)); // user shares of bonded cDSD
         expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(1000)); // actual bonded cDSD
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(1000));
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(1000));
       });
 
       it("updates dao balances", async function () {
@@ -193,7 +193,7 @@ describe("Market", function () {
         expect(await this.market.balanceOfCouponUnderlying(userAddress, 1)).to.be.bignumber.equal(new BN(0));
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(2000)); // user  shares of bonded cDSD
         expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(2000)); // actual bonded cDSD
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(2000));
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(2000));
       });
 
       it("updates dao balances", async function () {
@@ -249,7 +249,7 @@ describe("Market", function () {
         expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(0));
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(1000)); // user bonded cDSD
         expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(1000)); // actual bonded cDSD
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(0));
       });
 
       it("updates dao balances", async function () {
@@ -290,7 +290,7 @@ describe("Market", function () {
         expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(700));
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(300)); // user bonded cDSD
         expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(300)); // actual bonded cDSD
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(0));
       });
 
       it("updates dao balances", async function () {
@@ -343,7 +343,7 @@ describe("Market", function () {
 
         expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(250)); // user shares of bonded cDSD
         expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(500)); // actual bonded cDSD
-        expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0)); // user has not burned any DSD; may have just bought cDSD off the market
+        expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(0)); // user has not burned any DSD; may have just bought cDSD off the market
       });
 
       it("updates dao balances", async function () {
@@ -421,7 +421,7 @@ describe("Market", function () {
           expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000));
           expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(0));
           expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(0));
-          expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(0));
         });
 
         it("updates dao balances", async function () {
@@ -453,7 +453,7 @@ describe("Market", function () {
           expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(new BN(800));
           expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(200));
           expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(200));
-          expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(0));
         });
 
         it("updates dao balances", async function () {
@@ -501,7 +501,7 @@ describe("Market", function () {
           expect(await this.cdsd.balanceOf(userAddress)).to.be.bignumber.equal(userBalanceAfterUnbonding);
           expect(await this.market.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(200)); // user shares of bonded cDSD
           expect(await this.market.balanceOfCDSDBonded(userAddress)).to.be.bignumber.equal(new BN(300)); // actual bonded in total by cDSD
-          expect(await this.market.balanceOfBurnedCDSD(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(0));
         });
 
         it("updates dao balances", async function () {

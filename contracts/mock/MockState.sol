@@ -22,7 +22,7 @@ import "../dao/Setters.sol";
 contract MockState is Setters {
     uint256 internal _blockTimestamp;
 
-    constructor () public {
+    constructor() public {
         _blockTimestamp = block.timestamp;
     }
 
@@ -63,12 +63,12 @@ contract MockState is Setters {
         super.decrementTotalCDSDShares(amount, reason);
     }
 
-    function incrementTotalCDSDBurnedE(uint256 amount) external {
-        super.incrementTotalCDSDBurned(amount);
+    function incrementTotalDSDBurnedE(uint256 amount) external {
+        super.incrementTotalDSDBurned(amount);
     }
 
-    function decrementTotalCDSDBurnedE(uint256 amount, string calldata reason) external {
-        super.decrementTotalCDSDBurned(amount, reason);
+    function decrementTotalDSDBurnedE(uint256 amount, string calldata reason) external {
+        super.decrementTotalDSDBurned(amount, reason);
     }
 
     function incrementTotalCDSDRedeemedE(uint256 amount) external {
@@ -78,6 +78,7 @@ contract MockState is Setters {
     function decrementTotalCDSDRedeemedE(uint256 amount, string calldata reason) external {
         super.decrementTotalCDSDRedeemed(amount, reason);
     }
+
     // end DIP-10
 
     /**
@@ -88,7 +89,11 @@ contract MockState is Setters {
         super.incrementBalanceOf(account, amount);
     }
 
-    function decrementBalanceOfE(address account, uint256 amount, string calldata reason) external {
+    function decrementBalanceOfE(
+        address account,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementBalanceOf(account, amount, reason);
     }
 
@@ -96,19 +101,36 @@ contract MockState is Setters {
         super.incrementBalanceOfStaged(account, amount);
     }
 
-    function decrementBalanceOfStagedE(address account, uint256 amount, string calldata reason) external {
+    function decrementBalanceOfStagedE(
+        address account,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementBalanceOfStaged(account, amount, reason);
     }
 
-    function incrementBalanceOfCouponsE(address account, uint256 epoch, uint256 amount) external {
+    function incrementBalanceOfCouponsE(
+        address account,
+        uint256 epoch,
+        uint256 amount
+    ) external {
         super.incrementBalanceOfCoupons(account, epoch, amount);
     }
 
-    function incrementBalanceOfCouponUnderlyingE(address account, uint256 epoch, uint256 amount) external {
+    function incrementBalanceOfCouponUnderlyingE(
+        address account,
+        uint256 epoch,
+        uint256 amount
+    ) external {
         super.incrementBalanceOfCouponUnderlying(account, epoch, amount);
     }
 
-    function decrementBalanceOfCouponsE(address account, uint256 epoch, uint256 amount, string calldata reason) external {
+    function decrementBalanceOfCouponsE(
+        address account,
+        uint256 epoch,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementBalanceOfCoupons(account, epoch, amount, reason);
     }
 
@@ -116,11 +138,20 @@ contract MockState is Setters {
         super.unfreeze(account);
     }
 
-    function updateAllowanceCouponsE(address owner, address spender, uint256 amount) external {
+    function updateAllowanceCouponsE(
+        address owner,
+        address spender,
+        uint256 amount
+    ) external {
         super.updateAllowanceCoupons(owner, spender, amount);
     }
 
-    function decrementAllowanceCouponsE(address owner, address spender, uint256 amount, string calldata reason) external {
+    function decrementAllowanceCouponsE(
+        address owner,
+        address spender,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementAllowanceCoupons(owner, spender, amount, reason);
     }
 
@@ -129,7 +160,11 @@ contract MockState is Setters {
         super.incrementBalanceOfCDSDShares(account, amount);
     }
 
-    function decrementBalanceOfCDSDSharesE(address account, uint256 amount, string calldata reason) external {
+    function decrementBalanceOfCDSDSharesE(
+        address account,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementBalanceOfCDSDShares(account, amount, reason);
     }
 
@@ -137,7 +172,11 @@ contract MockState is Setters {
         super.incrementBalanceOfRedeemedCDSD(account, amount);
     }
 
-    function decrementBalanceOfRedeemedCDSDE(address account, uint256 amount, string calldata reason) external {
+    function decrementBalanceOfRedeemedCDSDE(
+        address account,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementBalanceOfRedeemedCDSD(account, amount, reason);
     }
 
@@ -145,9 +184,14 @@ contract MockState is Setters {
         super.incrementBalanceOfBurnedDSD(account, amount);
     }
 
-    function decrementBalanceOfBurnedDSDE(address account, uint256 amount, string calldata reason) external {
+    function decrementBalanceOfBurnedDSDE(
+        address account,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementBalanceOfBurnedDSD(account, amount, reason);
     }
+
     // end DIP-10
 
     /**
@@ -172,7 +216,7 @@ contract MockState is Setters {
     }
 
     function eliminateOutstandingCouponsE(uint256 epoch) external {
-       super.eliminateOutstandingCoupons(epoch);
+        super.eliminateOutstandingCoupons(epoch);
     }
 
     /**
@@ -183,7 +227,11 @@ contract MockState is Setters {
         super.createCandidate(candidate, period);
     }
 
-    function recordVoteE(address account, address candidate, Candidate.Vote vote) external {
+    function recordVoteE(
+        address account,
+        address candidate,
+        Candidate.Vote vote
+    ) external {
         super.recordVote(account, candidate, vote);
     }
 
@@ -191,7 +239,11 @@ contract MockState is Setters {
         super.incrementApproveFor(candidate, amount);
     }
 
-    function decrementApproveForE(address candidate, uint256 amount, string calldata reason) external {
+    function decrementApproveForE(
+        address candidate,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementApproveFor(candidate, amount, reason);
     }
 
@@ -199,7 +251,11 @@ contract MockState is Setters {
         super.incrementRejectFor(candidate, amount);
     }
 
-    function decrementRejectForE(address candidate, uint256 amount, string calldata reason) external {
+    function decrementRejectForE(
+        address candidate,
+        uint256 amount,
+        string calldata reason
+    ) external {
         super.decrementRejectFor(candidate, amount, reason);
     }
 

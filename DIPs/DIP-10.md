@@ -74,7 +74,7 @@ When the protocol is in expansion:
 ```
 struct State10 {
     mapping(address => uint256) cDSDSharesByAccount;
-    mapping(address => uint256) burnedCDSD;
+    mapping(address => uint256) burnedDSD;
     mapping(address => uint256) redeemedCDSD;
     uint256 totalCDSDShares;
     uint256 totalBurnedDSD;
@@ -103,7 +103,7 @@ function balanceOfBondedCDSD(address account) public view returns (uint256)
 
 function balanceOfEarnableCDSD(address account) public view returns (uint256)
 
-function balanceOfBurnedCDSD(address account) public view returns (uint256)
+function balanceOfBurnedDSD(address account) public view returns (uint256)
 ```
 
 - Setters
@@ -113,9 +113,9 @@ function incrementTotalCDSDShares(uint256 amount) internal
 
 function decrementTotalCDSDShares(uint256 amount, string memory reason) internal
 
-function incrementTotalCDSDBurned(uint256 amount) internal
+function incrementTotalDSDBurned(uint256 amount) internal
 
-function decrementTotalCDSDBurned(uint256 amount, string memory reason) internal
+function decrementTotalDSDBurned(uint256 amount, string memory reason) internal
 
 
 function incrementBalanceOfCDSDShares(uint256 amount) internal

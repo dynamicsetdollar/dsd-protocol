@@ -199,15 +199,23 @@ contract Getters is State {
             return 0;
         }
 
-        return balanceOfCDSDShares(account).mul(cdsd().balanceOf(address(this))).div(totalBalanceOfCDSDShares);
+        uint256 amountFromShares = balanceOfCDSDShares(account).mul(totalCDSDBonded()).div(totalBalanceOfCDSDShares);
+
+        // earnable increments when user burned DSD only
+        uint256 totalBalanceOfEarnable = balanceOfEarnableCDSD(account);
+        if (totalBalanceOfEarnable == 0) {
+            return amountFromShares;
+        }
+
+        return amountFromShares > totalBalanceOfEarnable ? totalBalanceOfEarnable : amountFromShares;
     }
 
     function balanceOfCDSDShares(address account) public view returns (uint256) {
         return _state10.cDSDSharesByAccount[account];
     }
 
-    function balanceOfBurnedCDSD(address account) public view returns (uint256) {
-        return _state10.burnedCDSD[account];
+    function balanceOfBurnedDSD(address account) public view returns (uint256) {
+        return _state10.burnedDSD[account];
     }
 
     function balanceOfRedeemedCDSD(address account) public view returns (uint256) {
@@ -215,8 +223,8 @@ contract Getters is State {
     }
 
     function balanceOfEarnableCDSD(address account) public view returns (uint256) {
-        uint256 accountCDSDShares = balanceOfBurnedCDSD(account);
-        return accountCDSDShares.add(accountCDSDShares.mul(Constants.getEarnableCap()).div(100));
+        uint256 amount = balanceOfBurnedDSD(account);
+        return amount.add(amount.mul(Constants.getEarnableCap()).div(100));
     }
 
     // end DIP-10
