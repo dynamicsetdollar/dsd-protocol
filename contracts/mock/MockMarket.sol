@@ -17,14 +17,28 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
+import "../external/Decimal.sol";
 import "../dao/Market.sol";
-import "./MockState.sol";
 import "./MockComptroller.sol";
 
-contract MockMarket is MockState, MockComptroller, Market {
-    constructor(address pool) MockComptroller(pool) public { }
+contract MockMarket is MockComptroller, Market {
+    constructor(address pool) public MockComptroller(pool) {}
 
     function stepE() external {
         Market.step();
+    }
+
+    function setPriceE(uint256 numerator, uint256 denominator) external {
+        _state13.price = Decimal.ratio(numerator, denominator);
+    }
+
+    function justMintCDSDToE(address account, uint256 amount) external {
+        cdsd().mint(account, amount);
+    }
+
+    function mintCDSDAndIncreaseDSDBurnedE(address account, uint256 amount) external {
+        cdsd().mint(account, amount);
+        // emulate burning of DSD for CDSD
+        super.incrementBalanceOfBurnedDSD(account, amount);
     }
 }

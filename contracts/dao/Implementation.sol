@@ -31,7 +31,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
     event Incentivization(address indexed account, uint256 amount);
 
-    function initialize() initializer public {
+    function initialize() public initializer {
         // committer reward:
         mintToAccount(msg.sender, 150e18); // 150 DSD to committer
 
@@ -41,6 +41,9 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
         // deploy cDSD
         _state10.cDSD = new ContractionDollar();
+
+        // Reset debt to zero dip-10
+        _state.balance.debt = 0;
     }
 
     function advance() external incentivized {

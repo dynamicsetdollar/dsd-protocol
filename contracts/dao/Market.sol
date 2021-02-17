@@ -41,9 +41,9 @@ contract Market is Comptroller, Curve {
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
 
     event CDSDMinted(address indexed account, uint256 amount);
-    event CDSDBurned(address indexed account, uint256 amount);
-    event BondCDSD(address indexed account, uint256 start, uint256 value, uint256 valueUnderlying);
-    event UnbondCDSD(address indexed account, uint256 start, uint256 value, uint256 valueUnderlying);
+    event CDSDRedeemed(address indexed account, uint256 amount);
+    event BondCDSD(address indexed account, uint256 start, uint256 shareValue, uint256 valueUnderlying);
+    event UnbondCDSD(address indexed account, uint256 start, uint256 shareValue, uint256 valueUnderlying);
 
     function step() internal {
         // Expire prior coupons
@@ -157,6 +157,8 @@ contract Market is Comptroller, Curve {
     // DIP-10
 
     function burnDSDForCDSD(uint256 amount) public {
+        require(_state13.price.lessThan(Decimal.one()), "Market: not in contraction");
+
         dollar().transferFrom(msg.sender, address(this), amount);
         dollar().burn(amount);
         balanceCheck();
@@ -168,6 +170,8 @@ contract Market is Comptroller, Curve {
     }
 
     function burnCouponsForCDSD(uint256 couponEpoch) public returns (uint256) {
+        require(_state13.price.lessThan(Decimal.one()), "Market: not in contraction");
+
         uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch);
         uint256 couponUnderlyingAmount = balanceOfCouponUnderlying(msg.sender, couponEpoch);
 
@@ -204,38 +208,62 @@ contract Market is Comptroller, Curve {
     }
 
     function bondCDSD(uint256 amount) public {
-        uint256 shares = totalCDSDShares() == 0 ? amount : amount.mul(totalCDSDShares()).div(totalCDSDBonded());
+        require(amount > 0, "Market: unbound must be greater than 0");
 
+        uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
+
+        // sub all user shares
+        uint256 userCDSDShares = balanceOfCDSDShares(msg.sender);
+        decrementBalanceOfCDSDShares(msg.sender, userCDSDShares, "Market: unable to set user shares to zero");
+        decrementTotalCDSDShares(userCDSDShares, "Market: unable to subtract shares");
+
+        uint256 userTotalAmount = amount.add(userBondedAmount);
+        require(userTotalAmount <= balanceOfEarnableCDSD(msg.sender), "Market: bonded CDSD > earnable!");
+        // create new shares for user
+        uint256 shares =
+            totalCDSDShares() == 0 ? userTotalAmount : userTotalAmount.mul(totalCDSDShares()).div(totalCDSDBonded());
         incrementBalanceOfCDSDShares(msg.sender, shares);
+        incrementTotalCDSDShares(shares);
+
         cdsd().transferFrom(msg.sender, address(this), amount);
 
         emit BondCDSD(msg.sender, epoch().add(1), shares, amount);
     }
 
-    function unbondCDSD(uint256 shares) external {
-        require(shares > 0, "Market: unbound must be greater than 0");
-        require(shares <= balanceOfCDSDShares(msg.sender), "Market: insufficient shares to unbound");
+    function unbondCDSD(uint256 amount) external {
+        uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
+        require(amount > 0 && userBondedAmount > 0, "Market: amounts > 0!");
+        require(amount <= userBondedAmount, "Market: insufficient amount to unbound");
+        require(
+            amount.add(balanceOfRedeemedCDSD(msg.sender)) <= balanceOfEarnableCDSD(msg.sender),
+            "Market: amount is higher than earnable cDSD"
+        );
 
-        uint256 amount = shares.mul(totalCDSDBonded()).div(totalCDSDShares());
+        uint256 shares = amount.mul(totalCDSDShares()).div(totalCDSDBonded());
+
         decrementBalanceOfCDSDShares(msg.sender, shares, "Market: insufficient shares to unbound");
+        decrementTotalCDSDShares(shares, "Market: unable to set user shares to zero");
+
         cdsd().transfer(msg.sender, amount);
 
         emit UnbondCDSD(msg.sender, epoch().add(1), shares, amount);
     }
 
-    function redeemBondedCDSDForDSD(uint256 shares) external {
+    function redeemBondedCDSDForDSD(uint256 amount) external {
         require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
-
-        uint256 amount = shares.mul(totalCDSDBonded()).div(totalCDSDShares());
-
+        require(amount > 0, "Market: amounts > 0!");
         require(
             amount.add(balanceOfRedeemedCDSD(msg.sender)) <= balanceOfEarnableCDSD(msg.sender),
-            "Market: amount is higher than redeemable cDSD"
+            "Market: amount is higher than earnable cDSD"
         );
 
-        // CDSD are partially redeemable; when 10% becomes redeemable, participants can redeem 10% of their bonded CDSD
-        uint256 limitOnRedeem = balanceOfEarnableCDSD(msg.sender).mul(getRedemptionPercentage());
-        require(amount > limitOnRedeem, "Market: amount is higher than current redeemable limit");
+        uint256 shares = amount.mul(balanceOfCDSDBonded(msg.sender)).div(balanceOfCDSDShares(msg.sender));
+        decrementBalanceOfCDSDShares(msg.sender, shares, "Market: insufficient shares to redeem");
+        decrementTotalCDSDShares(shares, "Market: unable to reduce user's sjares");
+
+        // CDSD are partially redeemable for DSD each time
+        uint256 limitOnRedeem = getRedemptionRatio().mul(balanceOfCDSDBonded(msg.sender)).asUint256();
+        require(amount <= limitOnRedeem, "Market: amount is higher than current redeemable limit");
 
         cdsd().burn(amount);
 
@@ -245,13 +273,13 @@ contract Market is Comptroller, Curve {
         incrementBalanceOfRedeemedCDSD(msg.sender, amount); // cDSD redeemed increases
         decrementState10TotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
 
-        emit CDSDBurned(msg.sender, amount);
+        emit CDSDRedeemed(msg.sender, amount);
     }
 
-    function getRedemptionPercentage() internal view returns (uint256) {
+    function getRedemptionRatio() private view returns (Decimal.D256 memory) {
         uint256 amountRedeemable = totalCDSDRedeemed().add(dip10TotalRedeemable());
 
-        return amountRedeemable.div(totalEarnableCDSD());
+        return Decimal.ratio(amountRedeemable, totalEarnableCDSD());
     }
     // end DIP-10
 }

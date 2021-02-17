@@ -37,7 +37,6 @@ contract MockComptroller is Comptroller, MockState {
         super.burnFromAccount(account, amount);
     }
 
-
     function burnRedeemableE(uint256 amount) external {
         super.burnRedeemable(amount);
     }
@@ -50,14 +49,9 @@ contract MockComptroller is Comptroller, MockState {
         super.increaseCDSDSupply(amount);
     }
 
-
     /* For testing only */
     function mintToE(address account, uint256 amount) external {
         dollar().mint(account, amount);
-    }
-
-    function mintCDSDToE(address account, uint256 amount) external {
-        cdsd().mint(account, amount);
     }
 
     function treasuryE() external view returns (address) {

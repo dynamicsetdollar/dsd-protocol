@@ -199,15 +199,7 @@ contract Getters is State {
             return 0;
         }
 
-        uint256 amountFromShares = balanceOfCDSDShares(account).mul(totalCDSDBonded()).div(totalBalanceOfCDSDShares);
-
-        // earnable increments when user burned DSD only
-        uint256 totalBalanceOfEarnable = balanceOfEarnableCDSD(account);
-        if (totalBalanceOfEarnable == 0) {
-            return amountFromShares;
-        }
-
-        return amountFromShares > totalBalanceOfEarnable ? totalBalanceOfEarnable : amountFromShares;
+        return balanceOfCDSDShares(account).mul(totalCDSDBonded()).div(totalBalanceOfCDSDShares);
     }
 
     function balanceOfCDSDShares(address account) public view returns (uint256) {

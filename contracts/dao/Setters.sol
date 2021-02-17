@@ -221,7 +221,7 @@ contract Setters is State, Getters {
     // DIP-10
     function incrementBalanceOfCDSDShares(address account, uint256 amount) internal {
         _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].add(amount);
-        incrementTotalCDSDShares(amount);
+
     }
 
     function decrementBalanceOfCDSDShares(
@@ -230,7 +230,7 @@ contract Setters is State, Getters {
         string memory reason
     ) internal {
         _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount, reason);
-        decrementTotalCDSDShares(amount, reason);
+        
     }
 
     function incrementBalanceOfRedeemedCDSD(address account, uint256 amount) internal {

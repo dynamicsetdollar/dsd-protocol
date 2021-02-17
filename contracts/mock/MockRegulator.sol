@@ -20,7 +20,6 @@ pragma experimental ABIEncoderV2;
 import "../dao/Regulator.sol";
 import "./MockMarket.sol";
 import "../oracle/IOracle.sol";
-import "./MockState.sol";
 
 contract MockRegulator is MockMarket, Regulator {
     constructor(address oracle, address pool) public MockMarket(pool) {
