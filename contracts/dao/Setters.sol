@@ -89,6 +89,11 @@ contract Setters is State, Getters {
 
     function incrementTotalDSDBurned(uint256 amount) internal {
         _state10.totalBurnedDSD = _state10.totalBurnedDSD.add(amount);
+
+        require(
+            totalBurnedDSD() <= totalEarnableCDSD(),
+            "State: cannot have more earnable rewards than possible total earned"
+        );
     }
 
     function decrementTotalDSDBurned(uint256 amount, string memory reason) internal {
@@ -221,7 +226,6 @@ contract Setters is State, Getters {
     // DIP-10
     function incrementBalanceOfCDSDShares(address account, uint256 amount) internal {
         _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].add(amount);
-
     }
 
     function decrementBalanceOfCDSDShares(
@@ -230,12 +234,10 @@ contract Setters is State, Getters {
         string memory reason
     ) internal {
         _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount, reason);
-        
     }
 
     function incrementBalanceOfRedeemedCDSD(address account, uint256 amount) internal {
         _state10.redeemedCDSD[account] = _state10.redeemedCDSD[account].add(amount);
-        incrementTotalCDSDRedeemed(amount);
     }
 
     function decrementBalanceOfRedeemedCDSD(
@@ -244,20 +246,13 @@ contract Setters is State, Getters {
         string memory reason
     ) internal {
         _state10.redeemedCDSD[account] = _state10.redeemedCDSD[account].sub(amount, reason);
-        decrementTotalCDSDRedeemed(amount, reason);
     }
 
     function incrementBalanceOfBurnedDSD(address account, uint256 amount) internal {
         _state10.burnedDSD[account] = _state10.burnedDSD[account].add(amount);
-        incrementTotalDSDBurned(amount);
-
         require(
             _state10.burnedDSD[account] <= balanceOfEarnableCDSD(account),
             "State: cannot earn more than earnable rewards!"
-        );
-        require(
-            totalBurnedDSD() <= totalEarnableCDSD(),
-            "State: cannot have more earnable rewards than possible total earned"
         );
     }
 
@@ -267,9 +262,7 @@ contract Setters is State, Getters {
         string memory reason
     ) internal {
         _state10.burnedDSD[account] = _state10.burnedDSD[account].sub(amount);
-        decrementTotalDSDBurned(amount, reason);
     }
-
     // end DIP-10
 
     /**

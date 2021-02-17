@@ -19,13 +19,14 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Market.sol";
+import "./CDSDMarket.sol";
 import "./Regulator.sol";
 import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
 import "../token/ContractionDollar.sol";
 
-contract Implementation is State, Bonding, Market, Regulator, Govern {
+contract Implementation is State, Bonding, Market, CDSDMarket, Regulator, Govern {
     using SafeMath for uint256;
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);

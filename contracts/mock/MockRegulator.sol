@@ -18,11 +18,12 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "../dao/Regulator.sol";
-import "./MockMarket.sol";
+import "./MockCDSDMarket.sol";
 import "../oracle/IOracle.sol";
+import "./MockState.sol";
 
-contract MockRegulator is MockMarket, Regulator {
-    constructor(address oracle, address pool) public MockMarket(pool) {
+contract MockRegulator is MockCDSDMarket, Regulator {
+    constructor(address oracle, address pool) public MockCDSDMarket(pool) {
         _state.provider.oracle = IOracle(oracle);
     }
 

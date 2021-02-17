@@ -4,7 +4,7 @@ const { BN, expectRevert, time } = require("@openzeppelin/test-helpers");
 const { expect } = require("chai");
 
 const MockComptroller = contract.fromArtifact("MockComptroller");
-const MockComptrollerAndMarket = contract.fromArtifact("MockMarket");
+const MockComptrollerAndMarket = contract.fromArtifact("MockCDSDMarket");
 const Dollar = contract.fromArtifact("Dollar");
 
 const BOOTSTRAPPING_PERIOD = 150; // DSD bootstraping

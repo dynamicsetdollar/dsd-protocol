@@ -676,17 +676,13 @@ describe("State", function () {
         await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
         await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
 
-        // then add earned
+        // then add burned
         await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 100);
         await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 100);
       });
 
-      it("increments balance of Earned cDSD for user", async function () {
+      it("increments balance of Burned cDSD for user", async function () {
         expect(await this.setters.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(200));
-      });
-
-      it("increments total Earned cDSD", async function () {
-        expect(await this.setters.totalBurnedDSD()).to.be.bignumber.equal(new BN(200));
       });
     });
   });
@@ -697,7 +693,7 @@ describe("State", function () {
         // add shares first
         await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500);
 
-        // add earned
+        // add burned
         await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 500);
         await this.setters.decrementBalanceOfBurnedDSDE(userAddress, 100, "decrementBalanceOfBurnedDSDE - 1");
         await this.setters.decrementBalanceOfBurnedDSDE(userAddress, 100, "decrementBalanceOfBurnedDSDE - 2");
@@ -706,10 +702,6 @@ describe("State", function () {
       it("decrements balance of earned cDSD for user", async function () {
         expect(await this.setters.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(300));
       });
-
-      it("decrements total earned cDSD", async function () {
-        expect(await this.setters.totalBurnedDSD()).to.be.bignumber.equal(new BN(300));
-      });
     });
 
     describe("when called erroneously", function () {
@@ -717,7 +709,7 @@ describe("State", function () {
         // add shares first
         await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500);
 
-        // add earned
+        // add burned
         await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 100);
       });
 

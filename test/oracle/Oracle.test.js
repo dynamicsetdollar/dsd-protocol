@@ -151,7 +151,7 @@ describe('Oracle', function () {
                         ).to.be.bignumber.equal(new BN(0))
                         expect(
                             await this.oracle.timestamp()
-                        ).to.be.bignumber.equal(this.timestamp)
+                        ).to.be.bignumber.closeTo(this.timestamp, new BN(1))
                         expect(
                             await this.oracle.reserve()
                         ).to.be.bignumber.equal(usdc(1000000))
