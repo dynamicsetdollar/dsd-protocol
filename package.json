@@ -25,6 +25,7 @@
     "solhint-plugin-prettier": "^0.0.5"
   },
   "devDependencies": {
+    "@lavamoat/allow-scripts": "^1.0.4",
     "@openzeppelin/test-environment": "^0.1.4",
     "@openzeppelin/test-helpers": "^0.5.4",
     "chai": "^4.2.0",
@@ -81,5 +82,20 @@
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:js": "eslint --ext .js .",
     "prettier": "prettier --config .prettierrc --write \"**/*.{js,json,md,sol}\""
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "web3": false,
+      "bufferutil": false,
+      "utf-8-validate": false,
+      "keccak": false,
+      "secp256k1": false,
+      "core-js-pure": false,
+      "core-js": false,
+      "husky": false,
+      "github:web3-js/WebSocket-Node": false,
+      "github:web3-js/scrypt-shim": false,
+      "postinstall-postinstall": false
+    }
   }
 }
