@@ -18,7 +18,6 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./Market.sol";
 import "./CDSDMarket.sol";
 import "./Regulator.sol";
 import "./Bonding.sol";
@@ -26,7 +25,7 @@ import "./Govern.sol";
 import "../Constants.sol";
 import "../token/ContractionDollar.sol";
 
-contract Implementation is State, Bonding, Market, CDSDMarket, Regulator, Govern {
+contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
     using SafeMath for uint256;
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
@@ -50,7 +49,6 @@ contract Implementation is State, Bonding, Market, CDSDMarket, Regulator, Govern
     function advance() external incentivized {
         Bonding.step();
         Regulator.step();
-        Market.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
     }
