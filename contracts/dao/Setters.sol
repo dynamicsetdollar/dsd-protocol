@@ -79,33 +79,13 @@ contract Setters is State, Getters {
     }
 
     // DIP-10
-    function incrementTotalCDSDShares(uint256 amount) internal {
-        _state10.totalCDSDShares = _state10.totalCDSDShares.add(amount);
+
+    function setGlobalInterestMultiplier(uint256 multiplier) internal {
+        _state10.globalInterestMultiplier = multiplier;
     }
 
-    function decrementTotalCDSDShares(uint256 amount, string memory reason) internal {
-        _state10.totalCDSDShares = _state10.totalCDSDShares.sub(amount, reason);
-    }
-
-    function incrementTotalDSDBurned(uint256 amount) internal {
-        _state10.totalBurnedDSD = _state10.totalBurnedDSD.add(amount);
-
-        require(
-            totalBurnedDSD() <= totalEarnableCDSD(),
-            "State: cannot have more earnable rewards than possible total earned"
-        );
-    }
-
-    function decrementTotalDSDBurned(uint256 amount, string memory reason) internal {
-        _state10.totalBurnedDSD = _state10.totalBurnedDSD.sub(amount, reason);
-    }
-
-    function incrementTotalCDSDRedeemed(uint256 amount) internal {
-        _state10.totalCDSDRedeemed = _state10.totalCDSDRedeemed.add(amount);
-    }
-
-    function decrementTotalCDSDRedeemed(uint256 amount, string memory reason) internal {
-        _state10.totalCDSDRedeemed = _state10.totalCDSDRedeemed.sub(amount, reason);
+    function setExpansionStartEpoch(uint256 epoch) internal {
+        _state10.expansionStartEpoch = epoch;
     }
 
     function incrementState10TotalRedeemable(uint256 amount) internal {
@@ -114,6 +94,14 @@ contract Setters is State, Getters {
 
     function decrementState10TotalRedeemable(uint256 amount, string memory reason) internal {
         _state10.dip10TotalRedeemable = _state10.dip10TotalRedeemable.sub(amount, reason);
+    }
+
+    function incrementState10TotalRedeemed(uint256 amount) internal {
+        _state10.dip10TotalRedeemed = _state10.dip10TotalRedeemed.add(amount);
+    }
+
+    function decrementState10TotalRedeemed(uint256 amount, string memory reason) internal {
+        _state10.dip10TotalRedeemed = _state10.dip10TotalRedeemed.sub(amount, reason);
     }
 
     // end DIP-10
@@ -224,45 +212,59 @@ contract Setters is State, Getters {
     }
 
     // DIP-10
-    function incrementBalanceOfCDSDShares(address account, uint256 amount) internal {
-        _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].add(amount);
+    function incrementBalanceOfDepositedCDSD(address account, uint256 amount) internal {
+        _state10.accounts[account].depositedCDSD = _state10.accounts[account].depositedCDSD.add(amount);
     }
 
-    function decrementBalanceOfCDSDShares(
-        address account,
-        uint256 amount,
-        string memory reason
-    ) internal {
-        _state10.cDSDSharesByAccount[account] = _state10.cDSDSharesByAccount[account].sub(amount, reason);
+    function decrementBalanceOfDepositedCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.accounts[account].depositedCDSD = _state10.accounts[account].depositedCDSD.sub(amount, reason);
+    }
+    
+    function incrementBalanceOfEarnableCDSD(address account, uint256 amount) internal {
+        _state10.accounts[account].earnableCDSD = _state10.accounts[account].earnableCDSD.add(amount);
+    }
+
+    function decrementBalanceOfEarnableCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.accounts[account].earnableCDSD = _state10.accounts[account].earnableCDSD.sub(amount, reason);
+    }
+    
+    function incrementBalanceOfEarnedCDSD(address account, uint256 amount) internal {
+        _state10.accounts[account].earnedCDSD = _state10.accounts[account].earnedCDSD.add(amount);
+    }
+
+    function decrementBalanceOfEarnedCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.accounts[account].earnedCDSD = _state10.accounts[account].earnedCDSD.sub(amount, reason);
     }
 
     function incrementBalanceOfRedeemedCDSD(address account, uint256 amount) internal {
-        _state10.redeemedCDSD[account] = _state10.redeemedCDSD[account].add(amount);
+        _state10.accounts[account].redeemedCDSD = _state10.accounts[account].redeemedCDSD.add(amount);
     }
 
-    function decrementBalanceOfRedeemedCDSD(
-        address account,
-        uint256 amount,
-        string memory reason
-    ) internal {
-        _state10.redeemedCDSD[account] = _state10.redeemedCDSD[account].sub(amount, reason);
+    function decrementBalanceOfRedeemedCDSD(address account, uint256 amount, string memory reason) internal {
+        _state10.accounts[account].redeemedCDSD = _state10.accounts[account].redeemedCDSD.sub(amount, reason);
+    }
+    
+    function addRedeemedThisExpansion(address account, uint256 amount) public returns (uint256) {
+        uint256 currentExpansion = _state10.expansionStartEpoch;
+        uint256 accountExpansion = _state10.accounts[account].lastRedeemedExpansionStart;
+
+        if (currentExpansion != accountExpansion) {
+            _state10.accounts[account].redeemedThisExpansion = amount;
+            _state10.accounts[account].lastRedeemedExpansionStart = currentExpansion;
+        }else{
+            _state10.accounts[account].redeemedThisExpansion = _state10.accounts[account].redeemedThisExpansion.add(amount);
+        }
     }
 
-    function incrementBalanceOfBurnedDSD(address account, uint256 amount) internal {
-        _state10.burnedDSD[account] = _state10.burnedDSD[account].add(amount);
-        require(
-            _state10.burnedDSD[account] <= balanceOfEarnableCDSD(account),
-            "State: cannot earn more than earnable rewards!"
-        );
+    function setCurrentInterestMultiplier(address account) public returns (uint256) {
+        _state10.accounts[account].interestMultiplierEntry = _state10.globalInterestMultiplier;
     }
 
-    function decrementBalanceOfBurnedDSD(
-        address account,
-        uint256 amount,
-        string memory reason
-    ) internal {
-        _state10.burnedDSD[account] = _state10.burnedDSD[account].sub(amount);
+    function setDepositedCDSDAmount(address account, uint256 amount) public returns (uint256) {
+        _state10.accounts[account].depositedCDSD = amount;
     }
+
+
     // end DIP-10
 
     /**

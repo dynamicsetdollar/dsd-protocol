@@ -55,34 +55,6 @@ contract MockState is Setters {
     }
 
     // DIP-10
-    function incrementTotalCDSDSharesE(uint256 amount) external {
-        super.incrementTotalCDSDShares(amount);
-    }
-
-    function decrementTotalCDSDSharesE(uint256 amount, string calldata reason) external {
-        super.decrementTotalCDSDShares(amount, reason);
-    }
-
-    function incrementTotalDSDBurnedE(uint256 amount) external {
-        super.incrementTotalDSDBurned(amount);
-    }
-
-    function decrementTotalDSDBurnedE(uint256 amount, string calldata reason) external {
-        super.decrementTotalDSDBurned(amount, reason);
-    }
-
-    function incrementTotalCDSDRedeemedE(uint256 amount) external {
-        super.incrementTotalCDSDRedeemed(amount);
-    }
-
-    function decrementTotalCDSDRedeemedE(uint256 amount, string calldata reason) external {
-        super.decrementTotalCDSDRedeemed(amount, reason);
-    }
-
-    function incrementState10TotalRedeemableE(uint256 amount) external {
-        super.incrementState10TotalRedeemable(amount);
-    }
-
     // end DIP-10
 
     /**
@@ -160,42 +132,6 @@ contract MockState is Setters {
     }
 
     // DIP-10
-    function incrementBalanceOfCDSDSharesE(address account, uint256 amount) external {
-        super.incrementBalanceOfCDSDShares(account, amount);
-    }
-
-    function decrementBalanceOfCDSDSharesE(
-        address account,
-        uint256 amount,
-        string calldata reason
-    ) external {
-        super.decrementBalanceOfCDSDShares(account, amount, reason);
-    }
-
-    function incrementBalanceOfRedeemedCDSDE(address account, uint256 amount) external {
-        super.incrementBalanceOfRedeemedCDSD(account, amount);
-    }
-
-    function decrementBalanceOfRedeemedCDSDE(
-        address account,
-        uint256 amount,
-        string calldata reason
-    ) external {
-        super.decrementBalanceOfRedeemedCDSD(account, amount, reason);
-    }
-
-    function incrementBalanceOfBurnedDSDE(address account, uint256 amount) external {
-        super.incrementBalanceOfBurnedDSD(account, amount);
-    }
-
-    function decrementBalanceOfBurnedDSDE(
-        address account,
-        uint256 amount,
-        string calldata reason
-    ) external {
-        super.decrementBalanceOfBurnedDSD(account, amount, reason);
-    }
-
     // end DIP-10
 
     /**

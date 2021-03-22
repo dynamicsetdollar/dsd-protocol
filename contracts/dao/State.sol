@@ -33,6 +33,16 @@ contract Account {
         uint256 fluidUntil;
         uint256 lockedUntil;
     }
+
+    struct State10 {
+        uint256 depositedCDSD;
+        uint256 interestMultiplierEntry;
+        uint256 earnableCDSD;
+        uint256 earnedCDSD;
+        uint256 redeemedCDSD;
+        uint256 redeemedThisExpansion;
+        uint256 lastRedeemedExpansionStart;
+    }
 }
 
 contract Epoch {
@@ -99,14 +109,17 @@ contract Storage {
     }
 
     struct State10 {
-        mapping(address => uint256) cDSDSharesByAccount;
-        mapping(address => uint256) burnedDSD;
-        mapping(address => uint256) redeemedCDSD;
-        uint256 totalCDSDShares;
-        uint256 totalBurnedDSD;
-        uint256 totalCDSDRedeemed;
-        uint256 dip10TotalRedeemable;
         IDollar cDSD;
+        mapping(address => Account.State10) accounts;
+        uint256 dip10TotalRedeemed;
+        uint256 dip10TotalRedeemable;
+        uint256 expansionStartEpoch;
+        uint256 globalInterestMultiplier;
+
+        uint256 totalCDSDDeposited;
+        uint256 totalCDSDEarnable;
+        uint256 totalCDSDEarned;
+        uint256 totalCDSDRedeemed;
     }
 }
 

@@ -95,39 +95,28 @@ contract Getters is State {
         return _state.balance.coupons;
     }
 
-    function totalNet() public view returns (uint256) {
-        uint256 totalNetAmount = 0;
-
-        if (dollar().totalSupply() >= cdsd().totalSupply()) {
-            totalNetAmount = dollar().totalSupply().sub(cdsd().totalSupply());
-        }
-
-        return totalNetAmount;
+    function treasury() public view returns (address) {
+        return Constants.getTreasuryAddress();
     }
 
     // DIP-10
-    function totalCDSDShares() public view returns (uint256) {
-        return _state10.totalCDSDShares;
-    }
-
     function totalCDSDBonded() public view returns (uint256) {
         return cdsd().balanceOf(address(this));
     }
 
-    function totalBurnedDSD() public view returns (uint256) {
-        return _state10.totalBurnedDSD;
-    }
-
-    function totalCDSDRedeemed() public view returns (uint256) {
-        return _state10.totalCDSDRedeemed;
-    }
-
-    function totalEarnableCDSD() public view returns (uint256) {
-        uint256 totalDSDBurned = totalBurnedDSD();
-        return totalDSDBurned.add(totalDSDBurned.mul(Constants.getEarnableCap()).div(100));
-    }
-
     function dip10TotalRedeemable() public view returns (uint256) {
+        return _state10.dip10TotalRedeemable;
+    }
+
+    function globalInterestMultiplier() public view returns (uint256) {
+        return _state10.globalInterestMultiplier;
+    }
+
+    function expansionStartEpoch() public view returns (uint256) {
+        return _state10.expansionStartEpoch;
+    }
+
+    function dip10TotalRedeemed() public view returns (uint256) {
         return _state10.dip10TotalRedeemable;
     }
 
@@ -137,10 +126,6 @@ contract Getters is State {
 
     function cdsd() public view returns (IDollar) {
         return _state10.cDSD;
-    }
-
-    function treasury() public view returns (address) {
-        return Constants.getTreasuryAddress();
     }
 
     // end DIP-10
@@ -194,37 +179,79 @@ contract Getters is State {
 
     // DIP-10
     function balanceOfCDSDBonded(address account) public view returns (uint256) {
-        uint256 totalBalanceOfCDSDShares = totalCDSDShares();
-        if (totalBalanceOfCDSDShares == 0) {
+        uint256 amount = depositedCDSDByAccount(account).mul(_state10.globalInterestMultiplier).div(intrestMultiplierEntryByAccount(account));
+
+        uint256 cappedAmount = cDSDBondedCap(account);
+
+        return amount > cappedAmount ? cappedAmount : amount;
+    }
+
+    function cDSDBondedCap(address account) public view returns (uint256) {
+        return depositedCDSDByAccount(account).add(earnableCDSDByAccount(account)).sub(earnedCDSDByAccount(account));
+    }
+
+    function depositedCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].depositedCDSD;
+    }
+
+    function intrestMultiplierEntryByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].depositedCDSD;
+    }
+
+    function earnableCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].earnableCDSD;
+    }
+
+    function earnedCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].earnedCDSD;
+    }
+
+    function redeemedCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].redeemedCDSD;
+    }
+
+    function getRedeemedThisExpansion(address account) public view returns (uint256) {
+        uint256 currentExpansion = _state10.expansionStartEpoch;
+        uint256 accountExpansion = _state10.accounts[account].lastRedeemedExpansionStart;
+
+        if (currentExpansion != accountExpansion) {
             return 0;
+        }else{
+            return _state10.accounts[account].redeemedThisExpansion;
         }
-
-        uint256 amountFromShares = balanceOfCDSDShares(account).mul(totalCDSDBonded()).div(totalBalanceOfCDSDShares);
-
-        // earnable increments when user burned DSD only
-        uint256 totalBalanceOfEarnable = balanceOfEarnableCDSD(account);
-        if (totalBalanceOfEarnable == 0) {
-            return amountFromShares;
-        }
-
-        return amountFromShares > totalBalanceOfEarnable ? totalBalanceOfEarnable : amountFromShares;
     }
 
-    function balanceOfCDSDShares(address account) public view returns (uint256) {
-        return _state10.cDSDSharesByAccount[account];
+    function getCurrentRedeemableCDSDByAccount(address account) public view returns (uint256) {
+        return dip10TotalRedeemable()
+            .mul(balanceOfCDSDBonded(account))
+            .div(totalCDSDBonded())
+            .sub(getRedeemedThisExpansion(account));
     }
 
-    function balanceOfBurnedDSD(address account) public view returns (uint256) {
-        return _state10.burnedDSD[account];
+
+
+
+    function totalCDSDDeposited() public view returns (uint256) {
+        return _state10.totalCDSDDeposited;
     }
 
-    function balanceOfRedeemedCDSD(address account) public view returns (uint256) {
-        return _state10.redeemedCDSD[account];
+    function totalCDSDEarnable() public view returns (uint256) {
+        return _state10.totalCDSDEarnable;
     }
 
-    function balanceOfEarnableCDSD(address account) public view returns (uint256) {
-        uint256 amount = balanceOfBurnedDSD(account);
-        return amount.add(amount.mul(Constants.getEarnableCap()).div(100));
+    function totalCDSDEarned() public view returns (uint256) {
+        return _state10.totalCDSDRedeemed;
+    }
+    function totalCDSDRedeemed() public view returns (uint256) {
+        return _state10.totalCDSDRedeemed;
+    }
+
+
+    function maxCDSDOutstanding() public view returns (uint256) {
+        return totalCDSDDeposited()
+            .add(totalCDSDEarnable())
+            .sub(totalCDSDEarned())
+            .sub(totalCDSDRedeemed());
     }
 
     // end DIP-10
