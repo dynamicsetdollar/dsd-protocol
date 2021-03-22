@@ -20,6 +20,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Setters.sol";
 import "../external/Require.sol";
+import "../Constants.sol";
 
 contract Comptroller is Setters {
     using SafeMath for uint256;
@@ -28,6 +29,15 @@ contract Comptroller is Setters {
 
     function setPrice(Decimal.D256 memory price) internal {
         _state13.price = price;
+
+        // track expansion cycles
+        if (price.greaterThan(Decimal.one())) {
+            if(_state10.expansionStartEpoch == 0){
+                _state10.expansionStartEpoch = epoch();
+            }
+        } else {
+            _state10.expansionStartEpoch = 0;
+        }
     }
 
     function mintToAccount(address account, uint256 amount) internal {
@@ -50,31 +60,22 @@ contract Comptroller is Setters {
         balanceCheck();
     }
 
-    function increaseCDSDSupply(uint256 newSupply) internal returns (uint256) {
-        uint256 cDSDSupplyReward = newSupply.mul(Constants.getCDSDContractionRewardRatio()).div(100); // 95% or rewards go to bonded cDSD
+    function contractionIncentives(Decimal.D256 memory delta) internal returns (uint256) {
+        // acrue interest on CDSD
+        uint256 currentMultiplier = globalInterestMultiplier();
+        uint256 newMultiplier = Decimal.D256({value:currentMultiplier}).mul(Decimal.one().add(delta)).value;
+        setGlobalInterestMultiplier(newMultiplier);
 
+        uint256 daoBondingRewards;
         if (totalBonded() != 0) {
-            // the remaining, i.e. 5%, goes to bonded DSD, capped at 20% APY
-            uint256 daoContractionRewards = newSupply.sub(cDSDSupplyReward);
-            uint256 daoContractionRewardsCap = Constants.getDSDContractionRewardCap().mul(totalBonded()).asUint256();
-
-            uint256 rewards =
-                daoContractionRewards > daoContractionRewardsCap ? daoContractionRewardsCap : daoContractionRewards;
-            mintToDAO(rewards);
+            // DSD bonded in the DAO receive a fixed 25% APY
+            daoBondingRewards = Decimal.D256(totalBonded()).mul(Constants.getContractionBondingRewards()).value;
+            mintToDAO(daoBondingRewards);
         }
-
-        // no more than earnable CDSD rewards is minted
-        if (cDSDSupplyReward.add(cdsd().totalSupply()) > totalEarnableCDSD()) {
-            cDSDSupplyReward = cdsd().totalSupply() < totalEarnableCDSD()
-                ? totalEarnableCDSD().sub(cdsd().totalSupply())
-                : 0;
-        }
-
-        cdsd().mint(address(this), cDSDSupplyReward);
 
         balanceCheck();
 
-        return cDSDSupplyReward;
+        return daoBondingRewards;
     }
 
     function increaseSupply(uint256 newSupply) internal returns (uint256, uint256) {
@@ -88,14 +89,15 @@ contract Comptroller is Setters {
 
         // cDSD redemption logic
         uint256 newCDSDRedeemable = 0;
-        if (totalCDSDRedeemed() < totalEarnableCDSD()) {
-            // 50% of expansion rewards when there is still unredeemable
-            uint256 cDSDReward = newSupply.mul(Constants.getCDSDRedemptionRewardRatio()).div(100);
+        uint256 outstanding = maxCDSDOutstanding();
+        uint256 redeemable = dip10TotalRedeemable();
+        if (redeemable < outstanding ) {
+            uint256 newRedeemable = newSupply.mul(Constants.getCDSDRedemptionRatio()).div(100);
+            uint256 newRedeemableCap = outstanding.sub(redeemable);
 
-            newCDSDRedeemable = totalEarnableCDSD().sub(totalCDSDRedeemed());
-            newCDSDRedeemable = newCDSDRedeemable > cDSDReward ? cDSDReward : newCDSDRedeemable;
+            newCDSDRedeemable = newRedeemableCap > newRedeemable ? newRedeemableCap : newRedeemable;
 
-            mintToRedeemable(newCDSDRedeemable);
+            incrementState10TotalRedeemable(newCDSDRedeemable);
         }
 
         // remaining is for DAO
@@ -140,12 +142,5 @@ contract Comptroller is Setters {
         if (amount > 0) {
             dollar().mint(pool(), amount);
         }
-    }
-
-    function mintToRedeemable(uint256 amount) private {
-        dollar().mint(address(this), amount);
-        incrementState10TotalRedeemable(amount);
-
-        balanceCheck();
     }
 }

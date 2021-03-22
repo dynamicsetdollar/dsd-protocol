@@ -45,8 +45,8 @@ contract MockComptroller is Comptroller, MockState {
         super.increaseSupply(amount);
     }
 
-    function increaseCDSDSupplyE(uint256 amount) external {
-        super.increaseCDSDSupply(amount);
+    function contractionIncentivesE(Decimal.D256 calldata delta) external {
+        super.contractionIncentives(delta);
     }
 
     /* For testing only */
