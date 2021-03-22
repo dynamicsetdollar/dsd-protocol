@@ -22,9 +22,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "./Permittable.sol";
 import "./IDollar.sol";
+import "../Constants.sol";
 
 
-contract ContractionDollar is IDollar, MinterRole, ERC20Detailed, Permittable, ERC20Burnable  {
+contract ContractionDollar is IDollar, MinterRole, ERC20Detailed, Permittable, ERC20Burnable {
 
     constructor()
     ERC20Detailed("Contraction Dynamic Set Dollar", "CDSD", 18)
@@ -41,7 +42,10 @@ contract ContractionDollar is IDollar, MinterRole, ERC20Detailed, Permittable, E
 
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
         _transfer(sender, recipient, amount);
-        if (allowance(sender, _msgSender()) != uint256(-1)) {
+        if (
+            msg.sender != Constants.getDaoAddress() // always allow DAO
+            && allowance(sender, _msgSender()) != uint256(-1)
+        ) {
             _approve(
                 sender,
                 _msgSender(),
