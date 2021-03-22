@@ -31,11 +31,4 @@ contract MockCDSDMarket is MockComptroller, CDSDMarket {
     function justMintCDSDToE(address account, uint256 amount) external {
         cdsd().mint(account, amount);
     }
-
-    function mintCDSDAndIncreaseDSDBurnedE(address account, uint256 amount) external {
-        cdsd().mint(account, amount);
-        // emulate burning of DSD for CDSD
-        super.incrementBalanceOfBurnedDSD(account, amount);
-        super.incrementTotalDSDBurned(amount);
-    }
 }

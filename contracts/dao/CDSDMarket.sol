@@ -26,31 +26,31 @@ contract CDSDMarket is Comptroller {
 
     event CDSDMinted(address indexed account, uint256 amount);
     event CDSDRedeemed(address indexed account, uint256 amount);
-    event BondCDSD(address indexed account, uint256 start, uint256 shareValue, uint256 valueUnderlying);
-    event UnbondCDSD(address indexed account, uint256 start, uint256 shareValue, uint256 valueUnderlying);
+    event BondCDSD(address indexed account, uint256 start, uint256 amount);
+    event UnbondCDSD(address indexed account, uint256 start, uint256 amount);
 
     function burnDSDForCDSD(uint256 amount) public {
         require(_state13.price.lessThan(Decimal.one()), "Market: not in contraction");
 
+        // deposit and burn DSD
         dollar().transferFrom(msg.sender, address(this), amount);
         dollar().burn(amount);
         balanceCheck();
 
+        // mint equivalent CDSD
         cdsd().mint(msg.sender, amount);
-        incrementBalanceOfBurnedDSD(msg.sender, amount);
-        incrementTotalDSDBurned(amount);
+
+        // increment earnable
+        incrementBalanceOfEarnableCDSD(msg.sender,  Decimal.D256({value: amount}).mul(Constants.getEarnableFactor()).value);
 
         emit CDSDMinted(msg.sender, amount);
     }
 
-    function burnCouponsForCDSD(uint256 couponEpoch) public returns (uint256) {
-        require(_state13.price.lessThan(Decimal.one()), "Market: not in contraction");
-
+    function migrateCouponsToCDSD(uint256 couponEpoch) public returns (uint256) {
         uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch);
         uint256 couponUnderlyingAmount = balanceOfCouponUnderlying(msg.sender, couponEpoch);
 
-        uint256 totalAmount = couponAmount.add(couponUnderlyingAmount);
-
+        // decrement coupon balances
         if (couponAmount != 0) {
             decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
         }
@@ -61,9 +61,9 @@ contract CDSDMarket is Comptroller {
             "Market: Insufficient coupon underlying balance"
         );
 
+        // mint CDSD
+        uint256 totalAmount = couponAmount.add(couponUnderlyingAmount);
         cdsd().mint(msg.sender, totalAmount);
-        incrementBalanceOfBurnedDSD(msg.sender, totalAmount);
-        incrementTotalDSDBurned(totalAmount);
 
         emit CDSDMinted(msg.sender, totalAmount);
 
@@ -76,85 +76,92 @@ contract CDSDMarket is Comptroller {
         bondCDSD(amount);
     }
 
-    function burnCouponsForCDSDAndBond(uint256 couponEpoch) external {
-        uint256 amountToBond = burnCouponsForCDSD(couponEpoch);
+    function migrateCouponsToCDSDAndBond(uint256 couponEpoch) external {
+        uint256 amountToBond = migrateCouponsToCDSD(couponEpoch);
 
         bondCDSD(amountToBond);
     }
 
     function bondCDSD(uint256 amount) public {
-        require(amount > 0, "Market: unbound must be greater than 0");
+        require(amount > 0, "Market: bound must be greater than 0");
 
+        // cache current CDSD amount
         uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
 
-        // sub all user shares
-        uint256 userCDSDShares = balanceOfCDSDShares(msg.sender);
-        decrementBalanceOfCDSDShares(msg.sender, userCDSDShares, "Market: unable to set user shares to zero");
-        decrementTotalCDSDShares(userCDSDShares, "Market: unable to subtract shares");
+        // update earned amount
+        uint256 earned = userBondedAmount.sub(depositedCDSDByAccount(msg.sender));
+        if (earned > 0) {
+            incrementBalanceOfEarnedCDSD(msg.sender, earned);
+            // mint acrued interest interest to DAO
+            cdsd().mint(address(this), earned);
+        }
 
-        uint256 userTotalAmount = amount.add(userBondedAmount);
-        require(userTotalAmount <= balanceOfEarnableCDSD(msg.sender), "Market: bonded CDSD > earnable!");
-        // create new shares for user
-        uint256 shares =
-            totalCDSDShares() == 0 ? userTotalAmount : userTotalAmount.mul(totalCDSDShares()).div(totalCDSDBonded());
-        incrementBalanceOfCDSDShares(msg.sender, shares);
-        incrementTotalCDSDShares(shares);
+        // update multiplier entry
+        setCurrentInterestMultiplier(msg.sender);
 
+        // deposit CDSD amount
         cdsd().transferFrom(msg.sender, address(this), amount);
 
-        emit BondCDSD(msg.sender, epoch().add(1), shares, amount);
+        setDepositedCDSDAmount(msg.sender, userBondedAmount.add(amount));
+
+        emit BondCDSD(msg.sender, epoch().add(1), amount);
     }
 
     function unbondCDSD(uint256 amount) external {
-        uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
-        require(amount > 0 && userBondedAmount > 0, "Market: amounts > 0!");
-        require(amount <= userBondedAmount, "Market: insufficient amount to unbound");
-        require(
-            amount.add(balanceOfRedeemedCDSD(msg.sender)) <= balanceOfEarnableCDSD(msg.sender),
-            "Market: amount is higher than earnable cDSD"
-        );
+        // we cannot allow for CDSD unbonds to 
+        require(_state13.price.lessThan(Decimal.one()), "Market: not in contraction");
 
-        uint256 shares = amount.mul(totalCDSDShares()).div(totalCDSDBonded());
+        _unbondCDSD(amount);
 
-        decrementBalanceOfCDSDShares(msg.sender, shares, "Market: insufficient shares to unbound");
-        decrementTotalCDSDShares(shares, "Market: unable to set user shares to zero");
-
+        // withdraw CDSD
         cdsd().transfer(msg.sender, amount);
 
-        emit UnbondCDSD(msg.sender, epoch().add(1), shares, amount);
+        emit UnbondCDSD(msg.sender, epoch().add(1), amount);
+    }
+
+    function _unbondCDSD(uint256 amount) internal {
+        // store current CDSD amount
+        uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
+
+        require(amount > 0 && userBondedAmount > 0, "Market: amounts > 0!");
+        require(amount <= userBondedAmount, "Market: insufficient amount to unbound");
+
+        // update earned amount
+        uint256 earned = userBondedAmount.sub(depositedCDSDByAccount(msg.sender));
+        if (earned > 0) {
+            incrementBalanceOfEarnedCDSD(msg.sender, earned);
+            // mint acrued interest interest to DAO
+            cdsd().mint(address(this), earned);
+        }
+
+        // update multiplier entry
+        setCurrentInterestMultiplier(msg.sender);
+
+        // create new shares for user
+        uint256 userTotalAmount = userBondedAmount.sub(amount);
+
+        // update deposited amount
+        setDepositedCDSDAmount(msg.sender, userTotalAmount);
     }
 
     function redeemBondedCDSDForDSD(uint256 amount) external {
         require(_state13.price.greaterThan(Decimal.one()), "Market: not in expansion");
         require(amount > 0, "Market: amounts > 0!");
-        require(
-            amount.add(balanceOfRedeemedCDSD(msg.sender)) <= balanceOfEarnableCDSD(msg.sender),
-            "Market: amount is higher than earnable cDSD"
-        );
 
-        uint256 shares = amount.mul(balanceOfCDSDBonded(msg.sender)).div(balanceOfCDSDShares(msg.sender));
-        decrementBalanceOfCDSDShares(msg.sender, shares, "Market: insufficient shares to redeem");
-        decrementTotalCDSDShares(shares, "Market: unable to reduce user's sjares");
+        // check if user is allowed to redeem this amount
+        require(amount <= getCurrentRedeemableCDSDByAccount(msg.sender), "");
 
-        // CDSD are partially redeemable for DSD each time
-        uint256 limitOnRedeem = getRedemptionRatio().mul(balanceOfCDSDBonded(msg.sender)).asUint256();
-        require(amount <= limitOnRedeem, "Market: amount is higher than current redeemable limit");
+        // unbond redeemed amount
+        _unbondCDSD(amount);
 
+        // burn CDSD
         cdsd().burn(amount);
+        // mint DSD
+        mintToAccount(msg.sender, amount);
 
-        dollar().mint(msg.sender, amount);
-        balanceCheck();
-
-        incrementBalanceOfRedeemedCDSD(msg.sender, amount); // cDSD redeemed increases
-        incrementTotalCDSDRedeemed(amount);
+        addRedeemedThisExpansion(msg.sender, amount);
         decrementState10TotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
 
         emit CDSDRedeemed(msg.sender, amount);
-    }
-
-    function getRedemptionRatio() private view returns (Decimal.D256 memory) {
-        uint256 amountRedeemable = totalCDSDRedeemed().add(dip10TotalRedeemable());
-
-        return Decimal.ratio(amountRedeemable, totalEarnableCDSD());
     }
 }
