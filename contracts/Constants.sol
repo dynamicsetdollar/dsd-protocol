@@ -59,12 +59,6 @@ library Constants {
     /* Pool */
     uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 12; // 12 epochs fluid
 
-    /* Market */
-    uint256 private constant COUPON_EXPIRATION = 360;
-    uint256 private constant DEBT_RATIO_CAP = 35e16; // 35%
-    uint256 private constant INITIAL_COUPON_REDEMPTION_PENALTY = 50e16; // 50%
-    uint256 private constant COUPON_REDEMPTION_PENALTY_DECAY = 3600; // 1 hour
-
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 2e16; // 2%
     uint256 private constant SUPPLY_CHANGE_DIVISOR = 25e18; // 25 > Max expansion at 1.5
@@ -81,10 +75,10 @@ library Constants {
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
     /* DIP-10 */
-    uint256 private constant EARNABLE_CAP = 100; // % of capped earnable contraction rewards
-    uint256 private constant CDSD_REDEMPTION_REWARD_RATIO = 50; // 50%
-    uint256 private constant CDSD_CONTRACTION_REWARD_RATIO = 95; // 95%
-    uint256 private constant DSD_CONTRACTION_REWARD_CAP = 5e14; // 5 bps
+    uint256 private constant EARNABLE_FACTOR = 1e18; // 100% - Amount of CDSD earnable for DSD burned
+    uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
+    uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
+    
 
     /**
      * Getters
@@ -149,22 +143,6 @@ library Constants {
         return POOL_EXIT_LOCKUP_EPOCHS;
     }
 
-    function getCouponExpiration() internal pure returns (uint256) {
-        return COUPON_EXPIRATION;
-    }
-
-    function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: DEBT_RATIO_CAP});
-    }
-
-    function getInitialCouponRedemptionPenalty() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: INITIAL_COUPON_REDEMPTION_PENALTY});
-    }
-
-    function getCouponRedemptionPenaltyDecay() internal pure returns (uint256) {
-        return COUPON_REDEMPTION_PENALTY_DECAY;
-    }
-
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
     }
@@ -213,19 +191,15 @@ library Constants {
         return TREASURY_ADDRESS;
     }
 
-    function getEarnableCap() internal pure returns (uint256) {
-        return EARNABLE_CAP;
+    function getEarnableFactor() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: EARNABLE_FACTOR});
     }
 
-    function getCDSDRedemptionRewardRatio() internal pure returns (uint256) {
-        return CDSD_REDEMPTION_REWARD_RATIO;
+    function getCDSDRedemptionRatio() internal pure returns (uint256) {
+        return CDSD_REDEMPTION_RATIO;
     }
 
-    function getCDSDContractionRewardRatio() internal pure returns (uint256) {
-        return CDSD_CONTRACTION_REWARD_RATIO;
-    }
-
-    function getDSDContractionRewardCap() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: DSD_CONTRACTION_REWARD_CAP});
+    function getContractionBondingRewards() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: CONTRACTION_BONDING_REWARDS});
     }
 }
