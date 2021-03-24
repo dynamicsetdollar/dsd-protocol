@@ -64,7 +64,11 @@ contract Getters is State {
     }
 
     function oracle() public view returns (IOracle) {
-        return _state.provider.oracle;
+        if (epoch() < _state16.epochStartForSushiswapPool) {
+            return _state16.legacyOracle;
+        } else {
+            return _state.provider.oracle;
+        }
     }
 
     function pool() public view returns (address) {
@@ -161,10 +165,7 @@ contract Getters is State {
     }
 
     function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
-        return blockTimestamp()
-            .sub(strategy.start)
-            .div(strategy.period)
-            .add(strategy.offset);
+        return blockTimestamp().sub(strategy.start).div(strategy.period).add(strategy.offset);
     }
 
     // Overridable for testing

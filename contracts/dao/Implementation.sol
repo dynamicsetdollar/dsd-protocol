@@ -24,18 +24,26 @@ import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
 
+// used only to set new pool. Can be removed for following DIP implementation
+import "../oracle/Oracle.sol";
+import "../oracle/Pool.sol";
+
 contract Implementation is State, Bonding, Market, Regulator, Govern {
     using SafeMath for uint256;
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
     event Incentivization(address indexed account, uint256 amount);
 
-    function initialize() initializer public {
-        // committer reward:
-        mintToAccount(msg.sender, 150e18); // 150 DSD to committer
-        // contributor  rewards:
-        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 1000e18); // 1000 DSD to devnull
-        mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
+    function initialize() public initializer {
+        // prep for sushiswap transition
+        _state16.epochStartForSushiswapPool = epoch() + 2;
+        _state16.legacyOracle = oracle(); // uniswap pool oracle
+
+        // add SushiSwap pool
+        _state.provider.oracle = new Oracle(address(dollar()), Constants.getPairAddress());
+        oracle().capture(); // capture for pool price on sushi pool
+
+        _state.provider.pool = address(new Pool());
     }
 
     function advance() external incentivized {
