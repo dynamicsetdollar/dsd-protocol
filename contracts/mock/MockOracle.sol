@@ -17,7 +17,7 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "../oracle/Oracle.sol";
 import "../external/Decimal.sol";
 
@@ -26,7 +26,11 @@ contract MockOracle is Oracle {
     bool private _latestValid;
     address private _usdc;
 
-    constructor (address pair, address dollar, address usdc) Oracle(dollar) public {
+    constructor(
+        address pair,
+        address dollar,
+        address usdc
+    ) public Oracle(dollar, pair) {
         _pair = IUniswapV2Pair(pair);
         _index = 0;
         _usdc = usdc;
