@@ -8,7 +8,7 @@ async function main() {
   const oracle = await Oracle.deploy(dsdDollar, sushiPairAddress);
   console.log('Oracle deployed at: ', oracle.address);
 
-  const poolContract = '0xf929fc6eC25850ce00e457c4F28cDE88A94415D8' // deplpyed by d3vNull: https://etherscan.io/address/0xf929fc6eC25850ce00e457c4F28cDE88A94415D8#code
+  const poolContract = '0xf929fc6eC25850ce00e457c4F28cDE88A94415D8' // deployed by d3vNull: https://etherscan.io/address/0xf929fc6eC25850ce00e457c4F28cDE88A94415D8#code
   console.log('Pool deployed at: ', poolContract);
 
   const Implementation = await ethers.getContractFactory("Implementation");
@@ -16,7 +16,7 @@ async function main() {
   const implementation = await Implementation.deploy();
   console.log({ implementationAddress: implementation.address })
 
-  await implementation.initializeDip16(oracle.address, pool.address)
+  await implementation.initializeDip16(oracle.address, poolContract)
 }
 
 main()
