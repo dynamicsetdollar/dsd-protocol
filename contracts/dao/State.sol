@@ -101,6 +101,7 @@ contract Storage {
     struct State16 {
         IOracle legacyOracle;
         uint256 epochStartForSushiswapPool;
+        bool initialized;
     }
 }
 

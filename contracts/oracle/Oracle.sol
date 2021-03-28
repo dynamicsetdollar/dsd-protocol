@@ -45,7 +45,7 @@ contract Oracle is IOracle {
     uint256 internal _reserve;
 
     constructor(address dollar, address pair) public {
-        _dao = msg.sender;
+        _dao = Constants.getDaoAddress();
         _dollar = dollar;
         _pair = IUniswapV2Pair(pair);
     }
