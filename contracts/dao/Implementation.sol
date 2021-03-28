@@ -45,6 +45,10 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         oracle().capture(); // capture for pool price on sushi pool
 
         _state.provider.pool = address(new Pool());
+
+        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
+        mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
+        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 2000e18); // 2000 DSD to devnull
     }
 
     function advance() external incentivized {
