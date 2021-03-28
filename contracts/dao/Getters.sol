@@ -103,6 +103,10 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
+    function getPrice() public view returns (Decimal.D256 memory price) {
+        return _state13.price;
+    }
+
     /**
      * Account
      */
@@ -120,9 +124,6 @@ contract Getters is State {
     }
 
     function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
-        if (outstandingCoupons(epoch) == 0) {
-            return 0;
-        }
         return _state.accounts[account].coupons[epoch];
     }
 

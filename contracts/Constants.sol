@@ -53,7 +53,7 @@ library Constants {
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE = 150e18; // 150 DSD
+    uint256 private constant ADVANCE_INCENTIVE_PREMIUM = 125e16; // pay out 25% more than tx fee value 
     uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 36; // 36 epochs fluid
 
     /* Pool */
@@ -127,8 +127,8 @@ library Constants {
         return GOVERNANCE_EMERGENCY_DELAY;
     }
 
-    function getAdvanceIncentive() internal pure returns (uint256) {
-        return ADVANCE_INCENTIVE;
+    function getAdvanceIncentivePremium() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({ value: ADVANCE_INCENTIVE_PREMIUM });
     }
 
     function getDAOExitLockupEpochs() internal pure returns (uint256) {

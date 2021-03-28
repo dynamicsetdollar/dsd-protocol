@@ -31,7 +31,7 @@ contract Oracle is IOracle {
     using Decimal for Decimal.D256;
 
     bytes32 private constant FILE = "Oracle";
-    address private constant UNISWAP_FACTORY = address(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac); // Sushi Factory Address
+    address private constant SUSHISWAP_FACTORY = address(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac); // Sushi Factory Address
 
     address internal _dao;
     address internal _dollar;
@@ -50,14 +50,13 @@ contract Oracle is IOracle {
         _pair = IUniswapV2Pair(pair);
     }
 
-    // Not used for sushiswap pool as pair is already created
     function setup() public onlyDao {
-        _pair = IUniswapV2Pair(IUniswapV2Factory(UNISWAP_FACTORY).createPair(_dollar, usdc()));
+        _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(_dollar, usdc()));
 
         (address token0, address token1) = (_pair.token0(), _pair.token1());
         _index = _dollar == token0 ? 0 : 1;
 
-        Require.that(_index == 0 || _dollar == token1, FILE, "Døllar not found");
+        Require.that(_index == 0 || _dollar == token1, FILE, "DSD not found");
     }
 
     /**
@@ -141,7 +140,7 @@ contract Oracle is IOracle {
     }
 
     modifier onlyDao() {
-        Require.that(msg.sender == _dao, FILE, "Not dao");
+        Require.that(msg.sender == _dao, FILE, "Not DAO");
 
         _;
     }
