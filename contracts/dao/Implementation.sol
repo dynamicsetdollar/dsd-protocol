@@ -42,9 +42,10 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
         // add SushiSwap pool
         _state.provider.oracle = new Oracle(address(dollar()), Constants.getPairAddress());
+        oracle().setup(); // setup oracle
         oracle().capture(); // capture for pool price on sushi pool
 
-        _state.provider.pool = address(new Pool());
+        _state.provider.pool = 0xf929fc6eC25850ce00e457c4F28cDE88A94415D8;
 
         mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
         mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
