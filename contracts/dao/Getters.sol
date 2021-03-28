@@ -103,6 +103,10 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
+    function getPrice() public view returns (Decimal.D256 memory price) {
+        return _state13.price;
+    }
+
     /**
      * Account
      */
