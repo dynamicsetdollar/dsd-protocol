@@ -32,24 +32,18 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() public initializer {
+        _state16.epochStartForSushiswapPool = epoch() + 2;
+        _state16.legacyOracle = oracle(); // legacy uniswap pool oracle
+
+        _state.provider.oracle = IOracle(address(0)); // new sushiswap oracle
+        oracle().setup(); // setup oracle
         oracle().capture(); // capture for pool price on sushi pool
+
+        _state.provider.pool = address(0); // new sushiswap LP staking pool
 
         mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
         mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
         mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 2000e18); // 2000 DSD to devnull
-    }
-
-    function initializeDip16(address _oracle, address _pool) public {
-        require(!_state16.initialized, "Implementation: already initialized");
-        // prep for sushiswap transition
-        _state16.epochStartForSushiswapPool = epoch() + 2;
-        _state16.legacyOracle = oracle(); // uniswap pool oracle
-
-        // add SushiSwap pool
-        _state.provider.oracle = IOracle(_oracle);
-
-        _state.provider.pool = _pool;
-        _state16.initialized = true;
     }
 
     function advance() external incentivized {

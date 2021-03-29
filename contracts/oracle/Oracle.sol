@@ -33,9 +33,6 @@ contract Oracle is IOracle {
     bytes32 private constant FILE = "Oracle";
     address private constant SUSHISWAP_FACTORY = address(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac); // Sushi Factory Address
 
-    address internal _dao;
-    address internal _dollar;
-
     bool internal _initialized;
     IUniswapV2Pair internal _pair;
     uint256 internal _index;
@@ -44,19 +41,13 @@ contract Oracle is IOracle {
 
     uint256 internal _reserve;
 
-    constructor(address dollar, address pair) public {
-        _dao = Constants.getDaoAddress();
-        _dollar = dollar;
-        _pair = IUniswapV2Pair(pair);
-    }
-
     function setup() public onlyDao {
-        _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(_dollar, usdc()));
+        _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getDollarAddress(), usdc()));
 
         (address token0, address token1) = (_pair.token0(), _pair.token1());
-        _index = _dollar == token0 ? 0 : 1;
+        _index = Constants.getDollarAddress() == token0 ? 0 : 1;
 
-        Require.that(_index == 0 || _dollar == token1, FILE, "DSD not found");
+        Require.that(_index == 0 || Constants.getDollarAddress() == token1, FILE, "DSD not found");
     }
 
     /**
@@ -140,7 +131,7 @@ contract Oracle is IOracle {
     }
 
     modifier onlyDao() {
-        Require.that(msg.sender == _dao, FILE, "Not DAO");
+        Require.that(msg.sender == Constants.getDaoAddress(), FILE, "Not DAO");
 
         _;
     }

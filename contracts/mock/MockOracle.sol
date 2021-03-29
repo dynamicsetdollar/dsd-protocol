@@ -26,16 +26,6 @@ contract MockOracle is Oracle {
     bool private _latestValid;
     address private _usdc;
 
-    constructor(
-        address pair,
-        address dollar,
-        address usdc
-    ) public Oracle(dollar, pair) {
-        _pair = IUniswapV2Pair(pair);
-        _index = 0;
-        _usdc = usdc;
-    }
-
     function usdc() internal view returns (address) {
         return _usdc;
     }
