@@ -33,7 +33,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
     function initialize() public initializer {
         _state16.epochStartForSushiswapPool = epoch() + 2;
-        _state16.legacyOracle = oracle(); // legacy uniswap pool oracle
+        _state16.legacyOracle = _state.provider.oracle; // legacy uniswap pool oracle
 
         _state.provider.oracle = IOracle(address(0xb79E640B59062382c450D2F60f845C050cDd2986)); // new sushiswap oracle
         oracle().setup(); // setup oracle
