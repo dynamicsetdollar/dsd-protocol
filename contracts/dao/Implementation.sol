@@ -36,8 +36,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         _state16.legacyOracle = _state.provider.oracle; // legacy uniswap pool oracle
 
         _state.provider.oracle = IOracle(address(0xb79E640B59062382c450D2F60f845C050cDd2986)); // new sushiswap oracle
-        oracle().setup(); // setup oracle
-        oracle().capture(); // capture for pool price on sushi pool
+        _state.provider.oracle.setup(); // setup oracle
+        _state.provider.oracle.capture(); // capture for pool price on sushi pool
 
         _state.provider.pool = address(0xf929fc6eC25850ce00e457c4F28cDE88A94415D8); // new sushiswap LP staking pool
 
