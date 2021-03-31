@@ -23,6 +23,7 @@ import "./Regulator.sol";
 import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
+import "../external/AggregatorV3Interface.sol";
 
 contract Implementation is State, Bonding, Market, Regulator, Govern {
     using SafeMath for uint256;
@@ -30,12 +31,19 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
     event Incentivization(address indexed account, uint256 amount);
 
-    function initialize() initializer public {
-        // committer reward:
-        mintToAccount(msg.sender, 150e18); // 150 DSD to committer
-        // contributor  rewards:
-        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 1000e18); // 1000 DSD to devnull
+    function initialize() public initializer {
+        _state16.epochStartForSushiswapPool = epoch() + 2;
+        _state16.legacyOracle = _state.provider.oracle; // legacy uniswap pool oracle
+
+        _state.provider.oracle = IOracle(address(0xb79E640B59062382c450D2F60f845C050cDd2986)); // new sushiswap oracle
+        _state.provider.oracle.setup(); // setup oracle
+        _state.provider.oracle.capture(); // capture for pool price on sushi pool
+
+        _state.provider.pool = address(0xf929fc6eC25850ce00e457c4F28cDE88A94415D8); // new sushiswap LP staking pool
+
+        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
         mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
+        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 2000e18); // 2000 DSD to devnull
     }
 
     function advance() external incentivized {
@@ -47,10 +55,32 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     }
 
     modifier incentivized {
-        // Mint advance reward to sender
-        uint256 incentive = Constants.getAdvanceIncentive();
-        mintToAccount(msg.sender, incentive);
-        emit Incentivization(msg.sender, incentive);
+        // run incentivisation after advancing, so we use the updated price
+        uint256 startGas = gasleft();
         _;
+        // fetch gasPrice & ETH price from Chainlink
+        (, int256 ethPrice, , , ) = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestRoundData();
+        (, int256 fastGasPrice, , , ) =
+            AggregatorV3Interface(0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C).latestRoundData();
+
+        // Calculate DSD cost
+        Decimal.D256 memory ethSpent =
+            Decimal.D256({
+                value: (startGas - gasleft() + 41000).mul(uint256(fastGasPrice)) // approximate used gas for tx
+            });
+        Decimal.D256 memory usdCost =
+            ethSpent.mul(
+                Decimal.D256({
+                    value: uint256(ethPrice).mul(1e10) // chainlink ETH price has 8 decimals
+                })
+            );
+        Decimal.D256 memory dsdCost = usdCost.div(getPrice());
+
+        // Add incentive
+        Decimal.D256 memory incentive = dsdCost.mul(Constants.getAdvanceIncentivePremium());
+
+        // Mint advance reward to sender
+        mintToAccount(msg.sender, incentive.value);
+        emit Incentivization(msg.sender, incentive.value);
     }
 }

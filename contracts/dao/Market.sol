@@ -146,8 +146,18 @@ contract Market is Comptroller, Curve {
         require(epoch().sub(couponEpoch) >= 2, "Market: Too early to redeem");
 		require(amount != 0, "Market: Amount too low");
 
-        uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch)
-            .mul(amount).div(balanceOfCouponUnderlying(msg.sender, couponEpoch), "Market: No underlying");
+        uint256 underlying = balanceOfCouponUnderlying(msg.sender, couponEpoch);
+        require(underlying >= amount, "Market: Insufficient coupon underlying balance");
+
+        uint256 couponAmount;
+        if (outstandingCoupons(couponEpoch) == 0) {
+            // coupons have expired
+            _state.accounts[msg.sender].coupons[couponEpoch] = 0;
+        } else {
+            // coupons have not expired
+            couponAmount = _state.accounts[msg.sender].coupons[couponEpoch]
+                .mul(amount).div(underlying, "Market: No underlying");
+        }
 
         uint256 totalAmount = couponAmount.add(amount);
 
@@ -192,9 +202,28 @@ contract Market is Comptroller, Curve {
     function transferCoupons(address sender, address recipient, uint256 epoch, uint256 amount) external {
         require(sender != address(0), "Market: Coupon transfer from the zero address");
         require(recipient != address(0), "Market: Coupon transfer to the zero address");
+        require(amount != 0, "Market: Amount too low");
 
-        decrementBalanceOfCoupons(sender, epoch, amount, "Market: Insufficient coupon balance");
-        incrementBalanceOfCoupons(recipient, epoch, amount);
+        uint256 underlying = balanceOfCouponUnderlying(sender, epoch);
+        require(underlying >= amount, "Market: Insufficient coupon underlying balance");
+
+        uint256 couponAmount;
+        if (outstandingCoupons(epoch) == 0) {
+            // coupons have expired
+            _state.accounts[sender].coupons[epoch] = 0;
+        } else {
+            // coupons have not expired
+            couponAmount = _state.accounts[sender].coupons[epoch]
+                .mul(amount).div(underlying, "Market: No underlying");
+        }
+
+        decrementBalanceOfCouponUnderlying(sender, epoch, amount, "Market: Insufficient coupon underlying balance");
+        incrementBalanceOfCouponUnderlying(recipient, epoch, amount);
+
+        if (couponAmount != 0) {
+            decrementBalanceOfCoupons(sender, epoch, couponAmount, "Market: Insufficient coupon balance");
+            incrementBalanceOfCoupons(recipient, epoch, couponAmount);
+        }
 
         if (msg.sender != sender && allowanceCoupons(sender, msg.sender) != uint256(-1)) {
             decrementAllowanceCoupons(sender, msg.sender, amount, "Market: Insufficient coupon approval");

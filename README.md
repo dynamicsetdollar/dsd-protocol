@@ -5,6 +5,14 @@
 -   `yarn install`
 -   `yarn compile`
 
+## deploy
+
+copy .env and add own env variables
+
+-   `cp .env.example .env`
+
+run deployment script
+-   `yarn deploy:[network]`
 ## test
 
 -   `yarn test`

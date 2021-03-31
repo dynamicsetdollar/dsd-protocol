@@ -64,7 +64,11 @@ contract Getters is State {
     }
 
     function oracle() public view returns (IOracle) {
-        return _state.provider.oracle;
+        if (epoch() < _state16.epochStartForSushiswapPool) {
+            return _state16.legacyOracle;
+        } else {
+            return _state.provider.oracle;
+        }
     }
 
     function pool() public view returns (address) {
@@ -99,6 +103,10 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
+    function getPrice() public view returns (Decimal.D256 memory price) {
+        return _state13.price;
+    }
+
     /**
      * Account
      */
@@ -116,9 +124,6 @@ contract Getters is State {
     }
 
     function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
-        if (outstandingCoupons(epoch) == 0) {
-            return 0;
-        }
         return _state.accounts[account].coupons[epoch];
     }
 
@@ -161,10 +166,7 @@ contract Getters is State {
     }
 
     function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
-        return blockTimestamp()
-            .sub(strategy.start)
-            .div(strategy.period)
-            .add(strategy.offset);
+        return blockTimestamp().sub(strategy.start).div(strategy.period).add(strategy.offset);
     }
 
     // Overridable for testing
