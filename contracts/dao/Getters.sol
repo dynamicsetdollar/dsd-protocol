@@ -117,7 +117,7 @@ contract Getters is State {
     }
 
     function dip10TotalRedeemed() public view returns (uint256) {
-        return _state10.dip10TotalRedeemable;
+        return _state10.dip10TotalRedeemed;
     }
 
     function totalCDSD() public view returns (uint256) {
@@ -195,7 +195,7 @@ contract Getters is State {
     }
 
     function intrestMultiplierEntryByAccount(address account) public view returns (uint256) {
-        return _state10.accounts[account].depositedCDSD;
+        return _state10.accounts[account].interestMultiplierEntry;
     }
 
     function earnableCDSDByAccount(address account) public view returns (uint256) {
@@ -240,7 +240,7 @@ contract Getters is State {
     }
 
     function totalCDSDEarned() public view returns (uint256) {
-        return _state10.totalCDSDRedeemed;
+        return _state10.totalCDSDEarned;
     }
     function totalCDSDRedeemed() public view returns (uint256) {
         return _state10.totalCDSDRedeemed;
