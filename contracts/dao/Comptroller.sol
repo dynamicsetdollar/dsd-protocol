@@ -61,6 +61,12 @@ contract Comptroller is Setters {
     }
 
     function contractionIncentives(Decimal.D256 memory delta) internal returns (uint256) {
+        // clear outstanding redeemables
+        uint256 redeemable = totalCDSDRedeemable();
+        if (redeemable != 0) {
+            clearCDSDRedeemable();
+        }
+
         // acrue interest on CDSD
         uint256 currentMultiplier = globalInterestMultiplier();
         uint256 newMultiplier = Decimal.D256({value:currentMultiplier}).mul(Decimal.one().add(delta)).value;
@@ -90,14 +96,14 @@ contract Comptroller is Setters {
         // cDSD redemption logic
         uint256 newCDSDRedeemable = 0;
         uint256 outstanding = maxCDSDOutstanding();
-        uint256 redeemable = dip10TotalRedeemable();
+        uint256 redeemable = totalCDSDRedeemable().sub(totalCDSDRedeemed());
         if (redeemable < outstanding ) {
             uint256 newRedeemable = newSupply.mul(Constants.getCDSDRedemptionRatio()).div(100);
             uint256 newRedeemableCap = outstanding.sub(redeemable);
 
             newCDSDRedeemable = newRedeemableCap > newRedeemable ? newRedeemableCap : newRedeemable;
 
-            incrementState10TotalRedeemable(newCDSDRedeemable);
+            incrementTotalCDSDRedeemable(newCDSDRedeemable);
         }
 
         // remaining is for DAO

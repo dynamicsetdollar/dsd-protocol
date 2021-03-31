@@ -104,20 +104,12 @@ contract Getters is State {
         return cdsd().balanceOf(address(this));
     }
 
-    function dip10TotalRedeemable() public view returns (uint256) {
-        return _state10.dip10TotalRedeemable;
-    }
-
     function globalInterestMultiplier() public view returns (uint256) {
         return _state10.globalInterestMultiplier;
     }
 
     function expansionStartEpoch() public view returns (uint256) {
         return _state10.expansionStartEpoch;
-    }
-
-    function dip10TotalRedeemed() public view returns (uint256) {
-        return _state10.dip10TotalRedeemed;
     }
 
     function totalCDSD() public view returns (uint256) {
@@ -222,13 +214,11 @@ contract Getters is State {
     }
 
     function getCurrentRedeemableCDSDByAccount(address account) public view returns (uint256) {
-        return dip10TotalRedeemable()
+        return totalCDSDRedeemable()
             .mul(balanceOfCDSDBonded(account))
             .div(totalCDSDBonded())
             .sub(getRedeemedThisExpansion(account));
     }
-
-
 
 
     function totalCDSDDeposited() public view returns (uint256) {
@@ -242,16 +232,20 @@ contract Getters is State {
     function totalCDSDEarned() public view returns (uint256) {
         return _state10.totalCDSDEarned;
     }
+
     function totalCDSDRedeemed() public view returns (uint256) {
         return _state10.totalCDSDRedeemed;
+    }
+
+    function totalCDSDRedeemable() public view returns (uint256) {
+        return _state10.totalCDSDRedeemable;
     }
 
 
     function maxCDSDOutstanding() public view returns (uint256) {
         return totalCDSDDeposited()
             .add(totalCDSDEarnable())
-            .sub(totalCDSDEarned())
-            .sub(totalCDSDRedeemed());
+            .sub(totalCDSDEarned());
     }
 
     // end DIP-10

@@ -88,20 +88,49 @@ contract Setters is State, Getters {
         _state10.expansionStartEpoch = epoch;
     }
 
-    function incrementState10TotalRedeemable(uint256 amount) internal {
-        _state10.dip10TotalRedeemable = _state10.dip10TotalRedeemable.add(amount);
+    function incrementTotalCDSDRedeemable(uint256 amount) internal {
+        _state10.totalCDSDRedeemable = _state10.totalCDSDRedeemable.add(amount);
     }
 
-    function decrementState10TotalRedeemable(uint256 amount, string memory reason) internal {
-        _state10.dip10TotalRedeemable = _state10.dip10TotalRedeemable.sub(amount, reason);
+    function decrementTotalCDSDRedeemable(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDRedeemable = _state10.totalCDSDRedeemable.sub(amount, reason);
     }
 
-    function incrementState10TotalRedeemed(uint256 amount) internal {
-        _state10.dip10TotalRedeemed = _state10.dip10TotalRedeemed.add(amount);
+    function incrementTotalCDSDRedeemed(uint256 amount) internal {
+        _state10.totalCDSDRedeemed = _state10.totalCDSDRedeemed.add(amount);
     }
 
-    function decrementState10TotalRedeemed(uint256 amount, string memory reason) internal {
-        _state10.dip10TotalRedeemed = _state10.dip10TotalRedeemed.sub(amount, reason);
+    function decrementTotalCDSDRedeemed(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDRedeemed = _state10.totalCDSDRedeemed.sub(amount, reason);
+    }
+
+    function clearCDSDRedeemable() internal {
+        _state10.totalCDSDRedeemable = 0;
+        _state10.totalCDSDRedeemed = 0;
+    }
+
+    function incrementTotalCDSDDeposited(uint256 amount) internal {
+        _state10.totalCDSDDeposited = _state10.totalCDSDDeposited.add(amount);
+    }
+
+    function decrementTotalCDSDDeposited(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDDeposited = _state10.totalCDSDDeposited.sub(amount, reason);
+    }
+
+    function incrementTotalCDSDEarnable(uint256 amount) internal {
+        _state10.totalCDSDEarnable = _state10.totalCDSDEarnable.add(amount);
+    }
+
+    function decrementTotalCDSDEarnable(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDEarnable = _state10.totalCDSDEarnable.sub(amount, reason);
+    }
+
+    function incrementTotalCDSDEarned(uint256 amount) internal {
+        _state10.totalCDSDEarned = _state10.totalCDSDEarned.add(amount);
+    }
+
+    function decrementTotalCDSDEarned(uint256 amount, string memory reason) internal {
+        _state10.totalCDSDEarned = _state10.totalCDSDEarned.sub(amount, reason);
     }
 
     // end DIP-10

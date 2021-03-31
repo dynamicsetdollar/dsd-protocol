@@ -42,6 +42,7 @@ contract CDSDMarket is Comptroller {
 
         // increment earnable
         incrementBalanceOfEarnableCDSD(msg.sender,  Decimal.D256({value: amount}).mul(Constants.getEarnableFactor()).value);
+        incrementTotalCDSDEarnable(amount);
 
         emit CDSDMinted(msg.sender, amount);
     }
@@ -85,24 +86,17 @@ contract CDSDMarket is Comptroller {
     function bondCDSD(uint256 amount) public {
         require(amount > 0, "Market: bound must be greater than 0");
 
-        // cache current CDSD amount
-        uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
-
         // update earned amount
-        uint256 earned = userBondedAmount.sub(depositedCDSDByAccount(msg.sender));
-        if (earned > 0) {
-            incrementBalanceOfEarnedCDSD(msg.sender, earned);
-            // mint acrued interest interest to DAO
-            cdsd().mint(address(this), earned);
-        }
-
-        // update multiplier entry
-        setCurrentInterestMultiplier(msg.sender);
+        (uint256 userBonded, uint256 userDeposited,) = updateUserEarned(msg.sender);
 
         // deposit CDSD amount
         cdsd().transferFrom(msg.sender, address(this), amount);
 
-        setDepositedCDSDAmount(msg.sender, userBondedAmount.add(amount));
+        uint256 totalAmount = userBonded.add(amount);
+        setDepositedCDSDAmount(msg.sender, totalAmount);
+
+        decrementTotalCDSDDeposited(userDeposited, "Market: insufficient total deposited");
+        incrementTotalCDSDDeposited(totalAmount);
 
         emit BondCDSD(msg.sender, epoch().add(1), amount);
     }
@@ -120,28 +114,18 @@ contract CDSDMarket is Comptroller {
     }
 
     function _unbondCDSD(uint256 amount) internal {
-        // store current CDSD amount
-        uint256 userBondedAmount = balanceOfCDSDBonded(msg.sender);
-
-        require(amount > 0 && userBondedAmount > 0, "Market: amounts > 0!");
-        require(amount <= userBondedAmount, "Market: insufficient amount to unbound");
-
         // update earned amount
-        uint256 earned = userBondedAmount.sub(depositedCDSDByAccount(msg.sender));
-        if (earned > 0) {
-            incrementBalanceOfEarnedCDSD(msg.sender, earned);
-            // mint acrued interest interest to DAO
-            cdsd().mint(address(this), earned);
-        }
+        (uint256 userBonded, uint256 userDeposited,) = updateUserEarned(msg.sender);
 
-        // update multiplier entry
-        setCurrentInterestMultiplier(msg.sender);
-
-        // create new shares for user
-        uint256 userTotalAmount = userBondedAmount.sub(amount);
+        require(amount > 0 && userBonded > 0, "Market: amounts > 0!");
+        require(amount <= userBonded, "Market: insufficient amount to unbound");
 
         // update deposited amount
+        uint256 userTotalAmount = userBonded.sub(amount);
         setDepositedCDSDAmount(msg.sender, userTotalAmount);
+
+        decrementTotalCDSDDeposited(userDeposited, "Market: insufficient deposited");
+        incrementTotalCDSDDeposited(userTotalAmount);
     }
 
     function redeemBondedCDSDForDSD(uint256 amount) external {
@@ -160,8 +144,24 @@ contract CDSDMarket is Comptroller {
         mintToAccount(msg.sender, amount);
 
         addRedeemedThisExpansion(msg.sender, amount);
-        decrementState10TotalRedeemable(amount, "Market: not enough redeemable balance"); // possible redeemable DSD decreases
+        incrementTotalCDSDRedeemed(amount);
 
         emit CDSDRedeemed(msg.sender, amount);
+    }
+
+    function updateUserEarned(address account) internal returns (uint256 userBonded, uint256 userDeposited, uint256 userEarned) {
+        userBonded = balanceOfCDSDBonded(account);
+        userDeposited = depositedCDSDByAccount(account);
+        userEarned = userBonded.sub(userDeposited);
+        
+        if (userEarned > 0) {
+            incrementBalanceOfEarnedCDSD(account, userEarned);
+            // mint acrued interest interest to DAO
+            cdsd().mint(address(this), userEarned);
+            incrementTotalCDSDEarned(userEarned);
+        }
+
+        // update multiplier entry
+        setCurrentInterestMultiplier(account);
     }
 }

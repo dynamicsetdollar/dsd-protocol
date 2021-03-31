@@ -111,14 +111,15 @@ contract Storage {
     struct State10 {
         IDollar cDSD;
         mapping(address => Account.State10) accounts;
-        uint256 dip10TotalRedeemed;
-        uint256 dip10TotalRedeemable;
-        uint256 expansionStartEpoch;
+        
         uint256 globalInterestMultiplier;
 
         uint256 totalCDSDDeposited;
         uint256 totalCDSDEarnable;
         uint256 totalCDSDEarned;
+
+        uint256 expansionStartEpoch;
+        uint256 totalCDSDRedeemable;
         uint256 totalCDSDRedeemed;
     }
 }
