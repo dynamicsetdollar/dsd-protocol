@@ -44,6 +44,9 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
 
         // Reset debt to zero dip-10
         _state.balance.debt = 0;
+
+        // initialize interest multiplier
+        _state10.globalInterestMultiplier = 1e18;
     }
 
     function advance() external incentivized {
