@@ -117,7 +117,7 @@ contract Getters is State {
     }
 
     function cdsd() public view returns (IDollar) {
-        return _state10.cDSD;
+        return IDollar(Constants.getContractionDollarAddress());
     }
 
     // end DIP-10

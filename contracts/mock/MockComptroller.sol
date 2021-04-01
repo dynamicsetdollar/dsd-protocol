@@ -26,7 +26,6 @@ contract MockComptroller is Comptroller, MockState {
     constructor(address pool) public {
         _state.provider.dollar = new Dollar();
         _state.provider.pool = pool;
-        _state10.cDSD = new ContractionDollar();
     }
 
     function mintToAccountE(address account, uint256 amount) external {

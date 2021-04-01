@@ -19,13 +19,12 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "./Permittable.sol";
 import "./IDollar.sol";
 import "../Constants.sol";
 
 
-contract ContractionDollar is IDollar, MinterRole, ERC20Detailed, Permittable, ERC20Burnable {
+contract ContractionDollar is IDollar, ERC20Detailed, Permittable, ERC20Burnable {
 
     constructor()
     ERC20Detailed("Contraction Dynamic Set Dollar", "CDSD", 18)
@@ -33,23 +32,22 @@ contract ContractionDollar is IDollar, MinterRole, ERC20Detailed, Permittable, E
     public
     { }
 
-    function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+    function mint(address account, uint256 amount) public returns (bool) {
+        require(_msgSender() == Constants.getDaoAddress(), "CDSD: only DAO is allowed to mint");
         _mint(account, amount);
-        _approve(account, _msgSender(), amount); // DAO is always allowed to transfer account's cDSD
-
         return true;
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
         _transfer(sender, recipient, amount);
         if (
-            msg.sender != Constants.getDaoAddress() // always allow DAO
+            _msgSender() != Constants.getDaoAddress() // always allow DAO
             && allowance(sender, _msgSender()) != uint256(-1)
         ) {
             _approve(
                 sender,
                 _msgSender(),
-                allowance(sender, _msgSender()).sub(amount, "Dollar: transfer amount exceeds allowance"));
+                allowance(sender, _msgSender()).sub(amount, "CDSD: transfer amount exceeds allowance"));
         }
         return true;
     }

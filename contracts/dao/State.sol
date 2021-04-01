@@ -109,7 +109,6 @@ contract Storage {
     }
 
     struct State10 {
-        IDollar cDSD;
         mapping(address => Account.State10) accounts;
         
         uint256 globalInterestMultiplier;

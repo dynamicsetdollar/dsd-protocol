@@ -39,9 +39,6 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 1000e18); // 1000 DSD to devnull
         mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
 
-        // deploy cDSD
-        _state10.cDSD = new ContractionDollar();
-
         // Reset debt to zero dip-10
         _state.balance.debt = 0;
 
