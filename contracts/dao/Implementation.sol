@@ -24,6 +24,7 @@ import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
 import "../token/ContractionDollar.sol";
+import "../external/AggregatorV3Interface.sol";
 
 contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
     using SafeMath for uint256;
@@ -54,10 +55,32 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
     }
 
     modifier incentivized {
-        // Mint advance reward to sender
-        uint256 incentive = Constants.getAdvanceIncentive();
-        mintToAccount(msg.sender, incentive);
-        emit Incentivization(msg.sender, incentive);
+        // run incentivisation after advancing, so we use the updated price
+        uint256 startGas = gasleft();
         _;
+        // fetch gasPrice & ETH price from Chainlink
+        (, int256 ethPrice, , , ) = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestRoundData();
+        (, int256 fastGasPrice, , , ) =
+            AggregatorV3Interface(0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C).latestRoundData();
+
+        // Calculate DSD cost
+        Decimal.D256 memory ethSpent =
+            Decimal.D256({
+                value: (startGas - gasleft() + 41000).mul(uint256(fastGasPrice)) // approximate used gas for tx
+            });
+        Decimal.D256 memory usdCost =
+            ethSpent.mul(
+                Decimal.D256({
+                    value: uint256(ethPrice).mul(1e10) // chainlink ETH price has 8 decimals
+                })
+            );
+        Decimal.D256 memory dsdCost = usdCost.div(getPrice());
+
+        // Add incentive
+        Decimal.D256 memory incentive = dsdCost.mul(Constants.getAdvanceIncentivePremium());
+
+        // Mint advance reward to sender
+        mintToAccount(msg.sender, incentive.value);
+        emit Incentivization(msg.sender, incentive.value);
     }
 }

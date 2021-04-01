@@ -53,7 +53,7 @@ library Constants {
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE = 150e18; // 150 DSD
+    uint256 private constant ADVANCE_INCENTIVE_PREMIUM = 125e16; // pay out 25% more than tx fee value 
     uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 36; // 36 epochs fluid
 
     /* Pool */
@@ -77,7 +77,7 @@ library Constants {
     address private constant DAO_ADDRESS = address(0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a);
     address private constant DOLLAR_ADDRESS = address(0xBD2F0Cd039E0BFcf88901C98c0bFAc5ab27566e3);
     address private constant CONTRACTION_DOLLAR_ADDRESS = address(0); // TODO: add deployed address
-    address private constant PAIR_ADDRESS = address(0x26d8151e631608570F3c28bec769C3AfEE0d73a3);
+    address private constant PAIR_ADDRESS = address(0x26d8151e631608570F3c28bec769C3AfEE0d73a3); // SushiSwap pair
     address private constant CONTRACTION_PAIR_ADDRESS = address(0); // TODO: add CDSD-USDC pair address
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
@@ -99,11 +99,7 @@ library Constants {
     }
 
     function getEpochStrategy() internal pure returns (EpochStrategy memory) {
-        return EpochStrategy({
-            offset: EPOCH_OFFSET,
-            start: EPOCH_START,
-            period: EPOCH_PERIOD
-        });
+        return EpochStrategy({ offset: EPOCH_OFFSET, start: EPOCH_START, period: EPOCH_PERIOD });
     }
 
     function getInitialStakeMultiple() internal pure returns (uint256) {
@@ -115,7 +111,7 @@ library Constants {
     }
 
     function getBootstrappingPrice() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: BOOTSTRAPPING_PRICE});
+        return Decimal.D256({ value: BOOTSTRAPPING_PRICE });
     }
 
     function getGovernancePeriod() internal pure returns (uint256) {
@@ -123,23 +119,23 @@ library Constants {
     }
 
     function getGovernanceQuorum() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: GOVERNANCE_QUORUM});
+        return Decimal.D256({ value: GOVERNANCE_QUORUM });
     }
 
     function getGovernanceProposalThreshold() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: GOVERNANCE_PROPOSAL_THRESHOLD});
+        return Decimal.D256({ value: GOVERNANCE_PROPOSAL_THRESHOLD });
     }
 
     function getGovernanceSuperMajority() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: GOVERNANCE_SUPER_MAJORITY});
+        return Decimal.D256({ value: GOVERNANCE_SUPER_MAJORITY });
     }
 
     function getGovernanceEmergencyDelay() internal pure returns (uint256) {
         return GOVERNANCE_EMERGENCY_DELAY;
     }
 
-    function getAdvanceIncentive() internal pure returns (uint256) {
-        return ADVANCE_INCENTIVE;
+    function getAdvanceIncentivePremium() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({ value: ADVANCE_INCENTIVE_PREMIUM });
     }
 
     function getDAOExitLockupEpochs() internal pure returns (uint256) {
@@ -166,24 +162,32 @@ library Constants {
         return Decimal.D256({value: CONTRACTION_POOL_TARGET_REWARD});
     }
 
+    function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({ value: DEBT_RATIO_CAP });
+    }
+
+    function getInitialCouponRedemptionPenalty() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({ value: INITIAL_COUPON_REDEMPTION_PENALTY });
+    }
+
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
+        return Decimal.D256({ value: SUPPLY_CHANGE_LIMIT });
     }
 
     function getSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: SUPPLY_CHANGE_DIVISOR});
+        return Decimal.D256({ value: SUPPLY_CHANGE_DIVISOR });
     }
 
     function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: COUPON_SUPPLY_CHANGE_LIMIT});
+        return Decimal.D256({ value: COUPON_SUPPLY_CHANGE_LIMIT });
     }
 
     function getCouponSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: COUPON_SUPPLY_CHANGE_DIVISOR});
+        return Decimal.D256({ value: COUPON_SUPPLY_CHANGE_DIVISOR });
     }
 
     function getNegativeSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: NEGATIVE_SUPPLY_CHANGE_DIVISOR});
+        return Decimal.D256({ value: NEGATIVE_SUPPLY_CHANGE_DIVISOR });
     }
 
     function getOraclePoolRatio() internal pure returns (uint256) {
