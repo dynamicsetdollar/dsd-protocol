@@ -54,9 +54,6 @@ contract MockState is Setters {
         super.decrementTotalRedeemable(amount, reason);
     }
 
-    // DIP-10
-    // end DIP-10
-
     /**
      * Account
      */
@@ -130,9 +127,6 @@ contract MockState is Setters {
     ) external {
         super.decrementAllowanceCoupons(owner, spender, amount, reason);
     }
-
-    // DIP-10
-    // end DIP-10
 
     /**
      * Epoch
