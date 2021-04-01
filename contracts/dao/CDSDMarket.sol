@@ -41,8 +41,9 @@ contract CDSDMarket is Comptroller {
         cdsd().mint(msg.sender, amount);
 
         // increment earnable
-        incrementBalanceOfEarnableCDSD(msg.sender,  Decimal.D256({value: amount}).mul(Constants.getEarnableFactor()).value);
-        incrementTotalCDSDEarnable(amount);
+        uint256 earnable = Decimal.D256({value: amount}).mul(Constants.getEarnableFactor()).value;
+        incrementBalanceOfEarnableCDSD(msg.sender,  earnable);
+        incrementTotalCDSDEarnable(earnable);
 
         emit CDSDMinted(msg.sender, amount);
     }
@@ -51,16 +52,13 @@ contract CDSDMarket is Comptroller {
         uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch);
         uint256 couponUnderlyingAmount = balanceOfCouponUnderlying(msg.sender, couponEpoch);
 
-        // decrement coupon balances
+        // decrement coupon & underlying balances
         if (couponAmount != 0) {
             decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
         }
-        decrementBalanceOfCouponUnderlying(
-            msg.sender,
-            couponEpoch,
-            couponUnderlyingAmount,
-            "Market: Insufficient coupon underlying balance"
-        );
+        if (couponUnderlyingAmount != 0){
+            decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlyingAmount, "Market: Insufficient coupon underlying balance");
+        }
 
         // mint CDSD
         uint256 totalAmount = couponAmount.add(couponUnderlyingAmount);
@@ -102,7 +100,7 @@ contract CDSDMarket is Comptroller {
     }
 
     function unbondCDSD(uint256 amount) external {
-        // we cannot allow for CDSD unbonds to 
+        // we cannot allow for CDSD unbonds during expansions, to enforce the pro-rata redemptions
         require(_state13.price.lessThan(Decimal.one()), "Market: not in contraction");
 
         _unbondCDSD(amount);
@@ -133,7 +131,7 @@ contract CDSDMarket is Comptroller {
         require(amount > 0, "Market: amounts > 0!");
 
         // check if user is allowed to redeem this amount
-        require(amount <= getCurrentRedeemableCDSDByAccount(msg.sender), "");
+        require(amount <= getCurrentRedeemableCDSDByAccount(msg.sender), "Market: not enough redeemable");
 
         // unbond redeemed amount
         _unbondCDSD(amount);

@@ -25,15 +25,15 @@ import "./CPoolGetters.sol";
 
 contract CLiquidity is CPoolGetters {
     function addLiquidity(uint256 dollarAmount) internal returns (uint256, uint256) {
-        (address dollar, address usdc) = (address(cdsd()), usdc());
-        (uint reserveA, uint reserveB) = getReserves(dollar, usdc);
+        (address cdsd, address usdc) = (address(cdsd()), usdc());
+        (uint reserveA, uint reserveB) = getReserves(cdsd, usdc);
 
         uint256 usdcAmount = (reserveA == 0 && reserveB == 0) ?
              dollarAmount :
              UniswapV2Library.quote(dollarAmount, reserveA, reserveB);
 
         address pair = address(univ2());
-        IERC20(dollar).transfer(pair, dollarAmount);
+        IERC20(cdsd).transfer(pair, dollarAmount);
         IERC20(usdc).transferFrom(msg.sender, pair, usdcAmount);
         return (usdcAmount, IUniswapV2Pair(pair).mint(address(this)));
     }

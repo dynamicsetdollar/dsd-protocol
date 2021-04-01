@@ -162,14 +162,6 @@ library Constants {
         return Decimal.D256({value: CONTRACTION_POOL_TARGET_REWARD});
     }
 
-    function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: DEBT_RATIO_CAP });
-    }
-
-    function getInitialCouponRedemptionPenalty() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: INITIAL_COUPON_REDEMPTION_PENALTY });
-    }
-
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({ value: SUPPLY_CHANGE_LIMIT });
     }
