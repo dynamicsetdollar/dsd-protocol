@@ -21,11 +21,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import '../external/UniswapV2Library.sol';
 import "../Constants.sol";
-import "./PoolGetters.sol";
+import "./CPoolGetters.sol";
 
-contract Liquidity is PoolGetters {
+contract CLiquidity is CPoolGetters {
     function addLiquidity(uint256 dollarAmount) internal returns (uint256, uint256) {
-        (address dollar, address usdc) = (address(dollar()), usdc());
+        (address dollar, address usdc) = (address(cdsd()), usdc());
         (uint reserveA, uint reserveB) = getReserves(dollar, usdc);
 
         uint256 usdcAmount = (reserveA == 0 && reserveB == 0) ?
@@ -41,7 +41,7 @@ contract Liquidity is PoolGetters {
     // overridable for testing
     function getReserves(address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
         (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
-        (uint reserve0, uint reserve1,) = IUniswapV2Pair(Constants.getPairAddress()).getReserves();
+        (uint reserve0, uint reserve1,) = IUniswapV2Pair(Constants.getContractionPairAddress()).getReserves();
         (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 }

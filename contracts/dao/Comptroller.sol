@@ -72,9 +72,15 @@ contract Comptroller is Setters {
         uint256 newMultiplier = Decimal.D256({value:currentMultiplier}).mul(Decimal.one().add(delta)).value;
         setGlobalInterestMultiplier(newMultiplier);
 
+        // payout CPool rewards
+        Decimal.D256 memory cPoolReward = Decimal.D256({value:cdsd().totalSupply()})
+            .mul(Constants.getContractionPoolTargetSupply())
+            .mul(Constants.getContractionPoolTargetReward());
+        cdsd().mint(Constants.getContractionPoolAddress(), cPoolReward.value);
+
+        // DSD bonded in the DAO receives a fixed APY
         uint256 daoBondingRewards;
         if (totalBonded() != 0) {
-            // DSD bonded in the DAO receive a fixed 25% APY
             daoBondingRewards = Decimal.D256(totalBonded()).mul(Constants.getContractionBondingRewards()).value;
             mintToDAO(daoBondingRewards);
         }

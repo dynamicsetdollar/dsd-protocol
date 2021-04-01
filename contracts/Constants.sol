@@ -58,6 +58,11 @@ library Constants {
 
     /* Pool */
     uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 12; // 12 epochs fluid
+    address private constant POOL_ADDRESS = address(0xf929fc6eC25850ce00e457c4F28cDE88A94415D8);
+    address private constant CONTRACTION_POOL_ADDRESS = address(0); // TODO: add deployed address
+    uint256 private constant CONTRACTION_POOL_TARGET_SUPPLY = 10e16; // target 10% of the supply in the CPool
+    uint256 private constant CONTRACTION_POOL_TARGET_REWARD = 29e13; // 0.029% per epoch ~ 250% APY with 10% of supply in the CPool 
+
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 2e16; // 2%
@@ -72,7 +77,8 @@ library Constants {
     address private constant DAO_ADDRESS = address(0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a);
     address private constant DOLLAR_ADDRESS = address(0xBD2F0Cd039E0BFcf88901C98c0bFAc5ab27566e3);
     address private constant CONTRACTION_DOLLAR_ADDRESS = address(0); // TODO: add deployed address
-    address private constant PAIR_ADDRESS = address(0x66e33d2605c5fB25eBb7cd7528E7997b0afA55E8);
+    address private constant PAIR_ADDRESS = address(0x26d8151e631608570F3c28bec769C3AfEE0d73a3);
+    address private constant CONTRACTION_PAIR_ADDRESS = address(0); // TODO: add CDSD-USDC pair address
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
     /* DIP-10 */
@@ -144,6 +150,22 @@ library Constants {
         return POOL_EXIT_LOCKUP_EPOCHS;
     }
 
+    function getPoolAddress() internal pure returns (address) {
+        return POOL_ADDRESS;
+    }
+
+    function getContractionPoolAddress() internal pure returns (address) {
+        return CONTRACTION_POOL_ADDRESS;
+    }
+
+    function getContractionPoolTargetSupply() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: CONTRACTION_POOL_TARGET_SUPPLY});
+    }
+
+    function getContractionPoolTargetReward() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: CONTRACTION_POOL_TARGET_REWARD});
+    }
+
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
     }
@@ -190,6 +212,10 @@ library Constants {
 
     function getPairAddress() internal pure returns (address) {
         return PAIR_ADDRESS;
+    }
+
+    function getContractionPairAddress() internal pure returns (address) {
+        return CONTRACTION_PAIR_ADDRESS;
     }
 
     function getTreasuryAddress() internal pure returns (address) {

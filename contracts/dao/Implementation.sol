@@ -35,15 +35,15 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         // committer reward:
         mintToAccount(msg.sender, 150e18); // 150 DSD to committer
 
-        // contributor  rewards:
-        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 1000e18); // 1000 DSD to devnull
-        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
-
         // Reset debt to zero dip-10
         _state.balance.debt = 0;
 
         // initialize interest multiplier
         _state10.globalInterestMultiplier = 1e18;
+
+        // contributor  rewards:
+        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 1000e18); // 1000 DSD to devnull
+        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
     }
 
     function advance() external incentivized {

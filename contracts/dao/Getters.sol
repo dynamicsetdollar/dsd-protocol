@@ -68,7 +68,11 @@ contract Getters is State {
     }
 
     function pool() public view returns (address) {
-        return _state.provider.pool;
+        return Constants.getPoolAddress();
+    }
+
+    function cpool() public view returns (address) {
+        return Constants.getContractionPoolAddress();
     }
 
     function totalBonded() public view returns (uint256) {
