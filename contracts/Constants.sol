@@ -67,10 +67,7 @@ library Constants {
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 2e16; // 2%
     uint256 private constant SUPPLY_CHANGE_DIVISOR = 25e18; // 25 > Max expansion at 1.5
-    uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 3e16; // 3%
-    uint256 private constant COUPON_SUPPLY_CHANGE_DIVISOR = 1666e16; // 16.66 > Max expansion at ~1.5
-    uint256 private constant NEGATIVE_SUPPLY_CHANGE_DIVISOR = 5e18; // 5 > Max negative expansion at 0.9
-    uint256 private constant ORACLE_POOL_RATIO = 40; // 40%
+    uint256 private constant ORACLE_POOL_RATIO = 35; // 35%
     uint256 private constant TREASURY_RATIO = 3; // 3%
 
     /* Deployed */
@@ -85,6 +82,8 @@ library Constants {
     uint256 private constant EARNABLE_FACTOR = 1e18; // 100% - Amount of CDSD earnable for DSD burned
     uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
     uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
+    uint256 private constant MAX_CDSD_BONDING_REWARDS = 2750000000000000; // 0.275% per epoch
+    uint256 private constant MAX_CDSD_REWARDS_THRESHOLD = 75e16; // 0.75
 
 
     /**
@@ -170,18 +169,6 @@ library Constants {
         return Decimal.D256({ value: SUPPLY_CHANGE_DIVISOR });
     }
 
-    function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: COUPON_SUPPLY_CHANGE_LIMIT });
-    }
-
-    function getCouponSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: COUPON_SUPPLY_CHANGE_DIVISOR });
-    }
-
-    function getNegativeSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: NEGATIVE_SUPPLY_CHANGE_DIVISOR });
-    }
-
     function getOraclePoolRatio() internal pure returns (uint256) {
         return ORACLE_POOL_RATIO;
     }
@@ -228,5 +215,13 @@ library Constants {
 
     function getContractionBondingRewards() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: CONTRACTION_BONDING_REWARDS});
+    }
+
+    function maxCDSDBondingRewards() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: MAX_CDSD_BONDING_REWARDS});
+    }
+
+    function maxCDSDRewardsThreshold() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: MAX_CDSD_REWARDS_THRESHOLD});
     }
 }

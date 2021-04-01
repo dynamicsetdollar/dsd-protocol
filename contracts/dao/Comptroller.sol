@@ -60,16 +60,25 @@ contract Comptroller is Setters {
         balanceCheck();
     }
 
-    function contractionIncentives(Decimal.D256 memory delta) internal returns (uint256) {
+    function contractionIncentives(Decimal.D256 memory price) internal returns (uint256) {
         // clear outstanding redeemables
         uint256 redeemable = totalCDSDRedeemable();
         if (redeemable != 0) {
             clearCDSDRedeemable();
         }
 
-        // acrue interest on CDSD
+        // accrue interest on CDSD
         uint256 currentMultiplier = globalInterestMultiplier();
-        uint256 newMultiplier = Decimal.D256({value:currentMultiplier}).mul(Decimal.one().add(delta)).value;
+        Decimal.D256 memory interest = Constants.maxCDSDBondingRewards();
+        if (price.greaterThan(Constants.maxCDSDRewardsThreshold())) {
+            Decimal.D256 memory maxDelta = Decimal.one().sub(Constants.maxCDSDRewardsThreshold());
+            interest = interest
+                .mul(
+                    maxDelta.sub(price.sub(Constants.maxCDSDRewardsThreshold()))
+                )
+                .div(maxDelta);
+        }
+        uint256 newMultiplier = Decimal.D256({value:currentMultiplier}).mul(Decimal.one().add(interest)).value;
         setGlobalInterestMultiplier(newMultiplier);
 
         // payout CPool rewards

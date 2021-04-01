@@ -59,10 +59,7 @@ contract Regulator is Comptroller {
     }
 
     function contraction(Decimal.D256 memory price) private {
-        Decimal.D256 memory delta =
-            limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
-
-        (uint256 newDSDSupply) = contractionIncentives(delta);
+        (uint256 newDSDSupply) = contractionIncentives(price);
 
         emit ContractionIncentives(epoch(), price.value, newDSDSupply);
     }
