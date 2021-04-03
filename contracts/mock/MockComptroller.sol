@@ -19,13 +19,21 @@ pragma experimental ABIEncoderV2;
 
 import "../dao/Comptroller.sol";
 import "../token/Dollar.sol";
-import "../token/ContractionDollar.sol";
+import ".//MockContractionDollar.sol";
 import "./MockState.sol";
 
 contract MockComptroller is Comptroller, MockState {
+    IDollar private _cdsd;
+
     constructor(address pool) public {
         _state.provider.dollar = new Dollar();
+        _cdsd = new MockContractionDollar();
         _state.provider.pool = pool;
+        _state10.globalInterestMultiplier = 1e18;
+    }
+
+    function cdsd() public view returns (IDollar) {
+        return IDollar(_cdsd);
     }
 
     function mintToAccountE(address account, uint256 amount) external {
@@ -55,5 +63,12 @@ contract MockComptroller is Comptroller, MockState {
 
     function treasuryE() external view returns (address) {
         return super.treasury();
+    }
+
+    function mintCDSDAndIncreaseDSDBurnedE(address account, uint256 amount) external {
+        cdsd().mint(account, amount);
+        // emulate burning of DSD for CDSD
+        super.incrementBalanceOfEarnableCDSD(account, amount);
+        super.incrementTotalCDSDEarnable(amount);
     }
 }

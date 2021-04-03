@@ -23,14 +23,8 @@ import "./Permittable.sol";
 import "./IDollar.sol";
 import "../Constants.sol";
 
-
 contract ContractionDollar is IDollar, ERC20Detailed, Permittable, ERC20Burnable {
-
-    constructor()
-    ERC20Detailed("Contraction Dynamic Set Dollar", "CDSD", 18)
-    Permittable()
-    public
-    { }
+    constructor() public ERC20Detailed("Contraction Dynamic Set Dollar", "CDSD", 18) Permittable() {}
 
     function mint(address account, uint256 amount) public returns (bool) {
         require(_msgSender() == Constants.getDaoAddress(), "CDSD: only DAO is allowed to mint");
@@ -38,16 +32,21 @@ contract ContractionDollar is IDollar, ERC20Detailed, Permittable, ERC20Burnable
         return true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public returns (bool) {
         _transfer(sender, recipient, amount);
         if (
-            _msgSender() != Constants.getDaoAddress() // always allow DAO
-            && allowance(sender, _msgSender()) != uint256(-1)
+            _msgSender() != Constants.getDaoAddress() && // always allow DAO
+            allowance(sender, _msgSender()) != uint256(-1)
         ) {
             _approve(
                 sender,
                 _msgSender(),
-                allowance(sender, _msgSender()).sub(amount, "CDSD: transfer amount exceeds allowance"));
+                allowance(sender, _msgSender()).sub(amount, "CDSD: transfer amount exceeds allowance")
+            );
         }
         return true;
     }

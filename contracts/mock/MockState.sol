@@ -54,6 +54,10 @@ contract MockState is Setters {
         super.decrementTotalRedeemable(amount, reason);
     }
 
+    function incrementTotalCDSDRedeemableE(uint256 amount) external {
+        super.incrementTotalCDSDRedeemable(amount);
+    }
+
     /**
      * Account
      */

@@ -501,7 +501,7 @@ describe('Govern', function () {
                     this.govern.commit(this.implB.address, {
                         from: userAddress,
                     }),
-                    'Govern: Must have quorom'
+                    'Govern: Must have quorum'
                 )
             })
         })
