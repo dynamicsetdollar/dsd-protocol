@@ -961,24 +961,6 @@ describe("State", function () {
     });
   });
 
-  describe("eliminateOutstandingCoupons", function () {
-    beforeEach("call", async function () {
-      await this.setters.incrementBalanceOfCouponsE(userAddress, 1, 100);
-    });
-
-    describe("when called", function () {
-      beforeEach("call", async function () {
-        await this.setters.eliminateOutstandingCouponsE(1);
-      });
-
-      it("has expiration set", async function () {
-        expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.outstandingCoupons(1)).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(100));
-      });
-    });
-  });
-
   describe("bootstrappingAt", function () {
     describe("while bootstrapping", function () {
       it("is bootstrapping", async function () {

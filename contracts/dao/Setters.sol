@@ -248,7 +248,7 @@ contract Setters is State, Getters {
     function decrementBalanceOfDepositedCDSD(address account, uint256 amount, string memory reason) internal {
         _state10.accounts[account].depositedCDSD = _state10.accounts[account].depositedCDSD.sub(amount, reason);
     }
-    
+
     function incrementBalanceOfEarnableCDSD(address account, uint256 amount) internal {
         _state10.accounts[account].earnableCDSD = _state10.accounts[account].earnableCDSD.add(amount);
     }
@@ -256,7 +256,7 @@ contract Setters is State, Getters {
     function decrementBalanceOfEarnableCDSD(address account, uint256 amount, string memory reason) internal {
         _state10.accounts[account].earnableCDSD = _state10.accounts[account].earnableCDSD.sub(amount, reason);
     }
-    
+
     function incrementBalanceOfEarnedCDSD(address account, uint256 amount) internal {
         _state10.accounts[account].earnedCDSD = _state10.accounts[account].earnedCDSD.add(amount);
     }
@@ -311,15 +311,6 @@ contract Setters is State, Getters {
     function initializeCouponsExpiration(uint256 epoch, uint256 expiration) internal {
         _state.epochs[epoch].coupons.expiration = expiration;
         _state.epochs[expiration].coupons.expiring.push(epoch);
-    }
-
-    function eliminateOutstandingCoupons(uint256 epoch) internal {
-        uint256 outstandingCouponsForEpoch = outstandingCoupons(epoch);
-        if (outstandingCouponsForEpoch == 0) {
-            return;
-        }
-        _state.balance.coupons = _state.balance.coupons.sub(outstandingCouponsForEpoch);
-        _state.epochs[epoch].coupons.outstanding = 0;
     }
 
     /**
