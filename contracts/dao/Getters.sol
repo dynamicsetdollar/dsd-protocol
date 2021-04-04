@@ -180,7 +180,7 @@ contract Getters is State {
 
     // DIP-10
     function balanceOfCDSDBonded(address account) public view returns (uint256) {
-        uint256 entry = intrestMultiplierEntryByAccount(account);
+        uint256 entry = interestMultiplierEntryByAccount(account);
         if (entry == 0) {
             return 0;
         }
@@ -200,7 +200,7 @@ contract Getters is State {
         return _state10.accounts[account].depositedCDSD;
     }
 
-    function intrestMultiplierEntryByAccount(address account) public view returns (uint256) {
+    function interestMultiplierEntryByAccount(address account) public view returns (uint256) {
         return _state10.accounts[account].interestMultiplierEntry;
     }
 
