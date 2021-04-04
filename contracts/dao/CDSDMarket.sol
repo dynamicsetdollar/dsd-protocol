@@ -24,6 +24,7 @@ import "../Constants.sol";
 contract CDSDMarket is Comptroller {
     using SafeMath for uint256;
 
+    event DSDBurned(address indexed account, uint256 amount);
     event CDSDMinted(address indexed account, uint256 amount);
     event CDSDRedeemed(address indexed account, uint256 amount);
     event BondCDSD(address indexed account, uint256 start, uint256 amount);
@@ -45,6 +46,7 @@ contract CDSDMarket is Comptroller {
         incrementBalanceOfEarnableCDSD(msg.sender,  earnable);
         incrementTotalCDSDEarnable(earnable);
 
+        emit DSDBurned(msg.sender, amount);
         emit CDSDMinted(msg.sender, amount);
     }
 
