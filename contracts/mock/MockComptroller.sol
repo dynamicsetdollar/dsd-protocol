@@ -36,6 +36,10 @@ contract MockComptroller is Comptroller, MockState {
         return IDollar(_cdsd);
     }
 
+    function pool() public view returns (address) {
+        return _state.provider.pool;
+    }
+
     function mintToAccountE(address account, uint256 amount) external {
         super.mintToAccount(account, amount);
     }
@@ -52,7 +56,8 @@ contract MockComptroller is Comptroller, MockState {
         super.increaseSupply(amount);
     }
 
-    function contractionIncentivesE(Decimal.D256 calldata delta) external {
+    function contractionIncentivesE(uint256 _delta) external {
+        Decimal.D256 memory delta = Decimal.D256(_delta);
         super.contractionIncentives(delta);
     }
 
