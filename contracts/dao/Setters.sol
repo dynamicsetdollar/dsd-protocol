@@ -273,7 +273,7 @@ contract Setters is State, Getters {
         _state10.accounts[account].redeemedCDSD = _state10.accounts[account].redeemedCDSD.sub(amount, reason);
     }
     
-    function addRedeemedThisExpansion(address account, uint256 amount) public returns (uint256) {
+    function addRedeemedThisExpansion(address account, uint256 amount) internal returns (uint256) {
         uint256 currentExpansion = _state10.expansionStartEpoch;
         uint256 accountExpansion = _state10.accounts[account].lastRedeemedExpansionStart;
 
@@ -285,11 +285,11 @@ contract Setters is State, Getters {
         }
     }
 
-    function setCurrentInterestMultiplier(address account) public returns (uint256) {
+    function setCurrentInterestMultiplier(address account) internal returns (uint256) {
         _state10.accounts[account].interestMultiplierEntry = _state10.globalInterestMultiplier;
     }
 
-    function setDepositedCDSDAmount(address account, uint256 amount) public returns (uint256) {
+    function setDepositedCDSDAmount(address account, uint256 amount) internal returns (uint256) {
         _state10.accounts[account].depositedCDSD = amount;
     }
 

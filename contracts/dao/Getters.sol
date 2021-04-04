@@ -180,7 +180,12 @@ contract Getters is State {
 
     // DIP-10
     function balanceOfCDSDBonded(address account) public view returns (uint256) {
-        uint256 amount = depositedCDSDByAccount(account).mul(_state10.globalInterestMultiplier).div(intrestMultiplierEntryByAccount(account));
+        uint256 entry = intrestMultiplierEntryByAccount(account);
+        if (entry == 0) {
+            return 0;
+        }
+
+        uint256 amount = depositedCDSDByAccount(account).mul(_state10.globalInterestMultiplier).div(entry);
 
         uint256 cappedAmount = cDSDBondedCap(account);
 
@@ -223,9 +228,13 @@ contract Getters is State {
     }
 
     function getCurrentRedeemableCDSDByAccount(address account) public view returns (uint256) {
+        uint256 total = totalCDSDBonded();
+        if (total == 0) {
+            return 0;
+        }
         return totalCDSDRedeemable()
             .mul(balanceOfCDSDBonded(account))
-            .div(totalCDSDBonded())
+            .div(total)
             .sub(getRedeemedThisExpansion(account));
     }
 
