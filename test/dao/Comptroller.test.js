@@ -179,7 +179,9 @@ describe("Comptroller", function () {
       });
 
       it("shares only rewards to pool and treasury", async function () {
-        expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(new BN(this.poolReward).add(this.treasuryReward));
+        expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
+          new BN(this.poolReward).add(this.treasuryReward),
+        );
         expect(await this.dollarFromComptrollerWithMarket.balanceOf(poolAddress)).to.be.bignumber.equal(
           this.poolReward,
         );
@@ -245,7 +247,9 @@ describe("Comptroller", function () {
       });
 
       it("shares rewards", async function () {
-        expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(new BN(9000).add(this.poolReward).add(this.treasuryReward));
+        expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
+          new BN(9000).add(this.poolReward).add(this.treasuryReward),
+        );
         expect(await this.dollarFromComptrollerWithMarket.balanceOf(poolAddress)).to.be.bignumber.equal(
           this.poolReward,
         );
@@ -269,11 +273,6 @@ describe("Comptroller", function () {
           from: userAddress,
         });
 
-        await this.cdsdFromComptrollerWithMarket.approve(this.comptrollerWithMarket.address, 5000, {
-          from: userAddress,
-        });
-        await this.comptrollerWithMarket.setCurrentInterestMultiplier(userAddress);
-
         await this.comptrollerWithMarket.burnDSDForCDSDAndBond(new BN(1000), { from: userAddress });
 
         await this.comptrollerWithMarket.mintToE(this.comptrollerWithMarket.address, new BN(9000));
@@ -287,7 +286,9 @@ describe("Comptroller", function () {
       });
 
       it("shares rewards", async function () {
-        expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(new BN(9000).add(this.poolReward).add(this.treasuryReward));
+        expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
+          new BN(9000).add(this.poolReward).add(this.treasuryReward),
+        );
         expect(await this.dollarFromComptrollerWithMarket.balanceOf(poolAddress)).to.be.bignumber.equal(
           this.poolReward,
         );
@@ -378,9 +379,7 @@ describe("Comptroller", function () {
         expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
           new BN(900000).add(this.daoContractionRewards),
         );
-        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
-          new BN(1000)
-        );
+        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(new BN(1000));
 
         expect(
           await this.dollarFromComptrollerWithMarket.balanceOf(this.comptrollerWithMarket.address),
@@ -402,11 +401,6 @@ describe("Comptroller", function () {
           from: userAddress,
         });
 
-        await this.cdsdFromComptrollerWithMarket.approve(this.comptrollerWithMarket.address, 5000, {
-          from: userAddress,
-        });
-        await this.comptrollerWithMarket.setCurrentInterestMultiplier(userAddress);
-
         await this.comptrollerWithMarket.burnDSDForCDSDAndBond(new BN(1000), { from: userAddress });
 
         await this.comptrollerWithMarket.contractionIncentivesE(new BN(1000));
@@ -418,9 +412,7 @@ describe("Comptroller", function () {
         expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
           new BN(900000).add(this.daoContractionRewards),
         );
-        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
-          new BN(1000)
-        );
+        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(new BN(1000));
 
         expect(
           await this.dollarFromComptrollerWithMarket.balanceOf(this.comptrollerWithMarket.address),
@@ -442,11 +434,6 @@ describe("Comptroller", function () {
           from: userAddress,
         });
 
-        await this.cdsdFromComptrollerWithMarket.approve(this.comptrollerWithMarket.address, 5000, {
-          from: userAddress,
-        });
-        await this.comptrollerWithMarket.setCurrentInterestMultiplier(userAddress);
-
         await this.comptrollerWithMarket.burnDSDForCDSDAndBond(new BN(10), { from: userAddress }); // can earn only 20 i.e 100% of burned
 
         await this.comptrollerWithMarket.contractionIncentivesE(new BN(1000));
@@ -458,9 +445,7 @@ describe("Comptroller", function () {
         expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
           new BN(900000).add(this.daoContractionRewards),
         );
-        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
-          this.cDSDSupplyReward,
-        );
+        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(this.cDSDSupplyReward);
 
         expect(
           await this.dollarFromComptrollerWithMarket.balanceOf(this.comptrollerWithMarket.address),
@@ -478,17 +463,14 @@ describe("Comptroller", function () {
 
         await this.comptrollerWithMarket.contractionIncentivesE(new BN(1000));
         // const daoContractionRewardsCap = Number(9000) * 0.0005 // 5bps capped at 20%APY
-        this.totalAfterRewards = Number(9000)
-
+        this.totalAfterRewards = Number(9000);
       });
 
       it("shares rewards to dao's bonded DSD holders", async function () {
         expect(await this.dollarFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
           new BN(this.totalAfterRewards),
         );
-        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(
-          new BN(0),
-        );
+        expect(await this.cdsdFromComptrollerWithMarket.totalSupply()).to.be.bignumber.equal(new BN(0));
         expect(
           await this.dollarFromComptrollerWithMarket.balanceOf(this.comptrollerWithMarket.address),
         ).to.be.bignumber.equal(new BN(this.totalAfterRewards));

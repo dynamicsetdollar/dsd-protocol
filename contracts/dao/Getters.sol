@@ -232,10 +232,8 @@ contract Getters is State {
         if (total == 0) {
             return 0;
         }
-        return totalCDSDRedeemable()
-            .mul(balanceOfCDSDBonded(account))
-            .div(total)
-            .sub(getRedeemedThisExpansion(account));
+        return
+            totalCDSDRedeemable().mul(balanceOfCDSDBonded(account)).div(total).sub(getRedeemedThisExpansion(account));
     }
 
     function totalCDSDDeposited() public view returns (uint256) {

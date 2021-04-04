@@ -35,7 +35,10 @@ describe("CDSDMarket", function () {
 
         await this.market.setPriceE(110, 100);
 
-        await expectRevert(this.market.burnDSDForCDSD(new BN(1000), { from: userAddress }), "Market: not in contraction");
+        await expectRevert(
+          this.market.burnDSDForCDSD(new BN(1000), { from: userAddress }),
+          "Market: not in contraction",
+        );
       });
     });
 
@@ -138,11 +141,6 @@ describe("CDSDMarket", function () {
         await this.dollar.approve(this.market.address, 1000, {
           from: userAddress,
         });
-        await this.cdsd.approve(this.market.address, 1000, {
-          from: userAddress,
-        });
-
-        await this.market.setCurrentInterestMultiplier(userAddress);
 
         this.result = await this.market.burnDSDForCDSDAndBond(1000, {
           from: userAddress,
@@ -195,12 +193,6 @@ describe("CDSDMarket", function () {
         await this.market.incrementBalanceOfCouponsE(userAddress, couponEpoch, 1000);
         await this.market.incrementBalanceOfCouponUnderlyingE(userAddress, couponEpoch, 1000);
 
-        await this.cdsd.approve(this.market.address, 2000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
-
-
         this.result = await this.market.migrateCouponsToCDSDAndBond(couponEpoch, {
           from: userAddress,
         });
@@ -252,18 +244,12 @@ describe("CDSDMarket", function () {
   describe("bondCDSD", function () {
     describe("calls that reverts", function () {
       beforeEach(async function () {
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
-
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
           from: userAddress,
         });
 
         await this.market.incrementEpochE({ from: userAddress });
       });
-
 
       it("cannot have no amount", async function () {
         await expectRevert(
@@ -275,11 +261,6 @@ describe("CDSDMarket", function () {
 
     describe("when user simply bonds cDSD", function () {
       beforeEach(async function () {
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
-
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
           from: userAddress,
         });
@@ -318,10 +299,6 @@ describe("CDSDMarket", function () {
 
     describe("when user partially bonds", function () {
       beforeEach(async function () {
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
           from: userAddress,
         });
@@ -357,19 +334,6 @@ describe("CDSDMarket", function () {
 
     describe("multiple users bond their cDSD", function () {
       beforeEach(async function () {
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress1,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress1);
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress2,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress2);
-
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress1, 1000);
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress2, 1000);
 
@@ -425,10 +389,6 @@ describe("CDSDMarket", function () {
     describe("calls that reverts", function () {
       describe("when nothing bonded", function () {
         it("reverts", async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
             from: userAddress,
           });
@@ -439,10 +399,6 @@ describe("CDSDMarket", function () {
 
       describe("when bonded", function () {
         beforeEach(async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
             from: userAddress,
           });
@@ -469,10 +425,6 @@ describe("CDSDMarket", function () {
 
     describe("when unbonding cdsd", function () {
       beforeEach(async function () {
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
           from: userAddress,
         });
@@ -516,10 +468,6 @@ describe("CDSDMarket", function () {
 
       describe("partially unbounding", function () {
         beforeEach(async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
           this.result = await this.market.unbondCDSD(new BN(800), { from: userAddress });
           this.txHash = this.result.tx;
         });
@@ -550,18 +498,6 @@ describe("CDSDMarket", function () {
 
       describe("multiple", function () {
         beforeEach(async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress1,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress1);
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress2,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress2);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress1, 1000);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress2, 1000);
 
@@ -609,10 +545,6 @@ describe("CDSDMarket", function () {
     describe("calls that reverts", function () {
       describe("when price is under 1", function () {
         it("reverts", async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
             from: userAddress,
           });
@@ -628,14 +560,6 @@ describe("CDSDMarket", function () {
 
       describe("when price is above 1", function () {
         beforeEach(async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress1,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress1);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
             from: userAddress,
           });
@@ -688,10 +612,6 @@ describe("CDSDMarket", function () {
 
     describe("when redeeming cdsd for DSD", function () {
       beforeEach(async function () {
-        await this.cdsd.approve(this.market.address, 5000, {
-          from: userAddress,
-        });
-        await this.market.setCurrentInterestMultiplier(userAddress);
         await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress, 1000, {
           from: userAddress,
         });
@@ -773,19 +693,6 @@ describe("CDSDMarket", function () {
 
       describe("multiple", function () {
         beforeEach(async function () {
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress);
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress1,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress1);
-          await this.cdsd.approve(this.market.address, 5000, {
-            from: userAddress2,
-          });
-          await this.market.setCurrentInterestMultiplier(userAddress2);
-
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress1, 1000);
           await this.market.mintCDSDAndIncreaseDSDBurnedE(userAddress2, 1000);
 
