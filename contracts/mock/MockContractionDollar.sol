@@ -31,4 +31,23 @@ contract MockContractionDollar is ContractionDollar {
         _mint(account, amount);
         return true;
     }
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public returns (bool) {
+        _transfer(sender, recipient, amount);
+        if (
+            _msgSender() != _dao && // always allow DAO
+            allowance(sender, _msgSender()) != uint256(-1)
+        ) {
+            _approve(
+                sender,
+                _msgSender(),
+                allowance(sender, _msgSender()).sub(amount, "CDSD: transfer amount exceeds allowance")
+            );
+        }
+        return true;
+    }
 }
