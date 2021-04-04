@@ -207,81 +207,121 @@ describe("State", function () {
   });
 
   // DIP-10
-  describe("incrementTotalCDSDShares", function () {
+  describe("incrementTotalCDSDDeposited", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementTotalCDSDSharesE(100);
-        await this.setters.incrementTotalCDSDSharesE(100);
+        await this.setters.incrementTotalCDSDDepositedE(100);
+        await this.setters.incrementTotalCDSDDepositedE(100);
       });
 
-      it("increments total cDSD shares", async function () {
-        expect(await this.setters.totalCDSDShares()).to.be.bignumber.equal(new BN(200));
+      it("increments total cDSD deposited", async function () {
+        expect(await this.setters.totalCDSDDeposited()).to.be.bignumber.equal(new BN(200));
       });
     });
   });
 
-  describe("decrementTotalCDSDShares", function () {
+  describe("decrementTotalCDSDDeposited", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementTotalCDSDSharesE(500);
-        await this.setters.decrementTotalCDSDSharesE(100, "decrementTotalCDSDSharesE - 1");
-        await this.setters.decrementTotalCDSDSharesE(100, "decrementTotalCDSDSharesE - 2");
+        await this.setters.incrementTotalCDSDDepositedE(500);
+        await this.setters.decrementTotalCDSDDepositedE(100, "decrementTotalCDSDDepositedE - 1");
+        await this.setters.decrementTotalCDSDDepositedE(100, "decrementTotalCDSDDepositedE - 2");
       });
 
-      it("decrements total shares of cDSD", async function () {
-        expect(await this.setters.totalCDSDShares()).to.be.bignumber.equal(new BN(300));
+      it("decrements total deposited cDSD", async function () {
+        expect(await this.setters.totalCDSDDeposited()).to.be.bignumber.equal(new BN(300));
       });
     });
 
     describe("when called erroneously", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementTotalCDSDSharesE(100);
+        await this.setters.incrementTotalCDSDDepositedE(100);
       });
 
       it("reverts", async function () {
         await expectRevert(
-          this.setters.decrementTotalCDSDSharesE(200, "decrementTotalCDSDSharesE"),
-          "decrementTotalCDSDSharesE",
+          this.setters.decrementTotalCDSDDepositedE(200, "decrementTotalCDSDDepositedE"),
+          "decrementTotalCDSDDepositedE",
         );
       });
     });
   });
 
-  describe("incrementTotalDSDBurned", function () {
+  describe("incrementTotalCDSDEarnable", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementTotalDSDBurnedE(100);
-        await this.setters.incrementTotalDSDBurnedE(100);
+        await this.setters.incrementTotalCDSDEarnableE(100);
+        await this.setters.incrementTotalCDSDEarnableE(100);
       });
 
       it("increments total cDSD earned", async function () {
-        expect(await this.setters.totalBurnedDSD()).to.be.bignumber.equal(new BN(200));
+        expect(await this.setters.totalCDSDEarnable()).to.be.bignumber.equal(new BN(200));
       });
     });
   });
 
-  describe("decrementTotalDSDBurned", function () {
+  describe("decrementTotalCDSDEarnable", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementTotalDSDBurnedE(500);
-        await this.setters.decrementTotalDSDBurnedE(100, "decrementTotalDSDBurnedE - 1");
-        await this.setters.decrementTotalDSDBurnedE(100, "decrementTotalDSDBurnedE - 2");
+        await this.setters.incrementTotalCDSDEarnableE(500);
+        await this.setters.decrementTotalCDSDEarnableE(100, "decrementTotalCDSDEarnableE - 1");
+        await this.setters.decrementTotalCDSDEarnableE(100, "decrementTotalCDSDEarnableE - 2");
       });
 
       it("decrements total earned cDSD", async function () {
-        expect(await this.setters.totalBurnedDSD()).to.be.bignumber.equal(new BN(300));
+        expect(await this.setters.totalCDSDEarnable()).to.be.bignumber.equal(new BN(300));
       });
     });
 
     describe("when called erroneously", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementTotalDSDBurnedE(100);
+        await this.setters.incrementTotalCDSDEarnableE(100);
       });
 
       it("reverts", async function () {
         await expectRevert(
-          this.setters.decrementTotalDSDBurnedE(200, "decrementTotalDSDBurnedE"),
-          "decrementTotalDSDBurnedE",
+          this.setters.decrementTotalCDSDEarnableE(200, "decrementTotalCDSDEarnableE"),
+          "decrementTotalCDSDEarnableE",
+        );
+      });
+    });
+  });
+
+  describe("incrementTotalCDSDEarned", function () {
+    describe("when called", function () {
+      beforeEach("call", async function () {
+        await this.setters.incrementTotalCDSDEarnedE(100);
+        await this.setters.incrementTotalCDSDEarnedE(100);
+      });
+
+      it("increments total cDSD earned", async function () {
+        expect(await this.setters.totalCDSDEarned()).to.be.bignumber.equal(new BN(200));
+      });
+    });
+  });
+
+  describe("decrementTotalCDSDEarned", function () {
+    describe("when called", function () {
+      beforeEach("call", async function () {
+        await this.setters.incrementTotalCDSDEarnedE(500);
+        await this.setters.decrementTotalCDSDEarnedE(100, "decrementTotalCDSDEarnedE - 1");
+        await this.setters.decrementTotalCDSDEarnedE(100, "decrementTotalCDSDEarnedE - 2");
+      });
+
+      it("decrements total earned cDSD", async function () {
+        expect(await this.setters.totalCDSDEarned()).to.be.bignumber.equal(new BN(300));
+      });
+    });
+
+    describe("when called erroneously", function () {
+      beforeEach("call", async function () {
+        await this.setters.incrementTotalCDSDEarnedE(100);
+      });
+
+      it("reverts", async function () {
+        await expectRevert(
+          this.setters.decrementTotalCDSDEarnedE(200, "decrementTotalCDSDEarnedE"),
+          "decrementTotalCDSDEarnedE",
         );
       });
     });
@@ -589,41 +629,41 @@ describe("State", function () {
   });
 
   // DIP-10
-  describe("incrementBalanceOfCDSDShares", function () {
+  describe("incrementBalanceOfDepositedCDSD", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 100);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 100);
       });
 
       it("increments balance of shares of cDSD for user", async function () {
-        expect(await this.setters.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(200));
+        expect(await this.setters.depositedCDSDByAccount(userAddress)).to.be.bignumber.equal(new BN(200));
       });
     });
   });
 
-  describe("decrementBalanceOfCDSDShares", function () {
+  describe("decrementBalanceOfDepositedCDSD", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500);
-        await this.setters.decrementBalanceOfCDSDSharesE(userAddress, 100, "decrementBalanceOfCDSDSharesE - 1");
-        await this.setters.decrementBalanceOfCDSDSharesE(userAddress, 100, "decrementBalanceOfCDSDSharesE - 2");
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 500);
+        await this.setters.decrementBalanceOfDepositedCDSDE(userAddress, 100, "decrementBalanceOfDepositedCDSDE - 1");
+        await this.setters.decrementBalanceOfDepositedCDSDE(userAddress, 100, "decrementBalanceOfDepositedCDSDE - 2");
       });
 
       it("decrements balance of shares of cDSD for user", async function () {
-        expect(await this.setters.balanceOfCDSDShares(userAddress)).to.be.bignumber.equal(new BN(300));
+        expect(await this.setters.depositedCDSDByAccount(userAddress)).to.be.bignumber.equal(new BN(300));
       });
     });
 
     describe("when called erroneously", function () {
       beforeEach("call", async function () {
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 100);
       });
 
       it("reverts", async function () {
         await expectRevert(
-          this.setters.decrementBalanceOfCDSDSharesE(200, "decrementBalanceOfCDSDSharesE"),
-          "decrementBalanceOfCDSDSharesE",
+          this.setters.decrementBalanceOfDepositedCDSDE(200, "decrementBalanceOfDepositedCDSDE"),
+          "decrementBalanceOfDepositedCDSDE",
         );
       });
     });
@@ -637,7 +677,7 @@ describe("State", function () {
       });
 
       it("increments balance of Redeemable cDSD for user", async function () {
-        expect(await this.setters.balanceOfRedeemedCDSD(userAddress)).to.be.bignumber.equal(new BN(200));
+        expect(await this.setters.redeemedCDSDByAccount(userAddress)).to.be.bignumber.equal(new BN(200));
       });
     });
   });
@@ -651,7 +691,7 @@ describe("State", function () {
       });
 
       it("decrements balance of Redeemable cDSD for user", async function () {
-        expect(await this.setters.balanceOfRedeemedCDSD(userAddress)).to.be.bignumber.equal(new BN(300));
+        expect(await this.setters.redeemedCDSDByAccount(userAddress)).to.be.bignumber.equal(new BN(300));
       });
     });
 
@@ -669,54 +709,54 @@ describe("State", function () {
     });
   });
 
-  describe("incrementBalanceOfBurnedDSD", function () {
+  describe("incrementBalanceOfEarnableCDSD", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
         // add shares first
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 100);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 100);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 100);
 
         // then add burned
-        await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 100);
-        await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 100);
+        await this.setters.incrementBalanceOfEarnableCDSDE(userAddress, 100);
+        await this.setters.incrementBalanceOfEarnableCDSDE(userAddress, 100);
       });
 
       it("increments balance of Burned cDSD for user", async function () {
-        expect(await this.setters.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(200));
+        expect(await this.setters.earnableCDSDByAccount(userAddress)).to.be.bignumber.equal(new BN(200));
       });
     });
   });
 
-  describe("decrementBalanceOfBurnedDSD", function () {
+  describe("decrementBalanceOfEarnableCDSD", function () {
     describe("when called", function () {
       beforeEach("call", async function () {
         // add shares first
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 500);
 
         // add burned
-        await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 500);
-        await this.setters.decrementBalanceOfBurnedDSDE(userAddress, 100, "decrementBalanceOfBurnedDSDE - 1");
-        await this.setters.decrementBalanceOfBurnedDSDE(userAddress, 100, "decrementBalanceOfBurnedDSDE - 2");
+        await this.setters.incrementBalanceOfEarnableCDSDE(userAddress, 500);
+        await this.setters.decrementBalanceOfEarnableCDSDE(userAddress, 100, "decrementBalanceOfEarnableCDSDE - 1");
+        await this.setters.decrementBalanceOfEarnableCDSDE(userAddress, 100, "decrementBalanceOfEarnableCDSDE - 2");
       });
 
       it("decrements balance of earned cDSD for user", async function () {
-        expect(await this.setters.balanceOfBurnedDSD(userAddress)).to.be.bignumber.equal(new BN(300));
+        expect(await this.setters.earnableCDSDByAccount(userAddress)).to.be.bignumber.equal(new BN(300));
       });
     });
 
     describe("when called erroneously", function () {
       beforeEach("call", async function () {
         // add shares first
-        await this.setters.incrementBalanceOfCDSDSharesE(userAddress, 500);
+        await this.setters.incrementBalanceOfDepositedCDSDE(userAddress, 500);
 
         // add burned
-        await this.setters.incrementBalanceOfBurnedDSDE(userAddress, 100);
+        await this.setters.incrementBalanceOfEarnableCDSDE(userAddress, 100);
       });
 
       it("reverts", async function () {
         await expectRevert(
-          this.setters.decrementBalanceOfBurnedDSDE(200, "decrementBalanceOfBurnedDSDE"),
-          "decrementBalanceOfBurnedDSDE",
+          this.setters.decrementBalanceOfEarnableCDSDE(200, "decrementBalanceOfEarnableCDSDE"),
+          "decrementBalanceOfEarnableCDSDE",
         );
       });
     });
@@ -934,7 +974,7 @@ describe("State", function () {
       it("has expiration set", async function () {
         expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(0));
         expect(await this.setters.outstandingCoupons(1)).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(0));
+        expect(await this.setters.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(100));
       });
     });
   });
