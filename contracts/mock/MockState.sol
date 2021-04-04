@@ -243,10 +243,6 @@ contract MockState is Setters {
         super.initializeCouponsExpiration(epoch, expiration);
     }
 
-    function eliminateOutstandingCouponsE(uint256 epoch) external {
-        super.eliminateOutstandingCoupons(epoch);
-    }
-
     /**
      * Governance
      */
