@@ -67,7 +67,7 @@ contract Comptroller is Setters {
             clearCDSDRedeemable();
         }
 
-        // acrue interest on CDSD
+        // accrue interest on CDSD
         uint256 currentMultiplier = globalInterestMultiplier();
         Decimal.D256 memory interest = Constants.maxCDSDBondingRewards();
         if (price.greaterThan(Constants.maxCDSDRewardsThreshold())) {

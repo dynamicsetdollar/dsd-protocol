@@ -222,7 +222,7 @@ contract Getters is State {
 
         if (currentExpansion != accountExpansion) {
             return 0;
-        }else{
+        } else {
             return _state10.accounts[account].redeemedThisExpansion;
         }
     }
@@ -237,7 +237,6 @@ contract Getters is State {
             .div(total)
             .sub(getRedeemedThisExpansion(account));
     }
-
 
     function totalCDSDDeposited() public view returns (uint256) {
         return _state10.totalCDSDDeposited;
@@ -259,11 +258,8 @@ contract Getters is State {
         return _state10.totalCDSDRedeemable;
     }
 
-
     function maxCDSDOutstanding() public view returns (uint256) {
-        return totalCDSDDeposited()
-            .add(totalCDSDEarnable())
-            .sub(totalCDSDEarned());
+        return totalCDSDDeposited().add(totalCDSDEarnable()).sub(totalCDSDEarned());
     }
 
     // end DIP-10

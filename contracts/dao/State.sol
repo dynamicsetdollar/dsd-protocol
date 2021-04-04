@@ -107,7 +107,7 @@ contract Storage {
         uint256 couponUnderlying;
         Decimal.D256 price;
     }
-    
+
     struct State16 {
         IOracle legacyOracle;
         uint256 epochStartForSushiswapPool;
@@ -115,7 +115,7 @@ contract Storage {
 
     struct State10 {
         mapping(address => Account.State10) accounts;
-        
+
         uint256 globalInterestMultiplier;
 
         uint256 totalCDSDDeposited;
@@ -136,7 +136,7 @@ contract State {
 
     // DIP-16
     Storage.State16 _state16;
-    
+
     // DIP-10
     Storage.State10 _state10;
 }

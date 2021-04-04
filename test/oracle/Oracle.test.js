@@ -52,7 +52,7 @@ describe('Oracle', function () {
         this.amm = await MockUniswapV2PairTrade.new({ from: ownerAddress })
         this.oracle = await MockOracle.new(
             this.amm.address,
-            this.dollar.address,
+            // this.dollar.address,
             this.usdc.address,
             { from: ownerAddress, gas: 8000000 }
         )
@@ -64,7 +64,7 @@ describe('Oracle', function () {
             it('reverts', async function () {
                 await expectRevert(
                     this.oracle.setup({ from: userAddress }),
-                    'Oracle: Not dao'
+                    'Oracle: Not DAO'
                 )
             })
         })
@@ -75,7 +75,7 @@ describe('Oracle', function () {
             it('reverts', async function () {
                 await expectRevert(
                     this.oracle.capture({ from: userAddress }),
-                    'Oracle: Not dao'
+                    'Oracle: Not DAO'
                 )
             })
         })

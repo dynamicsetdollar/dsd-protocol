@@ -53,7 +53,7 @@ library Constants {
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE_PREMIUM = 125e16; // pay out 25% more than tx fee value 
+    uint256 private constant ADVANCE_INCENTIVE_PREMIUM = 125e16; // pay out 25% more than tx fee value
     uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 36; // 36 epochs fluid
 
     /* Pool */
@@ -61,7 +61,7 @@ library Constants {
     address private constant POOL_ADDRESS = address(0xf929fc6eC25850ce00e457c4F28cDE88A94415D8);
     address private constant CONTRACTION_POOL_ADDRESS = address(0x170cec2070399B85363b788Af2FB059DB8Ef8aeD);
     uint256 private constant CONTRACTION_POOL_TARGET_SUPPLY = 10e16; // target 10% of the supply in the CPool
-    uint256 private constant CONTRACTION_POOL_TARGET_REWARD = 29e13; // 0.029% per epoch ~ 250% APY with 10% of supply in the CPool 
+    uint256 private constant CONTRACTION_POOL_TARGET_REWARD = 29e13; // 0.029% per epoch ~ 250% APY with 10% of supply in the CPool
 
 
     /* Regulator */
@@ -84,7 +84,7 @@ library Constants {
     uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
     uint256 private constant MAX_CDSD_BONDING_REWARDS = 2750000000000000; // 0.275% per epoch
     uint256 private constant MAX_CDSD_REWARDS_THRESHOLD = 75e16; // 0.75
-    
+
 
     /**
      * Getters

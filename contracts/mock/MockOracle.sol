@@ -22,9 +22,17 @@ import "../oracle/Oracle.sol";
 import "../external/Decimal.sol";
 
 contract MockOracle is Oracle {
+    bytes32 private constant FILE = "Oracle";
     Decimal.D256 private _latestPrice;
     bool private _latestValid;
     address private _usdc;
+    address private _dao;
+
+    constructor(address pair, address usdc) public {
+        _dao = msg.sender;
+        _pair = IUniswapV2Pair(pair);
+        _usdc = usdc;
+    }
 
     function usdc() internal view returns (address) {
         return _usdc;
@@ -57,5 +65,11 @@ contract MockOracle is Oracle {
 
     function reserve() external view returns (uint256) {
         return _reserve;
+    }
+
+    modifier onlyDao() {
+        Require.that(msg.sender == _dao, FILE, "Not DAO");
+
+        _;
     }
 }

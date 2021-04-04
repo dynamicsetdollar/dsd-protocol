@@ -17,17 +17,17 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "./Permittable.sol";
-import "./IDollar.sol";
-import "../Constants.sol";
+import "../token/ContractionDollar.sol";
 
-contract ContractionDollar is IDollar, ERC20Detailed, Permittable, ERC20Burnable {
-    constructor() public ERC20Detailed("Contraction Dynamic Set Dollar", "CDSD", 18) Permittable() {}
+contract MockContractionDollar is ContractionDollar {
+    address private _dao;
+
+    constructor() public {
+        _dao = msg.sender;
+    }
 
     function mint(address account, uint256 amount) public returns (bool) {
-        require(_msgSender() == Constants.getDaoAddress(), "CDSD: only DAO is allowed to mint");
+        require(_msgSender() == _dao, "CDSD: only DAO is allowed to mint");
         _mint(account, amount);
         return true;
     }
@@ -39,7 +39,7 @@ contract ContractionDollar is IDollar, ERC20Detailed, Permittable, ERC20Burnable
     ) public returns (bool) {
         _transfer(sender, recipient, amount);
         if (
-            _msgSender() != Constants.getDaoAddress() && // always allow DAO
+            _msgSender() != _dao && // always allow DAO
             allowance(sender, _msgSender()) != uint256(-1)
         ) {
             _approve(

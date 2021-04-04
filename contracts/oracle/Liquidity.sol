@@ -24,6 +24,8 @@ import "../Constants.sol";
 import "./PoolGetters.sol";
 
 contract Liquidity is PoolGetters {
+    address private constant UNISWAP_FACTORY = address(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac); // Sushi Factory Address
+
     function addLiquidity(uint256 dollarAmount) internal returns (uint256, uint256) {
         (address dollar, address usdc) = (address(dollar()), usdc());
         (uint reserveA, uint reserveB) = getReserves(dollar, usdc);
