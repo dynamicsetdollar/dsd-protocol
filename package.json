@@ -84,7 +84,7 @@
     "deploy:fork": "hardhat run --network mainnetFork scripts/deploy.js",
     "deploy:mainnet": "hardhat run --network mainnet scripts/deploy.js",
     "test": "yarn compile && hardhat test test/**/*.test.js",
-    "coverage": "hardhat coverage --matrix --testfiles 'test/**/*.test.js'",
+    "coverage": "hardhat coverage --testfiles 'test/**/*.test.js'",
     "clean": "hardhat clean",
     "lint": "yarn run lint:sol && yarn run lint:js && yarn run prettier",
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
