@@ -32,13 +32,14 @@
     "cross-var": "^1.1.0",
     "dotenv": "^8.2.0",
     "dotenv-cli": "^4.0.0",
-    "eth-sig-util": "^2.5.3",
+    "eth-sig-util": "^3.0.1",
     "ganache-cli": "^6.12.2",
     "husky": "^4.2.5",
     "mocha": "^7.0.0",
+    "solidity-coverage": "^0.7.16",
     "truffle-plugin-verify": "^0.4.0",
     "truffle-privatekey-provider": "^1.3.0",
-    "web3": "^1.3.3"
+    "web3": "1.3.3"
   },
   "prettier": {
     "arrowParens": "avoid",
@@ -83,6 +84,7 @@
     "deploy:fork": "hardhat run --network mainnetFork scripts/deploy.js",
     "deploy:mainnet": "hardhat run --network mainnet scripts/deploy.js",
     "test": "yarn compile && hardhat test test/**/*.test.js",
+    "coverage": "hardhat coverage --testfiles 'test/**/*.test.js'",
     "clean": "hardhat clean",
     "lint": "yarn run lint:sol && yarn run lint:js && yarn run prettier",
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",

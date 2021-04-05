@@ -2,28 +2,34 @@
 
 ## setup using hardhat
 
--   `yarn install`
--   `yarn compile`
+- `yarn install`
+- `yarn compile`
 
 ## deploy
 
 copy .env and add own env variables
 
--   `cp .env.example .env`
+- `cp .env.example .env`
 
 run deployment script
--   `yarn deploy:[network]`
+
+- `yarn deploy:[network]`
+
 ## test
 
--   `yarn test`
+- `yarn test`
+
+You can also run tests with solidity coverage:
+
+- `yarn coverage`
 
 ## information
 
--   shorthand name: `dynamic dollar`
--   full name: `Dynamic Set Dollar`
--   symbol: `DSD`
--   decimals: `18`
--   icon:
+- shorthand name: `dynamic dollar`
+- full name: `Dynamic Set Dollar`
+- symbol: `DSD`
+- decimals: `18`
+- icon:
 
 ![DSD Logo](https://dsd.finance/logo.png)
 
@@ -31,11 +37,11 @@ run deployment script
 
 ### mainnet
 
--   `0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a` **DAO (DSDS)**
--   `0xbd2f0cd039e0bfcf88901c98c0bfac5ab27566e3` **DSD**
--   `0xe2e279d1b911bad880d1104a750dfcd262fb6cf4` **Oracle**
--   `0x66e33d2605c5fb25ebb7cd7528e7997b0afa55e8` **UniswapV2 USDC:DSD Pair**
--   `0x70A87e1b97436D2F194B8B9EBF337bFc7521C70f` **LP Incentivation Pool**
+- `0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a` **DAO (DSDS)**
+- `0xbd2f0cd039e0bfcf88901c98c0bfac5ab27566e3` **DSD**
+- `0xe2e279d1b911bad880d1104a750dfcd262fb6cf4` **Oracle**
+- `0x66e33d2605c5fb25ebb7cd7528e7997b0afa55e8` **UniswapV2 USDC:DSD Pair**
+- `0x70A87e1b97436D2F194B8B9EBF337bFc7521C70f` **LP Incentivation Pool**
 
 ## audit of forked codebase
 
