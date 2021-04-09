@@ -18,38 +18,39 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./Market.sol";
+import "./CDSDMarket.sol";
 import "./Regulator.sol";
 import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
+import "../token/ContractionDollar.sol";
 import "../external/AggregatorV3Interface.sol";
 
-contract Implementation is State, Bonding, Market, Regulator, Govern {
+contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
     using SafeMath for uint256;
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() public initializer {
-        _state16.epochStartForSushiswapPool = epoch() + 2;
-        _state16.legacyOracle = _state.provider.oracle; // legacy uniswap pool oracle
+        // committer reward:
+        mintToAccount(msg.sender, 1000e18); // 1000 DSD to committer
 
-        _state.provider.oracle = IOracle(address(0xb79E640B59062382c450D2F60f845C050cDd2986)); // new sushiswap oracle
-        _state.provider.oracle.setup(); // setup oracle
-        _state.provider.oracle.capture(); // capture for pool price on sushi pool
+        // Reset debt to zero dip-10
+        _state.balance.debt = 0;
 
-        _state.provider.pool = address(0xf929fc6eC25850ce00e457c4F28cDE88A94415D8); // new sushiswap LP staking pool
+        // initialize interest multiplier
+        _state10.globalInterestMultiplier = 1e18;
 
-        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 2000e18); // 2000 DSD to gus
-        mintToAccount(0x35F32d099fb9E08b706A6fa41D639EEB69F8A906, 2000e18); // 2000 DSD to degendegen9
-        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 2000e18); // 2000 DSD to devnull
+        // contributor  rewards:
+        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 20000e18); // 20000 DSD to devnull
+        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19,  8000e18); //  8000 DSD to gus
+        mintToAccount(0xffc4BA093CEf9a5b9B02c9FEF8c128B2f48Eb291,  5000e18); //  5000 DSD to aurel
     }
 
     function advance() external incentivized {
         Bonding.step();
         Regulator.step();
-        Market.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
     }

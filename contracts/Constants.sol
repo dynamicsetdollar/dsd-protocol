@@ -53,32 +53,38 @@ library Constants {
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE_PREMIUM = 125e16; // pay out 25% more than tx fee value 
+    uint256 private constant ADVANCE_INCENTIVE_PREMIUM = 125e16; // pay out 25% more than tx fee value
     uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 36; // 36 epochs fluid
 
     /* Pool */
     uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 12; // 12 epochs fluid
+    address private constant POOL_ADDRESS = address(0xf929fc6eC25850ce00e457c4F28cDE88A94415D8);
+    address private constant CONTRACTION_POOL_ADDRESS = address(0x170cec2070399B85363b788Af2FB059DB8Ef8aeD);
+    uint256 private constant CONTRACTION_POOL_TARGET_SUPPLY = 10e16; // target 10% of the supply in the CPool
+    uint256 private constant CONTRACTION_POOL_TARGET_REWARD = 29e13; // 0.029% per epoch ~ 250% APY with 10% of supply in the CPool
 
-    /* Market */
-    uint256 private constant COUPON_EXPIRATION = 360;
-    uint256 private constant DEBT_RATIO_CAP = 35e16; // 35%
-    uint256 private constant INITIAL_COUPON_REDEMPTION_PENALTY = 50e16; // 50%
-    uint256 private constant COUPON_REDEMPTION_PENALTY_DECAY = 3600; // 1 hour
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 2e16; // 2%
     uint256 private constant SUPPLY_CHANGE_DIVISOR = 25e18; // 25 > Max expansion at 1.5
-    uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 3e16; // 3%
-    uint256 private constant COUPON_SUPPLY_CHANGE_DIVISOR = 1666e16; // 16.66 > Max expansion at ~1.5
-    uint256 private constant NEGATIVE_SUPPLY_CHANGE_DIVISOR = 5e18; // 5 > Max negative expansion at 0.9
-    uint256 private constant ORACLE_POOL_RATIO = 40; // 40%
+    uint256 private constant ORACLE_POOL_RATIO = 35; // 35%
     uint256 private constant TREASURY_RATIO = 3; // 3%
 
     /* Deployed */
     address private constant DAO_ADDRESS = address(0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a);
     address private constant DOLLAR_ADDRESS = address(0xBD2F0Cd039E0BFcf88901C98c0bFAc5ab27566e3);
+    address private constant CONTRACTION_DOLLAR_ADDRESS = address(0xDe25486CCb4588Ce5D9fB188fb6Af72E768a466a);
     address private constant PAIR_ADDRESS = address(0x26d8151e631608570F3c28bec769C3AfEE0d73a3); // SushiSwap pair
+    address private constant CONTRACTION_PAIR_ADDRESS = address(0x4a4572D92Daf14D29C3b8d001A2d965c6A2b1515);
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
+
+    /* DIP-10 */
+    uint256 private constant EARNABLE_FACTOR = 1e18; // 100% - Amount of CDSD earnable for DSD burned
+    uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
+    uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
+    uint256 private constant MAX_CDSD_BONDING_REWARDS = 2750000000000000; // 0.275% per epoch
+    uint256 private constant MAX_CDSD_REWARDS_THRESHOLD = 75e16; // 0.75
+
 
     /**
      * Getters
@@ -139,20 +145,20 @@ library Constants {
         return POOL_EXIT_LOCKUP_EPOCHS;
     }
 
-    function getCouponExpiration() internal pure returns (uint256) {
-        return COUPON_EXPIRATION;
+    function getPoolAddress() internal pure returns (address) {
+        return POOL_ADDRESS;
     }
 
-    function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: DEBT_RATIO_CAP });
+    function getContractionPoolAddress() internal pure returns (address) {
+        return CONTRACTION_POOL_ADDRESS;
     }
 
-    function getInitialCouponRedemptionPenalty() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: INITIAL_COUPON_REDEMPTION_PENALTY });
+    function getContractionPoolTargetSupply() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: CONTRACTION_POOL_TARGET_SUPPLY});
     }
 
-    function getCouponRedemptionPenaltyDecay() internal pure returns (uint256) {
-        return COUPON_REDEMPTION_PENALTY_DECAY;
+    function getContractionPoolTargetReward() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: CONTRACTION_POOL_TARGET_REWARD});
     }
 
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
@@ -161,18 +167,6 @@ library Constants {
 
     function getSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({ value: SUPPLY_CHANGE_DIVISOR });
-    }
-
-    function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: COUPON_SUPPLY_CHANGE_LIMIT });
-    }
-
-    function getCouponSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: COUPON_SUPPLY_CHANGE_DIVISOR });
-    }
-
-    function getNegativeSupplyChangeDivisor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({ value: NEGATIVE_SUPPLY_CHANGE_DIVISOR });
     }
 
     function getOraclePoolRatio() internal pure returns (uint256) {
@@ -195,11 +189,39 @@ library Constants {
         return DOLLAR_ADDRESS;
     }
 
+    function getContractionDollarAddress() internal pure returns (address) {
+        return CONTRACTION_DOLLAR_ADDRESS;
+    }
+
     function getPairAddress() internal pure returns (address) {
         return PAIR_ADDRESS;
     }
 
+    function getContractionPairAddress() internal pure returns (address) {
+        return CONTRACTION_PAIR_ADDRESS;
+    }
+
     function getTreasuryAddress() internal pure returns (address) {
         return TREASURY_ADDRESS;
+    }
+
+    function getEarnableFactor() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: EARNABLE_FACTOR});
+    }
+
+    function getCDSDRedemptionRatio() internal pure returns (uint256) {
+        return CDSD_REDEMPTION_RATIO;
+    }
+
+    function getContractionBondingRewards() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: CONTRACTION_BONDING_REWARDS});
+    }
+
+    function maxCDSDBondingRewards() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: MAX_CDSD_BONDING_REWARDS});
+    }
+
+    function maxCDSDRewardsThreshold() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: MAX_CDSD_REWARDS_THRESHOLD});
     }
 }

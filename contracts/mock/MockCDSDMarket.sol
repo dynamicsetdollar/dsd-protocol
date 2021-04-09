@@ -17,16 +17,18 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../dao/Curve.sol";
+import "../external/Decimal.sol";
+import "../dao/CDSDMarket.sol";
+import "./MockComptroller.sol";
 
-contract MockCurve is Curve {
-    constructor () public { }
+contract MockCDSDMarket is MockComptroller, CDSDMarket {
+    constructor(address pool) public MockComptroller(pool) {}
 
-    function calculateCouponsE(
-        uint256 totalSupply,
-        uint256 totalDebt,
-        uint256 amount
-    ) external pure returns (uint256) {
-        return super.calculateCouponPremium(totalSupply, totalDebt, amount);
+    function setPriceE(uint256 numerator, uint256 denominator) external {
+        _state13.price = Decimal.ratio(numerator, denominator);
+    }
+
+    function justMintCDSDToE(address account, uint256 amount) external {
+        cdsd().mint(account, amount);
     }
 }

@@ -5,6 +5,7 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-waffle");
+require('solidity-coverage')
 
 module.exports = {
   solidity: {
@@ -35,6 +36,11 @@ module.exports = {
       gasLimit: 20000000,
       fork: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
       timeout: 200000000,
+    },
+    coverage: {
+      url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client
+      gasPrice: 0,
+      blockGasLimit: 100000000,
     },
   },
 };

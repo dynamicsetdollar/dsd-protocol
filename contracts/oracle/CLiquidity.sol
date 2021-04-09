@@ -21,21 +21,19 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import '../external/UniswapV2Library.sol';
 import "../Constants.sol";
-import "./PoolGetters.sol";
+import "./CPoolGetters.sol";
 
-contract Liquidity is PoolGetters {
-    address private constant UNISWAP_FACTORY = address(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac); // Sushi Factory Address
-
+contract CLiquidity is CPoolGetters {
     function addLiquidity(uint256 dollarAmount) internal returns (uint256, uint256) {
-        (address dollar, address usdc) = (address(dollar()), usdc());
-        (uint reserveA, uint reserveB) = getReserves(dollar, usdc);
+        (address cdsd, address usdc) = (address(cdsd()), usdc());
+        (uint reserveA, uint reserveB) = getReserves(cdsd, usdc);
 
         uint256 usdcAmount = (reserveA == 0 && reserveB == 0) ?
              dollarAmount :
              UniswapV2Library.quote(dollarAmount, reserveA, reserveB);
 
         address pair = address(univ2());
-        IERC20(dollar).transfer(pair, dollarAmount);
+        IERC20(cdsd).transfer(pair, dollarAmount);
         IERC20(usdc).transferFrom(msg.sender, pair, usdcAmount);
         return (usdcAmount, IUniswapV2Pair(pair).mint(address(this)));
     }
@@ -43,7 +41,7 @@ contract Liquidity is PoolGetters {
     // overridable for testing
     function getReserves(address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
         (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
-        (uint reserve0, uint reserve1,) = IUniswapV2Pair(Constants.getPairAddress()).getReserves();
+        (uint reserve0, uint reserve1,) = IUniswapV2Pair(Constants.getContractionPairAddress()).getReserves();
         (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 }

@@ -26,8 +26,8 @@ contract Regulator is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
-    event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 lessDebt, uint256 newBonded);
-    event SupplyDecrease(uint256 indexed epoch, uint256 price, uint256 newDebt);
+    event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 newBonded);
+    event ContractionIncentives(uint256 indexed epoch, uint256 price, uint256 delta);
     event SupplyNeutral(uint256 indexed epoch);
 
     function step() internal {
@@ -36,52 +36,36 @@ contract Regulator is Comptroller {
         setPrice(price);
 
         if (price.greaterThan(Decimal.one())) {
-            growSupply(price);
+            expansion(price);
             return;
         }
 
         if (price.lessThan(Decimal.one())) {
-            shrinkSupply(price);
+            contraction(price);
             return;
         }
 
         emit SupplyNeutral(epoch());
     }
 
-    function shrinkSupply(Decimal.D256 memory price) private {
-        Decimal.D256 memory delta = limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
-        uint256 newDebt = delta.mul(totalNet()).asUint256();
-        uint256 cappedNewDebt = increaseDebt(newDebt);
+    function expansion(Decimal.D256 memory price) private {
+        Decimal.D256 memory delta = 
+            limit(price.sub(Decimal.one()).div(Constants.getSupplyChangeDivisor()), price);
+            
+        uint256 newSupply = delta.mul(dollar().totalSupply()).asUint256();
+        (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
 
-        emit SupplyDecrease(epoch(), price.value, cappedNewDebt);
-        return;
+        emit SupplyIncrease(epoch(), price.value, newRedeemable, newBonded);
     }
 
-    function growSupply(Decimal.D256 memory price) private {
-        uint256 lessDebt = resetDebt(Decimal.zero());
+    function contraction(Decimal.D256 memory price) private {
+        (uint256 newDSDSupply) = contractionIncentives(price);
 
-        Decimal.D256 memory supplyChangeDivisor = Constants.getSupplyChangeDivisor();
-
-        uint256 totalRedeemable = totalRedeemable();
-        uint256 totalCoupons = totalCoupons();
-        if (totalRedeemable < totalCoupons) {
-            supplyChangeDivisor = Constants.getCouponSupplyChangeDivisor();
-        }
-
-        Decimal.D256 memory delta = limit(price.sub(Decimal.one()).div(supplyChangeDivisor), price);
-        uint256 newSupply = delta.mul(totalNet()).asUint256();
-        (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
-        emit SupplyIncrease(epoch(), price.value, newRedeemable, lessDebt, newBonded);
+        emit ContractionIncentives(epoch(), price.value, newDSDSupply);
     }
 
     function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {
         Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
-        
-        uint256 totalRedeemable = totalRedeemable();
-        uint256 totalCoupons = totalCoupons();
-        if (price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)) {
-            supplyChangeLimit = Constants.getCouponSupplyChangeLimit();
-        }
 
         return delta.greaterThan(supplyChangeLimit) ? supplyChangeLimit : delta;
     }

@@ -19,12 +19,25 @@ pragma experimental ABIEncoderV2;
 
 import "../dao/Comptroller.sol";
 import "../token/Dollar.sol";
+import ".//MockContractionDollar.sol";
 import "./MockState.sol";
 
 contract MockComptroller is Comptroller, MockState {
+    IDollar private _cdsd;
+
     constructor(address pool) public {
         _state.provider.dollar = new Dollar();
+        _cdsd = new MockContractionDollar();
         _state.provider.pool = pool;
+        _state10.globalInterestMultiplier = 1e18;
+    }
+
+    function cdsd() public view returns (IDollar) {
+        return IDollar(_cdsd);
+    }
+
+    function pool() public view returns (address) {
+        return _state.provider.pool;
     }
 
     function mintToAccountE(address account, uint256 amount) external {
@@ -35,28 +48,32 @@ contract MockComptroller is Comptroller, MockState {
         super.burnFromAccount(account, amount);
     }
 
-    function redeemToAccountE(address account, uint256 amount, uint256 couponAmount) external {
-        super.redeemToAccount(account, amount, couponAmount);
-    }
-
     function burnRedeemableE(uint256 amount) external {
         super.burnRedeemable(amount);
     }
 
-    function increaseDebtE(uint256 amount) external {
-        super.increaseDebt(amount);
+    function increaseSupplyE(uint256 amount) external {
+        super.increaseSupply(amount);
     }
 
-    function decreaseDebtE(uint256 amount) external {
-        super.decreaseDebt(amount);
-    }
-
-    function resetDebtE(uint256 percent) external {
-        super.resetDebt(Decimal.ratio(percent, 100));
+    function contractionIncentivesE(uint256 _delta) external {
+        Decimal.D256 memory delta = Decimal.D256(_delta);
+        super.contractionIncentives(delta);
     }
 
     /* For testing only */
     function mintToE(address account, uint256 amount) external {
         dollar().mint(account, amount);
+    }
+
+    function treasuryE() external view returns (address) {
+        return super.treasury();
+    }
+
+    function mintCDSDAndIncreaseDSDBurnedE(address account, uint256 amount) external {
+        cdsd().mint(account, amount);
+        // emulate burning of DSD for CDSD
+        super.incrementBalanceOfEarnableCDSD(account, amount);
+        super.incrementTotalCDSDEarnable(amount);
     }
 }

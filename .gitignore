@@ -6,3 +6,8 @@ artifacts
 build
 
 *.env
+
+Notes.md
+
+coverage
+coverage.json

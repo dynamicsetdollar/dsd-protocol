@@ -25,11 +25,15 @@ contract MockPool is Pool {
     address private _dollar;
     address private _univ2;
 
-    constructor(address usdc) Pool() public {
+    constructor(address usdc) public Pool() {
         _usdc = usdc;
     }
 
-    function set(address dao, address dollar, address univ2) external {
+    function set(
+        address dao,
+        address dollar,
+        address univ2
+    ) external {
         _dao = dao;
         _dollar = dollar;
         _univ2 = univ2;
@@ -51,7 +55,7 @@ contract MockPool is Pool {
         return IERC20(_univ2);
     }
 
-    function getReserves(address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
-        (reserveA, reserveB,) = IUniswapV2Pair(address(univ2())).getReserves();
+    function getReserves(address tokenA, address tokenB) internal view returns (uint256 reserveA, uint256 reserveB) {
+        (reserveA, reserveB, ) = IUniswapV2Pair(address(univ2())).getReserves();
     }
 }

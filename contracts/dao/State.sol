@@ -33,6 +33,16 @@ contract Account {
         uint256 fluidUntil;
         uint256 lockedUntil;
     }
+
+    struct State10 {
+        uint256 depositedCDSD;
+        uint256 interestMultiplierEntry;
+        uint256 earnableCDSD;
+        uint256 earnedCDSD;
+        uint256 redeemedCDSD;
+        uint256 redeemedThisExpansion;
+        uint256 lastRedeemedExpansionStart;
+    }
 }
 
 contract Epoch {
@@ -102,6 +112,20 @@ contract Storage {
         IOracle legacyOracle;
         uint256 epochStartForSushiswapPool;
     }
+
+    struct State10 {
+        mapping(address => Account.State10) accounts;
+
+        uint256 globalInterestMultiplier;
+
+        uint256 totalCDSDDeposited;
+        uint256 totalCDSDEarnable;
+        uint256 totalCDSDEarned;
+
+        uint256 expansionStartEpoch;
+        uint256 totalCDSDRedeemable;
+        uint256 totalCDSDRedeemed;
+    }
 }
 
 contract State {
@@ -112,4 +136,7 @@ contract State {
 
     // DIP-16
     Storage.State16 _state16;
+
+    // DIP-10
+    Storage.State10 _state10;
 }

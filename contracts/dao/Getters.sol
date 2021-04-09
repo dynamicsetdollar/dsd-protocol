@@ -72,7 +72,11 @@ contract Getters is State {
     }
 
     function pool() public view returns (address) {
-        return _state.provider.pool;
+        return Constants.getPoolAddress();
+    }
+
+    function cpool() public view returns (address) {
+        return Constants.getContractionPoolAddress();
     }
 
     function totalBonded() public view returns (uint256) {
@@ -99,9 +103,32 @@ contract Getters is State {
         return _state.balance.coupons;
     }
 
-    function totalNet() public view returns (uint256) {
-        return dollar().totalSupply().sub(totalDebt());
+    function treasury() public view returns (address) {
+        return Constants.getTreasuryAddress();
     }
+
+    // DIP-10
+    function totalCDSDBonded() public view returns (uint256) {
+        return cdsd().balanceOf(address(this));
+    }
+
+    function globalInterestMultiplier() public view returns (uint256) {
+        return _state10.globalInterestMultiplier;
+    }
+
+    function expansionStartEpoch() public view returns (uint256) {
+        return _state10.expansionStartEpoch;
+    }
+
+    function totalCDSD() public view returns (uint256) {
+        return cdsd().totalSupply();
+    }
+
+    function cdsd() public view returns (IDollar) {
+        return IDollar(Constants.getContractionDollarAddress());
+    }
+
+    // end DIP-10
 
     function getPrice() public view returns (Decimal.D256 memory price) {
         return _state13.price;
@@ -116,11 +143,11 @@ contract Getters is State {
     }
 
     function balanceOfBonded(address account) public view returns (uint256) {
-        uint256 totalSupply = totalSupply();
-        if (totalSupply == 0) {
+        uint256 totalSupplyAmount = totalSupply();
+        if (totalSupplyAmount == 0) {
             return 0;
         }
-        return totalBonded().mul(balanceOf(account)).div(totalSupply);
+        return totalBonded().mul(balanceOf(account)).div(totalSupplyAmount);
     }
 
     function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
@@ -150,6 +177,90 @@ contract Getters is State {
     function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
     }
+
+    // DIP-10
+    function balanceOfCDSDBonded(address account) public view returns (uint256) {
+        uint256 entry = interestMultiplierEntryByAccount(account);
+        if (entry == 0) {
+            return 0;
+        }
+
+        uint256 amount = depositedCDSDByAccount(account).mul(_state10.globalInterestMultiplier).div(entry);
+
+        uint256 cappedAmount = cDSDBondedCap(account);
+
+        return amount > cappedAmount ? cappedAmount : amount;
+    }
+
+    function cDSDBondedCap(address account) public view returns (uint256) {
+        return depositedCDSDByAccount(account).add(earnableCDSDByAccount(account)).sub(earnedCDSDByAccount(account));
+    }
+
+    function depositedCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].depositedCDSD;
+    }
+
+    function interestMultiplierEntryByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].interestMultiplierEntry;
+    }
+
+    function earnableCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].earnableCDSD;
+    }
+
+    function earnedCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].earnedCDSD;
+    }
+
+    function redeemedCDSDByAccount(address account) public view returns (uint256) {
+        return _state10.accounts[account].redeemedCDSD;
+    }
+
+    function getRedeemedThisExpansion(address account) public view returns (uint256) {
+        uint256 currentExpansion = _state10.expansionStartEpoch;
+        uint256 accountExpansion = _state10.accounts[account].lastRedeemedExpansionStart;
+
+        if (currentExpansion != accountExpansion) {
+            return 0;
+        } else {
+            return _state10.accounts[account].redeemedThisExpansion;
+        }
+    }
+
+    function getCurrentRedeemableCDSDByAccount(address account) public view returns (uint256) {
+        uint256 total = totalCDSDBonded();
+        if (total == 0) {
+            return 0;
+        }
+        return
+            totalCDSDRedeemable().mul(balanceOfCDSDBonded(account)).div(total).sub(getRedeemedThisExpansion(account));
+    }
+
+    function totalCDSDDeposited() public view returns (uint256) {
+        return _state10.totalCDSDDeposited;
+    }
+
+    function totalCDSDEarnable() public view returns (uint256) {
+        return _state10.totalCDSDEarnable;
+    }
+
+    function totalCDSDEarned() public view returns (uint256) {
+        return _state10.totalCDSDEarned;
+    }
+
+    function totalCDSDRedeemed() public view returns (uint256) {
+        return _state10.totalCDSDRedeemed;
+    }
+
+    function totalCDSDRedeemable() public view returns (uint256) {
+        return _state10.totalCDSDRedeemable;
+    }
+
+    function maxCDSDOutstanding() public view returns (uint256) {
+        return totalCDSDDeposited().add(totalCDSDEarnable()).sub(totalCDSDEarned());
+    }
+
+    // end DIP-10
 
     /**
      * Epoch
