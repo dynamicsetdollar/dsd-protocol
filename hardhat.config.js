@@ -37,5 +37,10 @@ module.exports = {
       fork: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
       timeout: 200000000,
     },
+    coverage: {
+      url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client
+      gasPrice: 0,
+      blockGasLimit: 100000000,
+    },
   },
 };
