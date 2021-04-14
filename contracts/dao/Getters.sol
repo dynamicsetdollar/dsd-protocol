@@ -134,6 +134,24 @@ contract Getters is State {
         return _state13.price;
     }
 
+    /* DIP-17 */ 
+    function getContractionPrice() public view returns (Decimal.D256 memory contractionPrice) {
+        return _state17.contractionPrice;
+    }
+
+    function getEarnableFactor() internal returns (Decimal.D256 memory earnableFactor) {
+
+        Decimal.D256 memory deltaToPeg = Decimal.one().sub(_state13.price);
+        Decimal.D256 memory pricePercentageCDSD = _state17.contractionPrice.div(_state13.price);
+        Decimal.D256 memory earnableFactor = deltaToPeg.div(pricePercentageCDSD);
+
+        if (earnableFactor.lessThan(Constants.getBaseEarnableFactor())) {
+            earnableFactor = Constants.getBaseEarnableFactor();
+        }
+        return earnableFactor;
+    }
+    /* End DIP-17 */
+
     /**
      * Account
      */

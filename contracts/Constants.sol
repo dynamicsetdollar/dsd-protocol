@@ -79,7 +79,8 @@ library Constants {
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
     /* DIP-10 */
-    uint256 private constant EARNABLE_FACTOR = 1e18; // 100% - Amount of CDSD earnable for DSD burned
+    uint256 private constant BASE_EARNABLE_FACTOR = 1e17; // 10% - Minimum Amount of CDSD earnable for DSD burned
+    // uint256 private constant EARNABLE_FACTOR = 1e18; // 100% - Amount of CDSD earnable for DSD burned
     uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
     uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
     uint256 private constant MAX_CDSD_BONDING_REWARDS = 2750000000000000; // 0.275% per epoch
@@ -205,9 +206,10 @@ library Constants {
         return TREASURY_ADDRESS;
     }
 
+    /*
     function getEarnableFactor() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: EARNABLE_FACTOR});
-    }
+    } */ 
 
     function getCDSDRedemptionRatio() internal pure returns (uint256) {
         return CDSD_REDEMPTION_RATIO;
@@ -223,5 +225,10 @@ library Constants {
 
     function maxCDSDRewardsThreshold() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: MAX_CDSD_REWARDS_THRESHOLD});
+    }
+
+    /* DIP-17 */
+    function getBaseEarnableFactor() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: BASE_EARNABLE_FACTOR});
     }
 }

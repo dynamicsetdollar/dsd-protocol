@@ -126,6 +126,10 @@ contract Storage {
         uint256 totalCDSDRedeemable;
         uint256 totalCDSDRedeemed;
     }
+
+    struct State17 {
+        Decimal.D256 contractionPrice;
+    }
 }
 
 contract State {
@@ -139,4 +143,7 @@ contract State {
 
     // DIP-10
     Storage.State10 _state10;
+
+    // DIP-17
+    Storage.State17 _state17;
 }

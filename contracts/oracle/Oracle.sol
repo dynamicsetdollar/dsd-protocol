@@ -41,6 +41,16 @@ contract Oracle is IOracle {
 
     uint256 internal _reserve;
 
+    /* DIP-17 */ 
+    IUniswapV2Pair internal _contractionPair;
+    uint256 internal _contractionIndex;
+    uint256 internal _contractionCumulative;
+    uint256 internal _contractionReserve;
+    uint32 internal _contractionTimestamp;
+    /* */
+
+
+
     function setup() public onlyDao {
         _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getDollarAddress(), usdc()));
 
@@ -48,6 +58,14 @@ contract Oracle is IOracle {
         _index = Constants.getDollarAddress() == token0 ? 0 : 1;
 
         Require.that(_index == 0 || Constants.getDollarAddress() == token1, FILE, "DSD not found");
+
+        /* DIP-17 */
+        _contractionPair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getContractionDollarAddress(), usdc()));
+        (address contractionToken0, address contractionToken1) = (_contractionPair.token0(), _contractionPair.token1());
+        _contractionIndex = Constants.getContractionDollarAddress() == contractionToken0 ? 0 : 1;
+        Require.that(_contractionIndex == 0 || Constants.getContractionDollarAddress() == contractionToken1, FILE, "CDSD not found");
+        /* */
+
     }
 
     /**
@@ -57,12 +75,12 @@ contract Oracle is IOracle {
      * Steps: (1) Captures a reference blockTimestampLast
      *        (2) First reported value
      */
-    function capture() public onlyDao returns (Decimal.D256 memory, bool) {
+    function capture() public onlyDao returns (Decimal.D256 memory, Decimal.D256 memory, bool) {
         if (_initialized) {
             return updateOracle();
         } else {
             initializeOracle();
-            return (Decimal.one(), false);
+            return (Decimal.one(), Decimal.one(), false);
         }
     }
 
@@ -70,18 +88,38 @@ contract Oracle is IOracle {
         IUniswapV2Pair pair = _pair;
         uint256 priceCumulative = _index == 0 ? pair.price0CumulativeLast() : pair.price1CumulativeLast();
         (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = pair.getReserves();
-        if (reserve0 != 0 && reserve1 != 0 && blockTimestampLast != 0) {
+        /* DIP-17 */
+        IUniswapV2Pair contractionPair = _contractionPair;
+        uint256 contractionPriceCumulative = _contractionIndex == 0 ? contractionPair.price0CumulativeLast() : contractionPair.price1CumulativeLast();
+        (uint112 contractionReserve0, uint contractionReserve1, uint32 contractionBlockTimestampLast) = contractionPair.getReserves();
+        /* */
+
+        if (reserve0 != 0 && reserve1 != 0 && blockTimestampLast != 0 && contractionReserve0 != 0 
+            && contractionReserve1 != 0 && contractionBlockTimestampLast != 0) { // Added for DIP-17
             _cumulative = priceCumulative;
             _timestamp = blockTimestampLast;
-            _initialized = true;
             _reserve = _index == 0 ? reserve1 : reserve0; // get counter's reserve
+
+            /* DIP-17 */ 
+            _contractionCumulative = contractionPriceCumulative;
+            _contractionTimestamp = contractionBlockTimestampLast;
+            _contractionReserve = _contractionIndex == 0 ? contractionReserve1 : contractionReserve0;
+            /* */
+
+            _initialized = true;
         }
     }
 
-    function updateOracle() private returns (Decimal.D256 memory, bool) {
+    function updateOracle() private returns (Decimal.D256 memory, Decimal.D256 memory, bool) { //Added
         Decimal.D256 memory price = updatePrice();
         uint256 lastReserve = updateReserve();
         bool isBlacklisted = IUSDC(usdc()).isBlacklisted(address(_pair));
+
+        /* DIP-17 */
+        Decimal.D256 memory contractionPrice = updateContractionPrice();
+        uint256 lastContractionReserve = updateContractionReserve();
+        bool contractionIsBlacklisted = IUSDC(usdc()).isBlacklisted(address(_contractionPair));
+        /* */ 
 
         bool valid = true;
         if (lastReserve < Constants.getOracleReserveMinimum()) {
@@ -93,8 +131,19 @@ contract Oracle is IOracle {
         if (isBlacklisted) {
             valid = false;
         }
+        /* DIP-17 */
+        if (lastContractionReserve < Constants.getOracleReserveMinimum()) {
+            valid = false;
+        }
+        if (_contractionReserve < Constants.getOracleReserveMinimum()) {
+            valid = false;
+        }
+        if (contractionIsBlacklisted) {
+            valid = false;
+        }
+        /* */ 
 
-        return (price, valid);
+        return (price, contractionPrice, valid);
     }
 
     function updatePrice() private returns (Decimal.D256 memory) {
@@ -117,6 +166,29 @@ contract Oracle is IOracle {
 
         return lastReserve;
     }
+
+    /* DIP-17 */ 
+    function updateContractionPrice() private returns (Decimal.D256 memory) {
+        (uint256 contractionPrice0Cumulative, uint256 contractionPrice1Cumulative, uint32 blockTimestamp) =
+            UniswapV2OracleLibrary.currentCumulativePrices(address(_contractionPair));
+        uint32 timeElapsed = blockTimestamp - _contractionTimestamp; // overflow is desired
+        uint256 contractionPriceCumulative = _contractionIndex == 0 ? contractionPrice0Cumulative : contractionPrice1Cumulative;
+        Decimal.D256 memory contractionPrice = Decimal.ratio((contractionPriceCumulative - _contractionCumulative) / timeElapsed, 2**112);
+
+        _contractionTimestamp = blockTimestamp;
+        _contractionCumulative = contractionPriceCumulative;
+
+        return contractionPrice.mul(1e12);
+    }
+
+    function updateContractionReserve() private returns (uint256) {
+        uint256 lastContractionReserve = _contractionReserve;
+        (uint112 contractionReserve0, uint112 contractionReserve1, ) = _contractionPair.getReserves();
+        _contractionReserve = _contractionIndex == 0 ? contractionReserve1 : contractionReserve0;
+        
+        return lastContractionReserve;
+    }
+    /* */
 
     function usdc() internal view returns (address) {
         return Constants.getUsdcAddress();

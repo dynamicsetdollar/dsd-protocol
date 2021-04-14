@@ -24,6 +24,7 @@ import "../external/Decimal.sol";
 contract MockOracle is Oracle {
     bytes32 private constant FILE = "Oracle";
     Decimal.D256 private _latestPrice;
+    Decimal.D256 private _latestContractionPrice;
     bool private _latestValid;
     address private _usdc;
     address private _dao;
@@ -38,9 +39,9 @@ contract MockOracle is Oracle {
         return _usdc;
     }
 
-    function capture() public returns (Decimal.D256 memory, bool) {
-        (_latestPrice, _latestValid) = super.capture();
-        return (_latestPrice, _latestValid);
+    function capture() public returns (Decimal.D256 memory, Decimal.D256 memory, bool) {
+        (_latestPrice, _latestContractionPrice, _latestValid) = super.capture();
+        return (_latestPrice,_latestContractionPrice, _latestValid);
     }
 
     function latestPrice() external view returns (Decimal.D256 memory) {
