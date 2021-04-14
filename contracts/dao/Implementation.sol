@@ -42,6 +42,8 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         // initialize interest multiplier
         _state10.globalInterestMultiplier = 1e18;
 
+        //
+
         // contributor  rewards:
         mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 20000e18); // 20000 DSD to devnull
         mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19,  8000e18); //  8000 DSD to gus

@@ -22,7 +22,6 @@ import "../oracle/IOracle.sol";
 
 contract MockSettableOracle is IOracle {
     Decimal.D256 internal _price;
-    Decimal.D256 internal _contractionPrice;
     bool internal _valid;
     uint256 internal _lastReserve;
     uint256 internal _reserve;
@@ -38,8 +37,8 @@ contract MockSettableOracle is IOracle {
 
     function setup() public {}
 
-    function capture() public returns (Decimal.D256 memory, Decimal.D256 memory, bool) {
-        return (_price, _contractionPrice, _valid);
+    function capture() public returns (Decimal.D256 memory, bool) {
+        return (_price, _valid);
     }
 
     function pair() external view returns (address) {

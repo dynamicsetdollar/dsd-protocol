@@ -37,17 +37,17 @@ contract Oracle is IOracle {
     IUniswapV2Pair internal _pair;
     uint256 internal _index;
     uint256 internal _cumulative;
+    uint256 internal _reserve;
     uint32 internal _timestamp;
 
-    uint256 internal _reserve;
+
 
     function setup() public onlyDao {
-        _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getDollarAddress(), usdc()));
-
+        
+        _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getContractionDollarAddress(), usdc()));
         (address token0, address token1) = (_pair.token0(), _pair.token1());
-        _index = Constants.getDollarAddress() == token0 ? 0 : 1;
-
-        Require.that(_index == 0 || Constants.getDollarAddress() == token1, FILE, "DSD not found");
+        _index = Constants.getContractionDollarAddress() == token0 ? 0 : 1;
+        Require.that(_index == 0 || Constants.getContractionDollarAddress() == token1, FILE, "CDSD not found");
 
     }
 
@@ -68,20 +68,23 @@ contract Oracle is IOracle {
     }
 
     function initializeOracle() private {
+        
         IUniswapV2Pair pair = _pair;
         uint256 priceCumulative = _index == 0 ? pair.price0CumulativeLast() : pair.price1CumulativeLast();
-        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = pair.getReserves();
+        (uint112 reserve0, uint reserve1, uint32 blockTimestampLast) = pair.getReserves();
 
         if (reserve0 != 0 && reserve1 != 0 && blockTimestampLast != 0) {
+            
             _cumulative = priceCumulative;
             _timestamp = blockTimestampLast;
-            _reserve = _index == 0 ? reserve1 : reserve0; // get counter's reserve
+            _reserve = _index == 0 ? reserve1 : reserve0;
 
             _initialized = true;
         }
     }
 
-    function updateOracle() private returns (Decimal.D256 memory, bool) {
+    function updateOracle() private returns (Decimal.D256 memory, bool) { //Added
+        
         Decimal.D256 memory price = updatePrice();
         uint256 lastReserve = updateReserve();
         bool isBlacklisted = IUSDC(usdc()).isBlacklisted(address(_pair));
@@ -116,8 +119,8 @@ contract Oracle is IOracle {
     function updateReserve() private returns (uint256) {
         uint256 lastReserve = _reserve;
         (uint112 reserve0, uint112 reserve1, ) = _pair.getReserves();
-        _reserve = _index == 0 ? reserve1 : reserve0; // get counter's reserve
-
+        _reserve = _index == 0 ? reserve1 : reserve0;
+        
         return lastReserve;
     }
 

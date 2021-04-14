@@ -71,14 +71,19 @@ contract Regulator is Comptroller {
     }
 
     function oracleCapture() private returns (Decimal.D256 memory, Decimal.D256 memory) {
-        (Decimal.D256 memory price, Decimal.D256 memory contractionPrice, bool valid) = oracle().capture();
+        (Decimal.D256 memory price, bool valid) = oracle().capture();
+        (Decimal.D256 memory contractionPrice, bool valid2) = contractionOracle().capture();
 
         if (bootstrappingAt(epoch().sub(1))) {
-            return Constants.getBootstrappingPrice();
+            price = Constants.getBootstrappingPrice();
         }
         if (!valid) {
-            return Decimal.one();
+            price = Decimal.one();
         }
+        if (!valid2) {
+            contractionPrice = Decimal.one();
+        }
+
 
         return (price, contractionPrice);
     }

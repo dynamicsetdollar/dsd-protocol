@@ -129,6 +129,7 @@ contract Storage {
 
     struct State17 {
         Decimal.D256 contractionPrice;
+        IOracle CDSDOracle;
     }
 }
 

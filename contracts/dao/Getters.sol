@@ -71,6 +71,12 @@ contract Getters is State {
         }
     }
 
+    /* DIP-17 */ 
+    function contractionOracle() public view returns (IOracle) {
+        return _state17.CDSDOracle;
+    }
+    /* DIP-17 */ 
+
     function pool() public view returns (address) {
         return Constants.getPoolAddress();
     }
