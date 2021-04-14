@@ -64,18 +64,14 @@ contract Getters is State {
     }
 
     function oracle() public view returns (IOracle) {
-        if (epoch() < _state16.epochStartForSushiswapPool) {
-            return _state16.legacyOracle;
-        } else {
-            return _state.provider.oracle;
-        }
+        return _state.provider.oracle;
     }
 
-    /* DIP-17 */ 
+    /* DIP-17 */
     function contractionOracle() public view returns (IOracle) {
         return _state17.CDSDOracle;
     }
-    /* DIP-17 */ 
+    /* DIP-17 */
 
     function pool() public view returns (address) {
         return Constants.getPoolAddress();
@@ -140,7 +136,7 @@ contract Getters is State {
         return _state13.price;
     }
 
-    /* DIP-17 */ 
+    /* DIP-17 */
     function getContractionPrice() public view returns (Decimal.D256 memory contractionPrice) {
         return _state17.contractionPrice;
     }

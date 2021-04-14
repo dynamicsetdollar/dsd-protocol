@@ -27,7 +27,7 @@ import "./IOracle.sol";
 import "./IUSDC.sol";
 import "../Constants.sol";
 
-contract Oracle is IOracle {
+contract CDSDOracle is IOracle {
     using Decimal for Decimal.D256;
 
     bytes32 private constant FILE = "Oracle";
@@ -40,15 +40,13 @@ contract Oracle is IOracle {
     uint256 internal _reserve;
     uint32 internal _timestamp;
 
-
-
     function setup() public onlyDao {
-        
-        _pair = IUniswapV2Pair(IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getContractionDollarAddress(), usdc()));
+        _pair = IUniswapV2Pair(
+            IUniswapV2Factory(SUSHISWAP_FACTORY).getPair(Constants.getContractionDollarAddress(), usdc())
+        );
         (address token0, address token1) = (_pair.token0(), _pair.token1());
         _index = Constants.getContractionDollarAddress() == token0 ? 0 : 1;
         Require.that(_index == 0 || Constants.getContractionDollarAddress() == token1, FILE, "CDSD not found");
-
     }
 
     /**
@@ -68,13 +66,11 @@ contract Oracle is IOracle {
     }
 
     function initializeOracle() private {
-        
         IUniswapV2Pair pair = _pair;
         uint256 priceCumulative = _index == 0 ? pair.price0CumulativeLast() : pair.price1CumulativeLast();
-        (uint112 reserve0, uint reserve1, uint32 blockTimestampLast) = pair.getReserves();
+        (uint112 reserve0, uint256 reserve1, uint32 blockTimestampLast) = pair.getReserves();
 
         if (reserve0 != 0 && reserve1 != 0 && blockTimestampLast != 0) {
-            
             _cumulative = priceCumulative;
             _timestamp = blockTimestampLast;
             _reserve = _index == 0 ? reserve1 : reserve0;
@@ -83,8 +79,7 @@ contract Oracle is IOracle {
         }
     }
 
-    function updateOracle() private returns (Decimal.D256 memory, bool) { //Added
-        
+    function updateOracle() private returns (Decimal.D256 memory, bool) {
         Decimal.D256 memory price = updatePrice();
         uint256 lastReserve = updateReserve();
         bool isBlacklisted = IUSDC(usdc()).isBlacklisted(address(_pair));
@@ -116,11 +111,26 @@ contract Oracle is IOracle {
         return price.mul(1e12);
     }
 
+    /**
+     * @dev Get current TWAP from oracle. For convenience sake
+     */
+    function getCurrentTwapPrice() public view returns (uint256 value) {
+        (uint256 price0Cumulative, uint256 price1Cumulative, uint32 blockTimestamp) =
+            UniswapV2OracleLibrary.currentCumulativePrices(address(_pair));
+        uint32 timeElapsed = blockTimestamp - _timestamp; // overflow is desired
+
+        uint256 priceCumulative = _index == 0 ? price0Cumulative : price1Cumulative;
+
+        Decimal.D256 memory price = Decimal.ratio((priceCumulative - _cumulative) / timeElapsed, 2**112);
+
+        return price.mul(1e12).value;
+    }
+
     function updateReserve() private returns (uint256) {
         uint256 lastReserve = _reserve;
         (uint112 reserve0, uint112 reserve1, ) = _pair.getReserves();
         _reserve = _index == 0 ? reserve1 : reserve0;
-        
+
         return lastReserve;
     }
 
