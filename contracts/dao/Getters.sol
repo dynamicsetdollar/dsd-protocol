@@ -175,11 +175,21 @@ contract Getters is State {
     }
 
     function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
+        if (outstandingCoupons(epoch) == 0) {
+            return 0;
+        }
         return _state.accounts[account].coupons[epoch];
     }
 
     function balanceOfCouponUnderlying(address account, uint256 epoch) public view returns (uint256) {
-        return _state13.couponUnderlyingByAccount[account][epoch];
+        uint256 underlying = _state13.couponUnderlyingByAccount[account][epoch];
+
+        // DIP-13 migration
+        if (underlying == 0 && outstandingCoupons(epoch) == 0) {
+            return _state.accounts[account].coupons[epoch].div(2);
+        }
+
+        return underlying;
     }
 
     function statusOf(address account) public view returns (Account.Status) {

@@ -54,13 +54,14 @@ contract CDSDMarket is Comptroller {
         uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch);
         uint256 couponUnderlyingAmount = balanceOfCouponUnderlying(msg.sender, couponEpoch);
 
-        // decrement coupon & underlying balances
-        if (couponAmount != 0) {
-            decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
+        // coupons not yet migrated to DIP-13
+        if (couponAmount == 0 && couponUnderlyingAmount == 0 && outstandingCoupons(couponEpoch) == 0){
+            couponUnderlyingAmount = _state.accounts[msg.sender].coupons[couponEpoch].div(2);
         }
-        if (couponUnderlyingAmount != 0){
-            decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlyingAmount, "Market: Insufficient coupon underlying balance");
-        }
+
+        // set coupon & underlying balances to 0
+        _state13.couponUnderlyingByAccount[msg.sender][couponEpoch] = 0;
+        _state.accounts[msg.sender].coupons[couponEpoch] = 0;
 
         // mint CDSD
         uint256 totalAmount = couponAmount.add(couponUnderlyingAmount);

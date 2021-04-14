@@ -21,8 +21,7 @@
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^1.0.4",
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@nomiclabs/hardhat-etherscan": "^2.1.1",
     "@openzeppelin/test-environment": "^0.1.4",
     "@openzeppelin/test-helpers": "^0.5.4",
     "chai": "^4.2.0",

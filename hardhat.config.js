@@ -6,6 +6,7 @@ require("dotenv").config();
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-waffle");
 require('solidity-coverage')
+require("@nomiclabs/hardhat-etherscan");
 
 module.exports = {
   solidity: {
@@ -17,7 +18,7 @@ module.exports = {
       },
     },
   },
-  /*networks: {
+  networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
       accounts: {
@@ -42,5 +43,8 @@ module.exports = {
       gasPrice: 0,
       blockGasLimit: 100000000,
     },
-  },*/ 
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
 };

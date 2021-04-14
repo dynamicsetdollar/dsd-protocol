@@ -47,6 +47,11 @@ You can also run tests with solidity coverage:
 
 is available [here](https://github.com/dynamicdollardevs/dsd/blob/master/audit/REP-Dollar-06-11-20.pdf).
 
+### How to verify contracts on etherscan
+
+Example:
+`npx hardhat verify --network mainnet DEPLOYED_CONTRACT_ADDRESS`
+
 ## disclaimer
 
 this project is an experiment - the protocol is audited, and we've put a significant amount of work into testing as well as generally de-risking the design of its core mechanism, however participants should take great caution as bugs resulting in loss of funds are always a possibility.
