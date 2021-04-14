@@ -37,12 +37,12 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         mintToAccount(msg.sender, 1000e18); // 1000 DSD to committer
 
         // Intitialize DIP-17
-        _state17.contractionPrice = x // which price to initialize with?
-        _state17.CDSDOracle = address ()
+        _state17.contractionPrice = x; // which price to initialize with?
+        _state17.CDSDOracle = address ();
 
         // contributor  rewards:
-        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 20000e18); // 20000 DSD to devnull
-        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19,  8000e18); //  8000 DSD to gus
+        mintToAccount(0x8A7D5fe563BbBcbB776bDD0eA8c31b93200A0D01,  ); // x DSD to freerangealpha
+        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19,  ); // x DSD to gus
     }
 
     function advance() external incentivized {
