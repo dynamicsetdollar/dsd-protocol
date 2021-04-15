@@ -85,10 +85,10 @@ contract CDSDOracle is IOracle {
         bool isBlacklisted = IUSDC(usdc()).isBlacklisted(address(_pair));
 
         bool valid = true;
-        if (lastReserve < Constants.getOracleReserveMinimum()) {
+        if (lastReserve < Constants.getContractionOracleReserveMinimum()) {
             valid = false;
         }
-        if (_reserve < Constants.getOracleReserveMinimum()) {
+        if (_reserve < Constants.getContractionOracleReserveMinimum()) {
             valid = false;
         }
         if (isBlacklisted) {
