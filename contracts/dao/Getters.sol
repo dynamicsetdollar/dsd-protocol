@@ -143,8 +143,8 @@ contract Getters is State {
 
     function getEarnableFactor() internal returns (Decimal.D256 memory earnableFactor) {
 
-        Decimal.D256 memory deltaToPeg = Decimal.one().sub(_state13.price);
-        Decimal.D256 memory pricePercentageCDSD = _state17.contractionPrice.div(_state13.price);
+        Decimal.D256 memory deltaToPeg = Decimal.one().sub(getPrice());
+        Decimal.D256 memory pricePercentageCDSD = getContractionPrice().div(getPrice());
         Decimal.D256 memory earnableFactor = deltaToPeg.div(pricePercentageCDSD);
 
         if (earnableFactor.lessThan(Constants.getBaseEarnableFactor())) {
