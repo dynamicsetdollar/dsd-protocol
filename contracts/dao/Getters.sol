@@ -143,13 +143,17 @@ contract Getters is State {
 
     function getEarnableFactor() internal returns (Decimal.D256 memory earnableFactor) {
 
-        Decimal.D256 memory deltaToPeg = Decimal.one().sub(getPrice());
-        Decimal.D256 memory pricePercentageCDSD = getContractionPrice().div(getPrice());
+        Decimal.D256 memory deltaToPeg = Decimal.one().sub(getPrice()); //Difference of DSD to peg
+        Decimal.D256 memory pricePercentageCDSD = getContractionPrice().div(getPrice()); // CDSD price percantage of DSD price
         Decimal.D256 memory earnableFactor = deltaToPeg.div(pricePercentageCDSD);
 
-        if (earnableFactor.lessThan(Constants.getBaseEarnableFactor())) {
+        if (earnableFactor.lessThan(Constants.getBaseEarnableFactor())) { //Earnable at least 10%
             earnableFactor = Constants.getBaseEarnableFactor();
         }
+        if (earnableFactor.greaterThan(Constants.getMaxEarnableFactor())) { //Earnable at most 500%
+            earnableFactor = Constants.getMaxEarnableFactor();
+        }
+
         return earnableFactor;
     }
     /* End DIP-17 */
