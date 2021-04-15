@@ -68,7 +68,7 @@ contract CDSDOracle is IOracle {
     function initializeOracle() private {
         IUniswapV2Pair pair = _pair;
         uint256 priceCumulative = _index == 0 ? pair.price0CumulativeLast() : pair.price1CumulativeLast();
-        (uint112 reserve0, uint256 reserve1, uint32 blockTimestampLast) = pair.getReserves();
+        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = pair.getReserves();
 
         if (reserve0 != 0 && reserve1 != 0 && blockTimestampLast != 0) {
             _cumulative = priceCumulative;
