@@ -48,7 +48,6 @@ contract Oracle is IOracle {
         _index = Constants.getDollarAddress() == token0 ? 0 : 1;
 
         Require.that(_index == 0 || Constants.getDollarAddress() == token1, FILE, "DSD not found");
-
     }
 
     /**
@@ -75,9 +74,8 @@ contract Oracle is IOracle {
         if (reserve0 != 0 && reserve1 != 0 && blockTimestampLast != 0) {
             _cumulative = priceCumulative;
             _timestamp = blockTimestampLast;
-            _reserve = _index == 0 ? reserve1 : reserve0; // get counter's reserve
-
             _initialized = true;
+            _reserve = _index == 0 ? reserve1 : reserve0; // get counter's reserve
         }
     }
 
