@@ -30,9 +30,10 @@ contract Comptroller is Setters {
     function setPrice(Decimal.D256 memory price, Decimal.D256 memory contractionPrice) internal {
         _state13.price = price;
         _state17.contractionPrice = contractionPrice;
+
         // track expansion cycles
         if (price.greaterThan(Decimal.one())) {
-            if(_state10.expansionStartEpoch == 0){
+            if (_state10.expansionStartEpoch == 0) {
                 _state10.expansionStartEpoch = epoch();
             }
         } else {
@@ -72,19 +73,16 @@ contract Comptroller is Setters {
         Decimal.D256 memory interest = Constants.maxCDSDBondingRewards();
         if (price.greaterThan(Constants.maxCDSDRewardsThreshold())) {
             Decimal.D256 memory maxDelta = Decimal.one().sub(Constants.maxCDSDRewardsThreshold());
-            interest = interest
-                .mul(
-                    maxDelta.sub(price.sub(Constants.maxCDSDRewardsThreshold()))
-                )
-                .div(maxDelta);
+            interest = interest.mul(maxDelta.sub(price.sub(Constants.maxCDSDRewardsThreshold()))).div(maxDelta);
         }
-        uint256 newMultiplier = Decimal.D256({value:currentMultiplier}).mul(Decimal.one().add(interest)).value;
+        uint256 newMultiplier = Decimal.D256({ value: currentMultiplier }).mul(Decimal.one().add(interest)).value;
         setGlobalInterestMultiplier(newMultiplier);
 
         // payout CPool rewards
-        Decimal.D256 memory cPoolReward = Decimal.D256({value:cdsd().totalSupply()})
-            .mul(Constants.getContractionPoolTargetSupply())
-            .mul(Constants.getContractionPoolTargetReward());
+        Decimal.D256 memory cPoolReward =
+            Decimal.D256({ value: cdsd().totalSupply() }).mul(Constants.getContractionPoolTargetSupply()).mul(
+                Constants.getContractionPoolTargetReward()
+            );
         cdsd().mint(Constants.getContractionPoolAddress(), cPoolReward.value);
 
         // DSD bonded in the DAO receives a fixed APY
@@ -112,7 +110,7 @@ contract Comptroller is Setters {
         uint256 newCDSDRedeemable = 0;
         uint256 outstanding = maxCDSDOutstanding();
         uint256 redeemable = totalCDSDRedeemable().sub(totalCDSDRedeemed());
-        if (redeemable < outstanding ) {
+        if (redeemable < outstanding) {
             uint256 newRedeemable = newSupply.mul(Constants.getCDSDRedemptionRatio()).div(100);
             uint256 newRedeemableCap = outstanding.sub(redeemable);
 
