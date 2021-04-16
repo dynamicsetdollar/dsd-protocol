@@ -38,7 +38,7 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
 
         // Intitialize DIP-17
         _state17.CDSDPrice = _state13.price.div(2e18); // safe to assume price is roughly half of DSD before oracle kicks in?
-        _state17.CDSDOracle = IOracle(0); // TODO: change this after CDSDOracle deployment
+        _state17.CDSDOracle = IOracle(0x40139E3bBdf8cAcc69F1aC1eEf07DBa9b9165CE8); 
         // // set up oracle
         _state17.CDSDOracle.setup();
         _state17.CDSDOracle.capture();
