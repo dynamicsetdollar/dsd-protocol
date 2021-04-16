@@ -33,7 +33,7 @@ contract Regulator is Comptroller {
     function step() internal {
         (Decimal.D256 memory price, Decimal.D256 memory CDSDPrice) = oracleCapture();
 
-        setPrice(price, CDSDPrice);
+        setPrices(price, CDSDPrice);
 
         if (price.greaterThan(Decimal.one())) {
             expansion(price);
