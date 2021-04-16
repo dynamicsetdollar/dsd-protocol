@@ -82,7 +82,7 @@ library Constants {
     /* DIP-10 */
     uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
     uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
-    uint256 private constant MAX_CDSD_BONDING_REWARDS = 2750000000000000; // 0.275% per epoch
+    uint256 private constant MAX_CDSD_BONDING_REWARDS = 970000000000000; // 0.097% per epoch -> 2x in 60 * 12 epochs
     uint256 private constant MAX_CDSD_REWARDS_THRESHOLD = 75e16; // 0.75
 
     /* DIP-17 */
