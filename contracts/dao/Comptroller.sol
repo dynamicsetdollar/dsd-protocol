@@ -27,9 +27,9 @@ contract Comptroller is Setters {
 
     bytes32 private constant FILE = "Comptroller";
 
-    function setPrice(Decimal.D256 memory price, Decimal.D256 memory contractionPrice) internal {
+    function setPrice(Decimal.D256 memory price, Decimal.D256 memory CDSDPrice) internal {
         _state13.price = price;
-        _state17.contractionPrice = contractionPrice;
+        _state17.CDSDPrice = CDSDPrice;
 
         // track expansion cycles
         if (price.greaterThan(Decimal.one())) {

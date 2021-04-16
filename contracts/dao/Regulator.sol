@@ -31,9 +31,9 @@ contract Regulator is Comptroller {
     event SupplyNeutral(uint256 indexed epoch);
 
     function step() internal {
-        (Decimal.D256 memory price, Decimal.D256 memory contractionPrice) = oracleCapture();
+        (Decimal.D256 memory price, Decimal.D256 memory CDSDPrice) = oracleCapture();
 
-        setPrice(price, contractionPrice);
+        setPrice(price, CDSDPrice);
 
         if (price.greaterThan(Decimal.one())) {
             expansion(price);
@@ -80,11 +80,11 @@ contract Regulator is Comptroller {
             price = Decimal.one();
         }
 
-        (Decimal.D256 memory contractionPrice, bool contractionValid) = contractionOracle().capture();
+        (Decimal.D256 memory CDSDPrice, bool contractionValid) = contractionOracle().capture();
         if (!contractionValid) {
-            contractionPrice = Decimal.one();
+            CDSDPrice = price;
         }
 
-        return (price, contractionPrice);
+        return (price, CDSDPrice);
     }
 }
