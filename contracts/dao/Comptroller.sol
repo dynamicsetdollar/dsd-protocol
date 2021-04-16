@@ -71,10 +71,7 @@ contract Comptroller is Setters {
         // accrue interest on CDSD
         uint256 currentMultiplier = globalInterestMultiplier();
         Decimal.D256 memory interest = Constants.maxCDSDBondingRewards();
-        if (price.greaterThan(Constants.maxCDSDRewardsThreshold())) {
-            Decimal.D256 memory maxDelta = Decimal.one().sub(Constants.maxCDSDRewardsThreshold());
-            interest = interest.mul(maxDelta.sub(price.sub(Constants.maxCDSDRewardsThreshold()))).div(maxDelta);
-        }
+
         uint256 newMultiplier = Decimal.D256({ value: currentMultiplier }).mul(Decimal.one().add(interest)).value;
         setGlobalInterestMultiplier(newMultiplier);
 

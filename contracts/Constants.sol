@@ -83,8 +83,7 @@ library Constants {
     uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
     uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
     uint256 private constant MAX_CDSD_BONDING_REWARDS = 970000000000000; // 0.097% per epoch -> 2x in 60 * 12 epochs
-    uint256 private constant MAX_CDSD_REWARDS_THRESHOLD = 75e16; // 0.75
-
+   
     /* DIP-17 */
     uint256 private constant BASE_EARNABLE_FACTOR = 1e17; // 10% - Minimum Amount of CDSD earnable for DSD burned
     uint256 private constant MAX_EARNABLE_FACTOR = 5e18; // 500% - Maximum Amount of CDSD earnable for DSD burned
@@ -222,10 +221,6 @@ library Constants {
 
     function maxCDSDBondingRewards() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: MAX_CDSD_BONDING_REWARDS});
-    }
-
-    function maxCDSDRewardsThreshold() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: MAX_CDSD_REWARDS_THRESHOLD});
     }
 
     function getBaseEarnableFactor() internal pure returns (Decimal.D256 memory) {
