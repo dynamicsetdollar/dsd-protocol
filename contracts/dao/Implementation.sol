@@ -44,7 +44,7 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         _state17.CDSDOracle.capture();
 
         // contributor  rewards:
-        mintToAccount(0x8A7D5fe563BbBcbB776bDD0eA8c31b93200A0D01, 10500e18); // contribution to freerangealpha
+        mintToAccount(0x8A7D5fe563BbBcbB776bDD0eA8c31b93200A0D01, 20000e18); // contribution to freerangealpha + depolyment cost
         mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 5220e18); // contribution to gus
     }
 
