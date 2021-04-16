@@ -25,6 +25,7 @@ import "./Govern.sol";
 import "../Constants.sol";
 import "../token/ContractionDollar.sol";
 import "../external/AggregatorV3Interface.sol";
+import "../external/Decimal.sol";
 
 contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
     using SafeMath for uint256;
@@ -37,7 +38,7 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         mintToAccount(msg.sender, 1000e18); // 1000 DSD to committer
 
         // Intitialize DIP-17
-        _state17.CDSDPrice = _state13.price.div(2e18); // safe to assume price is roughly half of DSD before oracle kicks in?
+        _state17.CDSDPrice = _state13.price.div(Decimal.D256({ value: 2e18 })); // safe to assume price is roughly half of DSD before oracle kicks in?
         _state17.CDSDOracle = IOracle(0x40139E3bBdf8cAcc69F1aC1eEf07DBa9b9165CE8); 
         // // set up oracle
         _state17.CDSDOracle.setup();
