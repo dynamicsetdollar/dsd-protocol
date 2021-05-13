@@ -106,5 +106,16 @@
       "github:web3-js/scrypt-shim": false,
       "postinstall-postinstall": false
     }
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dynamicsetdollar/dsd-hardhat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dynamicsetdollar/dsd-hardhat/issues"
+  },
+  "homepage": "https://github.com/dynamicsetdollar/dsd-hardhat#readme"
 }

@@ -30,6 +30,7 @@ library Constants {
     /* Oracle */
     address private constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     uint256 private constant ORACLE_RESERVE_MINIMUM = 1e10; // 10,000 USDC
+    uint256 private constant CONTRACTION_ORACLE_RESERVE_MINIMUM = 1e9; // 1,000 USDC
 
     /* Bonding */
     uint256 private constant INITIAL_STAKE_MULTIPLE = 1e6; // 100 DSD -> 100M DSDS
@@ -79,12 +80,13 @@ library Constants {
     address private constant TREASURY_ADDRESS = address(0xC7DA8087b8BA11f0892f1B0BFacfD44C116B303e);
 
     /* DIP-10 */
-    uint256 private constant EARNABLE_FACTOR = 1e18; // 100% - Amount of CDSD earnable for DSD burned
     uint256 private constant CDSD_REDEMPTION_RATIO = 50; // 50%
     uint256 private constant CONTRACTION_BONDING_REWARDS = 51000000000000; // ~25% APY
-    uint256 private constant MAX_CDSD_BONDING_REWARDS = 2750000000000000; // 0.275% per epoch
-    uint256 private constant MAX_CDSD_REWARDS_THRESHOLD = 75e16; // 0.75
-
+    uint256 private constant MAX_CDSD_BONDING_REWARDS = 970000000000000; // 0.097% per epoch -> 2x in 60 * 12 epochs
+   
+    /* DIP-17 */
+    uint256 private constant BASE_EARNABLE_FACTOR = 1e17; // 10% - Minimum Amount of CDSD earnable for DSD burned
+    uint256 private constant MAX_EARNABLE_FACTOR = 5e18; // 500% - Maximum Amount of CDSD earnable for DSD burned
 
     /**
      * Getters
@@ -95,6 +97,10 @@ library Constants {
 
     function getOracleReserveMinimum() internal pure returns (uint256) {
         return ORACLE_RESERVE_MINIMUM;
+    }
+
+    function getContractionOracleReserveMinimum() internal pure returns (uint256) {
+        return CONTRACTION_ORACLE_RESERVE_MINIMUM;
     }
 
     function getEpochStrategy() internal pure returns (EpochStrategy memory) {
@@ -205,10 +211,6 @@ library Constants {
         return TREASURY_ADDRESS;
     }
 
-    function getEarnableFactor() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: EARNABLE_FACTOR});
-    }
-
     function getCDSDRedemptionRatio() internal pure returns (uint256) {
         return CDSD_REDEMPTION_RATIO;
     }
@@ -221,7 +223,11 @@ library Constants {
         return Decimal.D256({value: MAX_CDSD_BONDING_REWARDS});
     }
 
-    function maxCDSDRewardsThreshold() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: MAX_CDSD_REWARDS_THRESHOLD});
+    function getBaseEarnableFactor() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: BASE_EARNABLE_FACTOR});
+    }
+
+    function getMaxEarnableFactor() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: MAX_EARNABLE_FACTOR});
     }
 }

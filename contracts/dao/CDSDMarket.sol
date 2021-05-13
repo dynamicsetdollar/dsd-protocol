@@ -42,7 +42,7 @@ contract CDSDMarket is Comptroller {
         cdsd().mint(msg.sender, amount);
 
         // increment earnable
-        uint256 earnable = Decimal.D256({value: amount}).mul(Constants.getEarnableFactor()).value;
+        uint256 earnable = Decimal.D256({value: amount}).mul(Getters.getEarnableFactor()).value; //DIP-17
         incrementBalanceOfEarnableCDSD(msg.sender,  earnable);
         incrementTotalCDSDEarnable(earnable);
 

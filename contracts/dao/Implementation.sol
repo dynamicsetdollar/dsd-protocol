@@ -25,6 +25,7 @@ import "./Govern.sol";
 import "../Constants.sol";
 import "../token/ContractionDollar.sol";
 import "../external/AggregatorV3Interface.sol";
+import "../external/Decimal.sol";
 
 contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
     using SafeMath for uint256;
@@ -36,8 +37,16 @@ contract Implementation is State, Bonding, CDSDMarket, Regulator, Govern {
         // committer reward:
         mintToAccount(msg.sender, 1000e18); // 1000 DSD to committer
 
+        // Intitialize DIP-17
+        _state17.CDSDPrice = _state13.price.div(Decimal.D256({ value: 2e18 })); // safe to assume price is roughly half of DSD before oracle kicks in?
+        _state17.CDSDOracle = IOracle(0x40139E3bBdf8cAcc69F1aC1eEf07DBa9b9165CE8); 
+        // // set up oracle
+        _state17.CDSDOracle.setup();
+        _state17.CDSDOracle.capture();
+
         // contributor  rewards:
-        mintToAccount(0xF414CFf71eCC35320Df0BB577E3Bc9B69c9E1f07, 5000e18); // 5000 DSD to devnull
+        mintToAccount(0x8A7D5fe563BbBcbB776bDD0eA8c31b93200A0D01, 20000e18); // contribution to freerangealpha + depolyment cost
+        mintToAccount(0x437cb43D08F64AF2aA64AD2525FE1074E282EC19, 5220e18); // contribution to gus
     }
 
     function advance() external incentivized {

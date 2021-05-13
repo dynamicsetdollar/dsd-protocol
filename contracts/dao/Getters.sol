@@ -64,12 +64,14 @@ contract Getters is State {
     }
 
     function oracle() public view returns (IOracle) {
-        if (epoch() < _state16.epochStartForSushiswapPool) {
-            return _state16.legacyOracle;
-        } else {
-            return _state.provider.oracle;
-        }
+        return _state.provider.oracle;
     }
+
+    /* DIP-17 */
+    function contractionOracle() public view returns (IOracle) {
+        return _state17.CDSDOracle;
+    }
+    /* DIP-17 */
 
     function pool() public view returns (address) {
         return Constants.getPoolAddress();
@@ -133,6 +135,28 @@ contract Getters is State {
     function getPrice() public view returns (Decimal.D256 memory price) {
         return _state13.price;
     }
+
+    /* DIP-17 */
+    function getCDSDPrice() public view returns (Decimal.D256 memory CDSDPrice) {
+        return _state17.CDSDPrice;
+    }
+
+    function getEarnableFactor() internal returns (Decimal.D256 memory earnableFactor) {
+
+        Decimal.D256 memory deltaToPeg = Decimal.one().sub(getPrice()); //Difference of DSD to peg
+        Decimal.D256 memory pricePercentageCDSD = getCDSDPrice().div(getPrice()); // CDSD price percantage of DSD price
+        Decimal.D256 memory earnableFactor = deltaToPeg.div(pricePercentageCDSD);
+
+        if (earnableFactor.lessThan(Constants.getBaseEarnableFactor())) { //Earnable at least 10%
+            earnableFactor = Constants.getBaseEarnableFactor();
+        }
+        if (earnableFactor.greaterThan(Constants.getMaxEarnableFactor())) { //Earnable at most 500%
+            earnableFactor = Constants.getMaxEarnableFactor();
+        }
+
+        return earnableFactor;
+    }
+    /* End DIP-17 */
 
     /**
      * Account
